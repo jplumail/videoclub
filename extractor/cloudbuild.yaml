@@ -15,6 +15,7 @@ steps:
     script: >
       gcloud functions deploy
       annotate-video --entry-point=annotate
+      --timeout=3600s
       ${_FUNCTIONS_DEPLOY_BASE_ARGS}
     waitFor:
       - "export-requirements"
