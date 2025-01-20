@@ -37,7 +37,7 @@ def download_video(video_id: str, bucket_name: str, destination_blob_name: str):
     ext = video.suffix
     video = video.rename(f"{video_id}{ext}")
 
-    blob_name = upload_blob(bucket_name, video, destination_blob_name)
+    blob_name = upload_blob(bucket_name, str(video), f"{destination_blob_name}{ext}")
     return blob_name
 
 
