@@ -29,7 +29,7 @@ class CustomLogger:
 
 def download_video(video_id: str, bucket_name: str, destination_blob_name: str):
     video_url = f"https://www.youtube.com/watch?v={video_id}"
-    with YoutubeDL({"format": "bestvideo[height<=240]", "logger": CustomLogger()}) as ydl:
+    with YoutubeDL({"format": "bestvideo[height<=720]", "logger": CustomLogger()}) as ydl:
         print(video_url, type(video_url))
         ydl.download([video_url])
 
@@ -43,9 +43,6 @@ def download_video(video_id: str, bucket_name: str, destination_blob_name: str):
 
 def upload_blob(bucket_name: str, source_file_name: str, destination_blob_name: str):
     """Uploads a file to the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_file_name = "local/path/to/file"
-    # destination_blob_name = "storage-object-name"
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
