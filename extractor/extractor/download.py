@@ -30,7 +30,6 @@ class CustomLogger:
 def download_video(video_id: str, bucket_name: str, destination_blob_name: str):
     video_url = f"https://www.youtube.com/watch?v={video_id}"
     with YoutubeDL({"format": "bestvideo[height<=720]", "logger": CustomLogger()}) as ydl:
-        print(video_url, type(video_url))
         ydl.download([video_url])
 
     video = list(Path(".").glob(f"*{video_id}*"))[0]
