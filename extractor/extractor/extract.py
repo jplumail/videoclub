@@ -4,15 +4,15 @@ from typing import Any, Coroutine
 from extractor.download import upload_json_blob
 from extractor.models import (
     MediaItem,
-    TextAnnotationSegmentGroupOrganized,
     MediaItemTimestamp,
     MediaItemsTimestamps,
 )
-from extractor.utils import download_blob
+from extractor.download import download_blob
 import asyncio
 from itertools import zip_longest
 
-from themoviedb import aioTMDb, PartialMovie, PartialTV
+from extractor.process_annotations.models import TextAnnotationSegmentGroupOrganized
+from themoviedb import aioTMDb, PartialMovie
 
 
 tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region="FR")

@@ -5,7 +5,7 @@ from extractor.models import VideoAnnotation
 from extractor.process_annotations.filter import filter_annotations
 from extractor.process_annotations.group import group_annotations
 from extractor.process_annotations.organize import organize_annotations
-from extractor.utils import download_blob
+from extractor.download import download_blob
 
 
 def process_video_annotations(video_annotation: VideoAnnotation):
