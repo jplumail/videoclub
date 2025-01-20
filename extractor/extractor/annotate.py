@@ -1,8 +1,9 @@
 from google.cloud import videointelligence
 
 
-def annotate_video(bucket_name, video_blob_name):
-    output_uri = f"gs://{bucket_name}/{video_blob_name}.json"
+def annotate_video(bucket_name: str, video_blob_name: str, annotation_blob_name: str):
+    assert annotation_blob_name.endswith(".json")
+    output_uri = f"gs://{bucket_name}/{annotation_blob_name}"
     client = videointelligence.VideoIntelligenceServiceClient()
     request = videointelligence.AnnotateVideoRequest(
         input_uri=f"gs://{bucket_name}/{video_blob_name}",
@@ -11,10 +12,10 @@ def annotate_video(bucket_name, video_blob_name):
     )
     operation = client.annotate_video(request=request)
     operation.result()
-    return output_uri
+    return annotation_blob_name
 
 
 if __name__ == "__main__":
     import sys
 
-    annotate_video(sys.argv[1], sys.argv[2])
+    annotate_video(sys.argv[1], sys.argv[2], sys.argv[3])

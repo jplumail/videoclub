@@ -24,8 +24,9 @@ def annotate(request: "Request") -> "ResponseReturnValue":
     data = request.get_json()
     bucket_name = data["bucket_name"]
     video_blob_name = data["blob_name"]
+    annotation_blob_name = data["output_blob_name"]
 
-    annotation_blob_name = annotate_video(bucket_name, video_blob_name)
+    annotation_blob_name = annotate_video(bucket_name, video_blob_name, annotation_blob_name)
     return {"blob_name": annotation_blob_name}
 
 
