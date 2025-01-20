@@ -5,6 +5,8 @@ from extractor.download import download_video
 from extractor.annotate import annotate_video
 from extractor.process_annotations import process_annotations
 
+from google.cloud import storage
+
 if typing.TYPE_CHECKING:
     from flask import Request
     from flask.typing import ResponseReturnValue
@@ -26,7 +28,21 @@ def annotate(request: "Request") -> "ResponseReturnValue":
     video_blob_name = data["blob_name"]
     annotation_blob_name = data["output_blob_name"]
 
-    annotation_blob_name = annotate_video(bucket_name, video_blob_name, annotation_blob_name)
+    # check if video_blob_name exists
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blobs: list[storage.Blob] = list(bucket.list_blobs())
+    for blob in blobs:
+        if blob.name.startswith(video_blob_name): # type: ignore
+            break
+    else:
+        return {"error": f"Video {video_blob_name} from bucket {bucket_name} not found"}
+
+    try:
+        annotation_blob_name = annotate_video(bucket_name, video_blob_name, annotation_blob_name)
+    except Exception as e:
+        return {"error": str(e)}
+    
     return {"blob_name": annotation_blob_name}
 
 
