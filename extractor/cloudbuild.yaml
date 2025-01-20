@@ -24,7 +24,8 @@ steps:
     script: >
       gcloud functions deploy
       process-video-annotations --entry-point=process_video_annotations
-      --memory=512MiB
+      --memory=1GiB
+      --concurrency=1
       ${_FUNCTIONS_DEPLOY_BASE_ARGS}
     waitFor:
       - "export-requirements"
