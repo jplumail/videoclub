@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import sys
+from typing import Any
 from yt_dlp import YoutubeDL
 from google.cloud import storage
 
@@ -38,7 +39,7 @@ def download_video(video_id: str, bucket_name: str, destination_blob_name: str):
     
     # download video if it doesn't exist
     video_url = f"https://www.youtube.com/watch?v={video_id}"
-    with YoutubeDL({"format": "bestvideo[height<=720]", "logger": CustomLogger()}) as ydl:
+    with YoutubeDL({"format": "bestvideo[height<=720]", "cookiesfrombrowser": ("chrome",), "logger": CustomLogger()}) as ydl:
         ydl.download([video_url])
 
     video = list(Path(".").glob(f"*{video_id}*"))[0]
@@ -68,12 +69,17 @@ def upload_blob(bucket_name: str, source_file_name: str, destination_blob_name: 
     return blob.name
 
 
-def upload_json_blob(bucket_name: str, json_payload, destination_blob_name: str):
+def upload_json_blob(bucket_name: str, json_payload: str | Any, destination_blob_name: str):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
-    blob.upload_from_string(json.dumps(json_payload), content_type="application/json")
+    if isinstance(json_payload, str):
+        payload = json_payload
+    else:
+        payload = json.dumps(json_payload)
+
+    blob.upload_from_string(payload, content_type="application/json")
 
     return blob.name
 

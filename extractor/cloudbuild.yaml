@@ -2,14 +2,6 @@ steps:
   - name: "ghcr.io/astral-sh/uv:python3.12-alpine"
     script: uv export --no-dev --no-emit-project -o requirements.txt
     id: "export-requirements"
-  
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    script: >
-      gcloud functions deploy
-      download-video --entry-point=download
-      ${_FUNCTIONS_DEPLOY_BASE_ARGS}
-    waitFor:
-      - "export-requirements"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     script: >

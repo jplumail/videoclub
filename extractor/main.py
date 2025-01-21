@@ -13,15 +13,6 @@ if typing.TYPE_CHECKING:
 
 
 @functions_framework.http
-def download(request: "Request") -> "ResponseReturnValue":
-    data = request.get_json()
-    id_ = data["id"]
-    bucket_name = data["bucket_name"]
-    blob_name = download_video(id_, bucket_name, f"{id_}.mp4")
-    return {"blob_name": blob_name}
-
-
-@functions_framework.http
 def annotate(request: "Request") -> "ResponseReturnValue":
     data = request.get_json()
     bucket_name = data["bucket_name"]
