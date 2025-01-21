@@ -11,14 +11,14 @@ class Response(BaseModel):
 
 def get_directors_names_and_years_llm(details: str):
     client = genai.Client(
-        vertexai=True, project="videoclub-447210", location="us-central1"
+        vertexai=True, project="videoclub-447210", location="europe-west9"
     )
 
     textsi_1 = """Ton rôle est de trouver un/des noms de réalisateur(s), et une/des année(s) de sortie.
 Si les informations ne sont pas présentes dans le texte, renvoie des listes vides.
 Si les noms sont mal orthographiés, corriges les. Exemple: \"Matnieu Kassovitz\" -> \"Mathieu Kassovitz\""""
 
-    model = "gemini-2.0-flash-exp"
+    model = "gemini-1.5-flash"
     contents = [
         types.Content(
             role="user", parts=[types.Part.from_text("""Mike White - Depuis 2021""")]
