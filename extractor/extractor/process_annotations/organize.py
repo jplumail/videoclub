@@ -8,13 +8,14 @@ from extractor.process_annotations.utils import (
     are_time_offsets_overlapping,
     average_bboxes,
 )
+from extractor.utils import year_pattern
 from extractor.models import Frame, Segment, TextSegment, TimeOffset
 import numpy as np
 
 
 def has_year(text: str):
     """Check if the text contains a year of 19th, 20th, 21st century."""
-    return re.search(r"\b(19|20|21)\d{2}\b", text) is not None
+    return re.search(year_pattern, text) is not None
 
 
 def has_text(text: str):
