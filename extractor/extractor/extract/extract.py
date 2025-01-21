@@ -28,14 +28,12 @@ def recursive_strip(s: str, char: str) -> str:
 
 
 def get_directors_names(details: str, years: list[int]):
-    s = details
+    director = details
     if years:
         for year in years:
-            s = s.replace(str(year), "")
-    s = recursive_strip(s, "-")
-    directors = s.split("&")
-    directors = [director.strip() for director in directors]
-    return directors
+            director = director.replace(str(year), "")
+    director = recursive_strip(director, "-")
+    return director
 
 
 def get_years(details: str):
@@ -47,8 +45,8 @@ def get_years(details: str):
 
 def get_directors_names_and_years(details: str):
     years = get_years(details)
-    directors_names = get_directors_names(details, years)
-    return directors_names, years
+    director_name = get_directors_names(details, years)
+    return [director_name], years
     
 
 async def is_person_in_movie(person_id: int, movie_id: int):
@@ -152,6 +150,8 @@ async def get_persons_and_years(details: str):
             print(f"ERROR: LLM failed. No director(s) found for names: {directors_names}.")
         else:
             print(f"INFO: LLM succeeded. Found director(s) for names: {directors_names}.")
+    else:
+        print(f"INFO: Found director(s) for names: {directors_names}.")
     return directors, years
 
 

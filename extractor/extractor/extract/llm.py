@@ -56,6 +56,13 @@ Si les noms sont mal orthographiés, corriges les. Exemple: \"Matnieu Kassovitz\
             role="model",
             parts=[types.Part.from_text("""{\"names\": [\"Jonathan Nolan\", \"Lisa Joy\"], \"years\": [2016, 2022]}""")],
         ),
+        types.Content(
+            role="user", parts=[types.Part.from_text("""Joel & Ethan Coen 1996""")]
+        ),
+        types.Content(
+            role="model",
+            parts=[types.Part.from_text("""{\"names\": [\"Joel Coen\", \"Ethan Coen\"], \"years\": [1996]}""")],
+        ),
     ]
 
     contents.append(
