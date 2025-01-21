@@ -1,120 +1,113 @@
 import json
+from pathlib import Path
+from collections.abc import Sequence
+from typing import Any, Mapping, Set, TypeAlias, Union
 from extractor.process_annotations.utils import flatten_video_annotations
 from extractor.models import VideoAnnotation
 from extractor.process_annotations.filter import filter_annotations
 from extractor.process_annotations.group import group_annotations
 from extractor.process_annotations.organize import organize_annotations
 from extractor.download import download_blob, upload_json_blob
-from pathlib import Path
+from pydantic import BaseModel
+
+IncEx: TypeAlias = Union[
+    Set[int],
+    Set[str],
+    Mapping[int, Union["IncEx", bool]],
+    Mapping[str, Union["IncEx", bool]],
+]
+SequenceBaseModel: TypeAlias = Union[Sequence["SequenceBaseModel"], BaseModel]
 
 
-DEBUG_DIRECTORY = Path("debug")
+class DebugLogger:
+    def __init__(self, enabled: bool):
+        self.enabled = enabled
+        self.debug_dir = Path("debug")
+        if enabled:
+            self.debug_dir.mkdir(exist_ok=True)
+
+    def save_step(
+        self, step_name: str, data: SequenceBaseModel, exclude_keys: IncEx | None = None
+    ):
+        if not self.enabled:
+            return
+
+        formatted_data = self._format_data(data, exclude_keys)
+
+        output_file = self.debug_dir / f"{step_name}.json"
+        output_file.write_text(json.dumps(formatted_data, indent=4, ensure_ascii=False))
+
+    def _format_data(self, data: SequenceBaseModel, exclude_keys: IncEx | None):
+        # checks if data is a Sequence
+        if isinstance(data, Sequence):
+            return [self._format_data(item, exclude_keys) for item in data]
+        return data.model_dump(exclude=exclude_keys)
 
 
-def process_video_annotations(video_annotation: VideoAnnotation, debug=False):
-    if debug:
-        DEBUG_DIRECTORY.mkdir(exist_ok=True)
-        (DEBUG_DIRECTORY / "0_raw_annotations.json").write_text(
-            json.dumps(video_annotation.model_dump(), indent=4, ensure_ascii=False)
+class AnnotationProcessor:
+    def __init__(self, debug: bool = False):
+        self.debug = DebugLogger(debug)
+
+    def process_video_annotations(self, video_annotation: VideoAnnotation):
+        # Save raw annotations
+        self.debug.save_step("0_raw_annotations", video_annotation)
+
+        # Flatten
+        annotations = flatten_video_annotations(video_annotation)
+        self.debug.save_step(
+            "1_flattened_annotations",
+            annotations,
+            exclude_keys={"segment": {"frames": True}},
         )
-    annotations = flatten_video_annotations(video_annotation)
-    if debug:
-        (DEBUG_DIRECTORY / "1_flattened_annotations.json").write_text(
-            json.dumps(
-                [
-                    [
-                        ann.model_dump(exclude={"segment": {"frames": True}})
-                        for ann in sorted(
-                            anns, key=lambda x: x.segment.segment.start_time_offset
-                        )
-                    ]
-                    for anns in annotations
-                ],
-                indent=4,
-                ensure_ascii=False,
-            )
+
+        # Filter
+        annotations = [filter_annotations(ann) for ann in annotations]
+        self.debug.save_step(
+            "2_filtered_annotations",
+            annotations,
+            exclude_keys={"segment": {"frames": True}},
         )
-    annotations = [filter_annotations(ann) for ann in annotations]
-    if debug:
-        (DEBUG_DIRECTORY / "2_filtered_annotations.json").write_text(
-            json.dumps(
-                [
-                    [
-                        ann.model_dump(exclude={"segment": {"frames": True}})
-                        for ann in sorted(
-                            anns, key=lambda x: x.segment.segment.start_time_offset
-                        )
-                    ]
-                    for anns in annotations
-                ],
-                indent=4,
-                ensure_ascii=False,
-            )
+
+        # Group
+        annotations = [group_annotations(ann) for ann in annotations]
+        self.debug.save_step(
+            "3_grouped_annotations",
+            annotations,
+            exclude_keys={"segment": {"frames": True}},
         )
-    annotations = [group_annotations(ann) for ann in annotations]
-    if debug:
-        (DEBUG_DIRECTORY / "3_grouped_annotations.json").write_text(
-            json.dumps(
-                [
-                    [
-                        [
-                            x.model_dump(exclude={"segment": {"frames": True}})
-                            for x in ann
-                        ]
-                        for ann in sorted(
-                            anns,
-                            key=lambda x: min(
-                                m.segment.segment.start_time_offset for m in x
-                            ),
-                        )
-                    ]
-                    for anns in annotations
-                ],
-                indent=4,
-                ensure_ascii=False,
-            )
+
+        # Organize
+        organized_annotations = [organize_annotations(ann) for ann in annotations]
+        self.debug.save_step(
+            "4_organized_grouped_annotations",
+            organized_annotations,
+            exclude_keys={
+                "segments": True,
+                "heading_segments": {"__all__": {"segment": {"frames": True}}},
+                "details_segments": {"__all__": {"segment": {"frames": True}}},
+            },
         )
-    organized_grouped_annotations = [organize_annotations(ann) for ann in annotations]
-    if debug:
-        (DEBUG_DIRECTORY / "4_organized_grouped_annotations.json").write_text(
-            json.dumps(
-                [
-                    [
-                        ann.model_dump(
-                            exclude={
-                                "segments": True,
-                                "heading_segments": {
-                                    "__all__": {"segment": {"frames": True}}
-                                },
-                                "details_segments": {
-                                    "__all__": {"segment": {"frames": True}}
-                                },
-                            }
-                        )
-                        for ann in sorted(anns, key=lambda x: x.get_start_time())
-                    ]
-                    for anns in organized_grouped_annotations
-                ],
-                indent=4,
-                ensure_ascii=False,
-            )
-        )
-    return organized_grouped_annotations
+
+        return organized_annotations
 
 
 def process_annotations(
-    bucket_name: str, annotation_blob_name: str, output_blob_name: str, debug=False
+    bucket_name: str,
+    annotation_blob_name: str,
+    output_blob_name: str,
+    debug: bool = False,
 ):
+    # Download and parse blob
     blob_data = download_blob(bucket_name, annotation_blob_name)
-    blob_dict = json.loads(blob_data)
-    video_annotation = VideoAnnotation(**blob_dict)
-    video_annotation_organized = process_video_annotations(
-        video_annotation, debug=debug
-    )
+    video_annotation = VideoAnnotation(**json.loads(blob_data))
 
-    out = [
+    # Process annotations
+    processor = AnnotationProcessor(debug)
+    processed_annotations = processor.process_video_annotations(video_annotation)
+
+    # Format and upload results
+    output_data = [
         [x.model_dump(exclude={"segments"}) for x in ann]
-        for ann in video_annotation_organized
+        for ann in processed_annotations
     ]
-    blob_name = upload_json_blob(bucket_name, out, output_blob_name)
-    return blob_name
+    return upload_json_blob(bucket_name, output_data, output_blob_name)
