@@ -1,4 +1,5 @@
 from difflib import SequenceMatcher
+import re
 from extractor.process_annotations.models import (
     TextAnnotationSegment,
     TextAnnotationSegmentGroupOrganized,
@@ -9,6 +10,16 @@ from extractor.process_annotations.utils import (
 )
 from extractor.models import Frame, Segment, TextSegment, TimeOffset
 import numpy as np
+
+
+def has_year(text: str):
+    """Check if the text contains a year of 19th, 20th, 21st century."""
+    return re.search(r"\b(19|20|21)\d{2}\b", text) is not None
+
+
+def has_text(text: str):
+    """Check if the text contains letters. Case insensitive."""
+    return re.search(r"[a-zA-Z]", text) is not None
 
 
 def organize_group(group: list[TextAnnotationSegment]):
@@ -26,10 +37,23 @@ def organize_group(group: list[TextAnnotationSegment]):
         for segment in group
     ]
     segments_sorted = sorted(group, key=lambda x: mean_y[group.index(x)])
-    details_segment = segments_sorted[-1]
-    heading_segments = segments_sorted[:-1]
+    segments_has_year = [has_year(x.text) for x in segments_sorted]
+    segments_has_text = [has_text(x.text) for x in segments_sorted]
+    year_segment_index = next(
+        (i for i, x in enumerate(segments_has_year[::-1]) if x), None
+    )
+    director_segment_index = next(
+        (i for i, x in enumerate(segments_has_text[::-1]) if x), None
+    )
+    details_segments_start_index = min(
+        year_segment_index if year_segment_index else len(segments_sorted) - 1,
+        director_segment_index if director_segment_index else len(segments_sorted) - 1,
+    )
+
+    details_segment = segments_sorted[details_segments_start_index:]
+    heading_segments = segments_sorted[:details_segments_start_index]
     return TextAnnotationSegmentGroupOrganized(
-        heading_segments=heading_segments, details_segments=[details_segment]
+        heading_segments=heading_segments, details_segments=details_segment
     )
 
 
