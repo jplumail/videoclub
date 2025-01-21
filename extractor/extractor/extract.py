@@ -7,6 +7,7 @@ from extractor.models import (
     MediaItemTimestamp,
     MediaItemsTimestamps,
 )
+from extractor.utils import year_pattern
 from extractor.download import download_blob
 import asyncio
 from itertools import zip_longest
@@ -25,13 +26,13 @@ def get_director(details: str):
 
 
 def get_year(details: str):
-    try:
-        year = int(details.split("-")[1].strip())
-    except (ValueError, IndexError):
-        year = None
-    print(f"Year of details {details} is:", year)
-    return year
-
+    match = re.search(year_pattern, details)
+    if match:
+        try:
+            return int(match.group(0))
+        except ValueError:
+            return None
+    return None
 
 async def is_director_in_movie(director_id: int, movie_id: int):
     director_credits = await tmdb.person(director_id).combined_credits()
