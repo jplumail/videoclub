@@ -1,0 +1,2728 @@
+{
+    "media_items_timestamps": [
+        {
+            "media_item": {
+                "details": {
+                    "id": 1124,
+                    "poster_path": "/37Fr7lY4QBHsuxlLJIfTNxW6nGW.jpg",
+                    "title": "Le Prestige"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2006-11-15"
+            },
+            "start_time": {
+                "seconds": 24,
+                "nanos": 720000000
+            },
+            "end_time": {
+                "seconds": 25,
+                "nanos": 200000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 27205,
+                    "poster_path": "/aej3LRUga5rhgkmRP6XMFw3ejbl.jpg",
+                    "title": "Inception"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2010-07-21"
+            },
+            "start_time": {
+                "seconds": 25,
+                "nanos": 320000000
+            },
+            "end_time": {
+                "seconds": 26,
+                "nanos": 280000000
+            },
+            "confidence": 0.99246189
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 157336,
+                    "poster_path": "/1pnigkWWy8W032o9TKDneBa3eVK.jpg",
+                    "title": "Interstellar"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2014-11-05"
+            },
+            "start_time": {
+                "seconds": 26,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 26,
+                "nanos": 760000000
+            },
+            "confidence": 0.998578755
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 170,
+                    "poster_path": "/ntlsIcEifX8UlY8GWYA20Opsxd6.jpg",
+                    "title": "28 Jours plus tard"
+                },
+                "crew": [
+                    {
+                        "id": 2034,
+                        "name": "Danny Boyle"
+                    }
+                ],
+                "release_year": "2003-05-28"
+            },
+            "start_time": {
+                "seconds": 26,
+                "nanos": 880000000
+            },
+            "end_time": {
+                "seconds": 27,
+                "nanos": 480000000
+            },
+            "confidence": 0.992254945
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1116,
+                    "poster_path": "/w1f3fnnhk406J9YT3SG7FJq4kSz.jpg",
+                    "title": "Le vent se lève"
+                },
+                "crew": [
+                    {
+                        "id": 15488,
+                        "name": "Ken Loach"
+                    }
+                ],
+                "release_year": "2006-08-23"
+            },
+            "start_time": {
+                "seconds": 27,
+                "nanos": 600000000
+            },
+            "end_time": {
+                "seconds": 28,
+                "nanos": 320000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 374720,
+                    "poster_path": "/1VOKlC35yrwVKlfBSN52NY4zoF2.jpg",
+                    "title": "Dunkerque"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2017-07-19"
+            },
+            "start_time": {
+                "seconds": 28,
+                "nanos": 440000000
+            },
+            "end_time": {
+                "seconds": 29,
+                "nanos": 280000000
+            },
+            "confidence": 0.99889195
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 520763,
+                    "poster_path": "/1zSCVOFFkT7JtOoBInPmGQGJAfE.jpg",
+                    "title": "Sans un bruit 2"
+                },
+                "crew": [
+                    {
+                        "id": 17697,
+                        "name": "John Krasinski"
+                    }
+                ],
+                "release_year": "2021-06-16"
+            },
+            "start_time": {
+                "seconds": 29,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 29,
+                "nanos": 760000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 272,
+                    "poster_path": "/taKcn26BMWnsUcMFSlr5RfGDtFB.jpg",
+                    "title": "Batman Begins"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2005-06-15"
+            },
+            "start_time": {
+                "seconds": 29,
+                "nanos": 880000000
+            },
+            "end_time": {
+                "seconds": 30,
+                "nanos": 600000000
+            },
+            "confidence": 0.99831602
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 577922,
+                    "poster_path": "/72SOtZnFhCumLRZhoXlX8g2IkgF.jpg",
+                    "title": "Tenet"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2020-08-26"
+            },
+            "start_time": {
+                "seconds": 30,
+                "nanos": 720000000
+            },
+            "end_time": {
+                "seconds": 31,
+                "nanos": 200000000
+            },
+            "confidence": 0.99873787
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 77,
+                    "poster_path": "/wqG9YXPBpDbC4NpV1Xc42BOm2hO.jpg",
+                    "title": "Memento"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2000-10-11"
+            },
+            "start_time": {
+                "seconds": 31,
+                "nanos": 320000000
+            },
+            "end_time": {
+                "seconds": 32,
+                "nanos": 40000000
+            },
+            "confidence": 0.9951553049999999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 49026,
+                    "poster_path": "/ApcGBERN0p9I0nDOIwJeEmpnLU5.jpg",
+                    "title": "The Dark Knight Rises"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2012-07-25"
+            },
+            "start_time": {
+                "seconds": 32,
+                "nanos": 160000000
+            },
+            "end_time": {
+                "seconds": 32,
+                "nanos": 760000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 320,
+                    "poster_path": "/6Vwc5vgioIXUhLQGAqmp3uDDKJJ.jpg",
+                    "title": "Insomnia"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2002-11-06"
+            },
+            "start_time": {
+                "seconds": 32,
+                "nanos": 880000000
+            },
+            "end_time": {
+                "seconds": 33,
+                "nanos": 600000000
+            },
+            "confidence": 0.999070915
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 60574,
+                    "poster_path": "/vUUqzWa2LnHIVqkaKVlVGkVcZIW.jpg",
+                    "name": "Peaky Blinders"
+                },
+                "crew": [
+                    {
+                        "id": 23227,
+                        "name": "Steven Knight"
+                    }
+                ],
+                "release_year": "2013-09-12"
+            },
+            "start_time": {
+                "seconds": 33,
+                "nanos": 720000000
+            },
+            "end_time": {
+                "seconds": 34,
+                "nanos": 200000000
+            },
+            "confidence": 0.99069786
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 155,
+                    "poster_path": "/pyNXnq8QBWoK3b37RS6C3axwUOy.jpg",
+                    "title": "The Dark Knight : Le Chevalier noir"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2008-08-13"
+            },
+            "start_time": {
+                "seconds": 34,
+                "nanos": 320000000
+            },
+            "end_time": {
+                "seconds": 34,
+                "nanos": 920000000
+            },
+            "confidence": 0.9829446883333333
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 155,
+                    "poster_path": "/pyNXnq8QBWoK3b37RS6C3axwUOy.jpg",
+                    "title": "The Dark Knight : Le Chevalier noir"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2008-08-13"
+            },
+            "start_time": {
+                "seconds": 35,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 35,
+                "nanos": 880000000
+            },
+            "confidence": 0.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 11660,
+                    "poster_path": "/iLYLgzHXAf6sJUjWBTF7gkFgvYZ.jpg",
+                    "title": "Following : le suiveur"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "1999-12-01"
+            },
+            "start_time": {
+                "seconds": 36,
+                "nanos": 0
+            },
+            "end_time": {
+                "seconds": 36,
+                "nanos": 600000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1272,
+                    "poster_path": "/pyj5oX4lucbWnqV3jGyS0gpbJoc.jpg",
+                    "title": "Sunshine"
+                },
+                "crew": [
+                    {
+                        "id": 2034,
+                        "name": "Danny Boyle"
+                    }
+                ],
+                "release_year": "2007-04-11"
+            },
+            "start_time": {
+                "seconds": 36,
+                "nanos": 720000000
+            },
+            "end_time": {
+                "seconds": 37,
+                "nanos": 200000000
+            },
+            "confidence": 0.991884945
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 872585,
+                    "poster_path": "/boAUuJBeID7VNp4L7LNMQs8mfQS.jpg",
+                    "title": "Oppenheimer"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2023-07-19"
+            },
+            "start_time": {
+                "seconds": 37,
+                "nanos": 320000000
+            },
+            "end_time": {
+                "seconds": 41,
+                "nanos": 160000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 7345,
+                    "poster_path": "/cf4SpPyVRfE1lmlnVIXoii337s2.jpg",
+                    "title": "There Will Be Blood"
+                },
+                "crew": [
+                    {
+                        "id": 4762,
+                        "name": "Paul Thomas Anderson"
+                    }
+                ],
+                "release_year": "2008-02-27"
+            },
+            "start_time": {
+                "seconds": 91,
+                "nanos": 920000000
+            },
+            "end_time": {
+                "seconds": 95,
+                "nanos": 160000000
+            },
+            "confidence": 0.997014405
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 8051,
+                    "poster_path": "/32BsDRGsNgnwyUMsah6KRPUD9tb.jpg",
+                    "title": "Punch-Drunk Love"
+                },
+                "crew": [
+                    {
+                        "id": 4762,
+                        "name": "Paul Thomas Anderson"
+                    }
+                ],
+                "release_year": "2003-01-22"
+            },
+            "start_time": {
+                "seconds": 98,
+                "nanos": 40000000
+            },
+            "end_time": {
+                "seconds": 100,
+                "nanos": 440000000
+            },
+            "confidence": 0.999542595
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 7345,
+                    "poster_path": "/cf4SpPyVRfE1lmlnVIXoii337s2.jpg",
+                    "title": "There Will Be Blood"
+                },
+                "crew": [
+                    {
+                        "id": 4762,
+                        "name": "Paul Thomas Anderson"
+                    }
+                ],
+                "release_year": "2008-02-27"
+            },
+            "start_time": {
+                "seconds": 106,
+                "nanos": 80000000
+            },
+            "end_time": {
+                "seconds": 108,
+                "nanos": 600000000
+            },
+            "confidence": 0.99266857
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 7345,
+                    "poster_path": "/cf4SpPyVRfE1lmlnVIXoii337s2.jpg",
+                    "title": "There Will Be Blood"
+                },
+                "crew": [
+                    {
+                        "id": 4762,
+                        "name": "Paul Thomas Anderson"
+                    }
+                ],
+                "release_year": "2008-02-27"
+            },
+            "start_time": {
+                "seconds": 113,
+                "nanos": 880000000
+            },
+            "end_time": {
+                "seconds": 116,
+                "nanos": 40000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 279,
+                    "poster_path": "/xUnezAE1f4kOTbo1Or5SZx1OALI.jpg",
+                    "title": "Amadeus"
+                },
+                "crew": [
+                    {
+                        "id": 3974,
+                        "name": "Miloš Forman"
+                    }
+                ],
+                "release_year": "1984-10-31"
+            },
+            "start_time": {
+                "seconds": 117,
+                "nanos": 240000000
+            },
+            "end_time": {
+                "seconds": 120,
+                "nanos": 120000000
+            },
+            "confidence": 0.9931117300000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 279,
+                    "poster_path": "/xUnezAE1f4kOTbo1Or5SZx1OALI.jpg",
+                    "title": "Amadeus"
+                },
+                "crew": [
+                    {
+                        "id": 3974,
+                        "name": "Miloš Forman"
+                    }
+                ],
+                "release_year": "1984-10-31"
+            },
+            "start_time": {
+                "seconds": 123,
+                "nanos": 840000000
+            },
+            "end_time": {
+                "seconds": 126,
+                "nanos": 480000000
+            },
+            "confidence": 0.9898117099999999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 872585,
+                    "poster_path": "/boAUuJBeID7VNp4L7LNMQs8mfQS.jpg",
+                    "title": "Oppenheimer"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2023-07-19"
+            },
+            "start_time": {
+                "seconds": 133,
+                "nanos": 920000000
+            },
+            "end_time": {
+                "seconds": 135,
+                "nanos": 240000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 872585,
+                    "poster_path": "/boAUuJBeID7VNp4L7LNMQs8mfQS.jpg",
+                    "title": "Oppenheimer"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2023-07-19"
+            },
+            "start_time": {
+                "seconds": 141,
+                "nanos": 840000000
+            },
+            "end_time": {
+                "seconds": 146,
+                "nanos": 640000000
+            },
+            "confidence": 0.9823174933333333
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 279,
+                    "poster_path": "/xUnezAE1f4kOTbo1Or5SZx1OALI.jpg",
+                    "title": "Amadeus"
+                },
+                "crew": [
+                    {
+                        "id": 3974,
+                        "name": "Miloš Forman"
+                    }
+                ],
+                "release_year": "1984-10-31"
+            },
+            "start_time": {
+                "seconds": 151,
+                "nanos": 320000000
+            },
+            "end_time": {
+                "seconds": 153,
+                "nanos": 480000000
+            },
+            "confidence": 0.994486245
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 111803,
+                    "poster_path": "/6iwKyU70ndvfHww0TphBg8LQzJ9.jpg",
+                    "name": "The White Lotus"
+                },
+                "crew": [
+                    {
+                        "id": 17735,
+                        "name": "Mike White"
+                    }
+                ],
+                "release_year": "2021-07-11"
+            },
+            "start_time": {
+                "seconds": 156,
+                "nanos": 120000000
+            },
+            "end_time": {
+                "seconds": 157,
+                "nanos": 440000000
+            },
+            "confidence": 0.9971365050000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 279,
+                    "poster_path": "/xUnezAE1f4kOTbo1Or5SZx1OALI.jpg",
+                    "title": "Amadeus"
+                },
+                "crew": [
+                    {
+                        "id": 3974,
+                        "name": "Miloš Forman"
+                    }
+                ],
+                "release_year": "1984-10-31"
+            },
+            "start_time": {
+                "seconds": 160,
+                "nanos": 560000000
+            },
+            "end_time": {
+                "seconds": 162,
+                "nanos": 120000000
+            },
+            "confidence": 0.994378805
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1359,
+                    "poster_path": "/2Yrm2RHdgLhhJbhhkr9kToN5DsN.jpg",
+                    "title": "American Psycho"
+                },
+                "crew": [
+                    {
+                        "id": 16378,
+                        "name": "Mary Harron"
+                    }
+                ],
+                "release_year": "2000-06-07"
+            },
+            "start_time": {
+                "seconds": 171,
+                "nanos": 840000000
+            },
+            "end_time": {
+                "seconds": 174,
+                "nanos": 0
+            },
+            "confidence": 0.9934556800000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 935,
+                    "poster_path": "/3g1CRHeMVLFVM2dcXasu3kBw4qV.jpg",
+                    "title": "Docteur Folamour"
+                },
+                "crew": [
+                    {
+                        "id": 240,
+                        "name": "Stanley Kubrick"
+                    }
+                ],
+                "release_year": "1964-04-10"
+            },
+            "start_time": {
+                "seconds": 175,
+                "nanos": 440000000
+            },
+            "end_time": {
+                "seconds": 178,
+                "nanos": 920000000
+            },
+            "confidence": 0.99751392
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 935,
+                    "poster_path": "/3g1CRHeMVLFVM2dcXasu3kBw4qV.jpg",
+                    "title": "Docteur Folamour"
+                },
+                "crew": [
+                    {
+                        "id": 240,
+                        "name": "Stanley Kubrick"
+                    }
+                ],
+                "release_year": "1964-04-10"
+            },
+            "start_time": {
+                "seconds": 188,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 191,
+                "nanos": 40000000
+            },
+            "confidence": 0.997826875
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 935,
+                    "poster_path": "/3g1CRHeMVLFVM2dcXasu3kBw4qV.jpg",
+                    "title": "Docteur Folamour"
+                },
+                "crew": [
+                    {
+                        "id": 240,
+                        "name": "Stanley Kubrick"
+                    }
+                ],
+                "release_year": "1964-04-10"
+            },
+            "start_time": {
+                "seconds": 200,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 202,
+                "nanos": 560000000
+            },
+            "confidence": 0.98418474
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 9443,
+                    "poster_path": "/oX4KfiZP3Tj4EoFrQzmmmeX9WeK.jpg",
+                    "title": "Les Chariots de Feu"
+                },
+                "crew": [
+                    {
+                        "id": 58220,
+                        "name": "Hugh Hudson"
+                    }
+                ],
+                "release_year": "1981-05-20"
+            },
+            "start_time": {
+                "seconds": 217,
+                "nanos": 200000000
+            },
+            "end_time": {
+                "seconds": 224,
+                "nanos": 400000000
+            },
+            "confidence": 0.9786066850000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 9443,
+                    "poster_path": "/oX4KfiZP3Tj4EoFrQzmmmeX9WeK.jpg",
+                    "title": "Les Chariots de Feu"
+                },
+                "crew": [
+                    {
+                        "id": 58220,
+                        "name": "Hugh Hudson"
+                    }
+                ],
+                "release_year": "1981-05-20"
+            },
+            "start_time": {
+                "seconds": 231,
+                "nanos": 240000000
+            },
+            "end_time": {
+                "seconds": 234,
+                "nanos": 480000000
+            },
+            "confidence": 0.9768507455000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 9443,
+                    "poster_path": "/oX4KfiZP3Tj4EoFrQzmmmeX9WeK.jpg",
+                    "title": "Les Chariots de Feu"
+                },
+                "crew": [
+                    {
+                        "id": 58220,
+                        "name": "Hugh Hudson"
+                    }
+                ],
+                "release_year": "1981-05-20"
+            },
+            "start_time": {
+                "seconds": 240,
+                "nanos": 0
+            },
+            "end_time": {
+                "seconds": 242,
+                "nanos": 880000000
+            },
+            "confidence": 0.9724520155000002
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 24395,
+                    "poster_path": "/c0cJPG3fMPsUoDbaqBuU3n2IX74.jpg",
+                    "title": "La Colline des hommes perdus"
+                },
+                "crew": [
+                    {
+                        "id": 39996,
+                        "name": "Sidney Lumet"
+                    }
+                ],
+                "release_year": "1965-05-22"
+            },
+            "start_time": {
+                "seconds": 249,
+                "nanos": 120000000
+            },
+            "end_time": {
+                "seconds": 253,
+                "nanos": 920000000
+            },
+            "confidence": 0.9952247533333334
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 24395,
+                    "poster_path": "/c0cJPG3fMPsUoDbaqBuU3n2IX74.jpg",
+                    "title": "La Colline des hommes perdus"
+                },
+                "crew": [
+                    {
+                        "id": 39996,
+                        "name": "Sidney Lumet"
+                    }
+                ],
+                "release_year": "1965-05-22"
+            },
+            "start_time": {
+                "seconds": 263,
+                "nanos": 520000000
+            },
+            "end_time": {
+                "seconds": 265,
+                "nanos": 800000000
+            },
+            "confidence": 0.9627151077777779
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 24395,
+                    "poster_path": "/c0cJPG3fMPsUoDbaqBuU3n2IX74.jpg",
+                    "title": "La Colline des hommes perdus"
+                },
+                "crew": [
+                    {
+                        "id": 39996,
+                        "name": "Sidney Lumet"
+                    }
+                ],
+                "release_year": "1965-05-22"
+            },
+            "start_time": {
+                "seconds": 272,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 278,
+                "nanos": 520000000
+            },
+            "confidence": 0.9948451733333333
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 32615,
+                    "poster_path": "/thg8w4gMDAFdxK4TmPejxtazMEh.jpg",
+                    "title": "The Offence"
+                },
+                "crew": [
+                    {
+                        "id": 39996,
+                        "name": "Sidney Lumet"
+                    }
+                ],
+                "release_year": "1973-01-11"
+            },
+            "start_time": {
+                "seconds": 299,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 301,
+                "nanos": 920000000
+            },
+            "confidence": 0.9800000000000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 32615,
+                    "poster_path": "/thg8w4gMDAFdxK4TmPejxtazMEh.jpg",
+                    "title": "The Offence"
+                },
+                "crew": [
+                    {
+                        "id": 39996,
+                        "name": "Sidney Lumet"
+                    }
+                ],
+                "release_year": "1973-01-11"
+            },
+            "start_time": {
+                "seconds": 307,
+                "nanos": 80000000
+            },
+            "end_time": {
+                "seconds": 310,
+                "nanos": 320000000
+            },
+            "confidence": 0.9768884804000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 949,
+                    "poster_path": "/e0xv5Y7UVrhKEVy1g3URMLLVDYB.jpg",
+                    "title": "Heat"
+                },
+                "crew": [
+                    {
+                        "id": 638,
+                        "name": "Michael Mann"
+                    }
+                ],
+                "release_year": "1996-02-21"
+            },
+            "start_time": {
+                "seconds": 331,
+                "nanos": 560000000
+            },
+            "end_time": {
+                "seconds": 340,
+                "nanos": 440000000
+            },
+            "confidence": 0.996520945
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 155,
+                    "poster_path": "/pyNXnq8QBWoK3b37RS6C3axwUOy.jpg",
+                    "title": "The Dark Knight : Le Chevalier noir"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2008-08-13"
+            },
+            "start_time": {
+                "seconds": 344,
+                "nanos": 160000000
+            },
+            "end_time": {
+                "seconds": 346,
+                "nanos": 320000000
+            },
+            "confidence": 0.9958881633333334
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 949,
+                    "poster_path": "/e0xv5Y7UVrhKEVy1g3URMLLVDYB.jpg",
+                    "title": "Heat"
+                },
+                "crew": [
+                    {
+                        "id": 638,
+                        "name": "Michael Mann"
+                    }
+                ],
+                "release_year": "1996-02-21"
+            },
+            "start_time": {
+                "seconds": 347,
+                "nanos": 640000000
+            },
+            "end_time": {
+                "seconds": 350,
+                "nanos": 400000000
+            },
+            "confidence": 0.988250541875
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 31587,
+                    "poster_path": "/flQAOPOnQPvgmJxTPDQavIqPK6t.jpg",
+                    "title": "L'épouvantail"
+                },
+                "crew": [
+                    {
+                        "id": 98199,
+                        "name": "Jerry Schatzberg"
+                    }
+                ],
+                "release_year": "1973-05-26"
+            },
+            "start_time": {
+                "seconds": 356,
+                "nanos": 160000000
+            },
+            "end_time": {
+                "seconds": 359,
+                "nanos": 880000000
+            },
+            "confidence": 0.99393290375
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 238,
+                    "poster_path": "/wnDNKCeBQzioXYQrXcSyrmRHVxf.jpg",
+                    "title": "Le Parrain"
+                },
+                "crew": [
+                    {
+                        "id": 1776,
+                        "name": "Francis Ford Coppola"
+                    }
+                ],
+                "release_year": "1972-03-15"
+            },
+            "start_time": {
+                "seconds": 361,
+                "nanos": 560000000
+            },
+            "end_time": {
+                "seconds": 363,
+                "nanos": 600000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1051,
+                    "poster_path": "/xgn3UvgSJpf2CYCBpEVn5DUXwk6.jpg",
+                    "title": "French Connection"
+                },
+                "crew": [
+                    {
+                        "id": 15175,
+                        "name": "William Friedkin"
+                    }
+                ],
+                "release_year": "1972-01-14"
+            },
+            "start_time": {
+                "seconds": 363,
+                "nanos": 960000000
+            },
+            "end_time": {
+                "seconds": 365,
+                "nanos": 280000000
+            },
+            "confidence": 0.99827406
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 31587,
+                    "poster_path": "/flQAOPOnQPvgmJxTPDQavIqPK6t.jpg",
+                    "title": "L'épouvantail"
+                },
+                "crew": [
+                    {
+                        "id": 98199,
+                        "name": "Jerry Schatzberg"
+                    }
+                ],
+                "release_year": "1973-05-26"
+            },
+            "start_time": {
+                "seconds": 371,
+                "nanos": 40000000
+            },
+            "end_time": {
+                "seconds": 373,
+                "nanos": 560000000
+            },
+            "confidence": 0.98258032
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 820,
+                    "poster_path": "/aXBz7t4TO5Ln3u5CQLIS96Kzuvl.jpg",
+                    "title": "JFK"
+                },
+                "crew": [
+                    {
+                        "id": 1152,
+                        "name": "Oliver Stone"
+                    }
+                ],
+                "release_year": "1992-01-29"
+            },
+            "start_time": {
+                "seconds": 397,
+                "nanos": 320000000
+            },
+            "end_time": {
+                "seconds": 405,
+                "nanos": 0
+            },
+            "confidence": 0.9968093333333334
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 820,
+                    "poster_path": "/aXBz7t4TO5Ln3u5CQLIS96Kzuvl.jpg",
+                    "title": "JFK"
+                },
+                "crew": [
+                    {
+                        "id": 1152,
+                        "name": "Oliver Stone"
+                    }
+                ],
+                "release_year": "1992-01-29"
+            },
+            "start_time": {
+                "seconds": 410,
+                "nanos": 760000000
+            },
+            "end_time": {
+                "seconds": 414,
+                "nanos": 840000000
+            },
+            "confidence": 0.9895032441666667
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 374473,
+                    "poster_path": "/5bXgLxPnYXen5dlFDLWuhJVKPwE.jpg",
+                    "title": "Moi, Daniel Blake"
+                },
+                "crew": [
+                    {
+                        "id": 15488,
+                        "name": "Ken Loach"
+                    }
+                ],
+                "release_year": "2016-10-26"
+            },
+            "start_time": {
+                "seconds": 437,
+                "nanos": 520000000
+            },
+            "end_time": {
+                "seconds": 443,
+                "nanos": 760000000
+            },
+            "confidence": 0.99209669
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1116,
+                    "poster_path": "/w1f3fnnhk406J9YT3SG7FJq4kSz.jpg",
+                    "title": "Le vent se lève"
+                },
+                "crew": [
+                    {
+                        "id": 15488,
+                        "name": "Ken Loach"
+                    }
+                ],
+                "release_year": "2006-08-23"
+            },
+            "start_time": {
+                "seconds": 450,
+                "nanos": 480000000
+            },
+            "end_time": {
+                "seconds": 453,
+                "nanos": 0
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1116,
+                    "poster_path": "/w1f3fnnhk406J9YT3SG7FJq4kSz.jpg",
+                    "title": "Le vent se lève"
+                },
+                "crew": [
+                    {
+                        "id": 15488,
+                        "name": "Ken Loach"
+                    }
+                ],
+                "release_year": "2006-08-23"
+            },
+            "start_time": {
+                "seconds": 459,
+                "nanos": 600000000
+            },
+            "end_time": {
+                "seconds": 462,
+                "nanos": 0
+            },
+            "confidence": 0.99272841
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1116,
+                    "poster_path": "/w1f3fnnhk406J9YT3SG7FJq4kSz.jpg",
+                    "title": "Le vent se lève"
+                },
+                "crew": [
+                    {
+                        "id": 15488,
+                        "name": "Ken Loach"
+                    }
+                ],
+                "release_year": "2006-08-23"
+            },
+            "start_time": {
+                "seconds": 468,
+                "nanos": 720000000
+            },
+            "end_time": {
+                "seconds": 472,
+                "nanos": 200000000
+            },
+            "confidence": 0.991558555
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 7984,
+                    "poster_path": "/pbAFTdg3QmXb041of8BTarB1AIi.jpg",
+                    "title": "Au nom du père"
+                },
+                "crew": [
+                    {
+                        "id": 53334,
+                        "name": "Jim Sheridan"
+                    }
+                ],
+                "release_year": "1994-03-09"
+            },
+            "start_time": {
+                "seconds": 507,
+                "nanos": 480000000
+            },
+            "end_time": {
+                "seconds": 511,
+                "nanos": 800000000
+            },
+            "confidence": 0.992252855
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 7984,
+                    "poster_path": "/pbAFTdg3QmXb041of8BTarB1AIi.jpg",
+                    "title": "Au nom du père"
+                },
+                "crew": [
+                    {
+                        "id": 53334,
+                        "name": "Jim Sheridan"
+                    }
+                ],
+                "release_year": "1994-03-09"
+            },
+            "start_time": {
+                "seconds": 513,
+                "nanos": 600000000
+            },
+            "end_time": {
+                "seconds": 516,
+                "nanos": 0
+            },
+            "confidence": 0.99402207
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 10161,
+                    "poster_path": "/ovjV6gKLfjQi8Q0LHHWrD2xNK1x.jpg",
+                    "title": "My left foot"
+                },
+                "crew": [
+                    {
+                        "id": 53334,
+                        "name": "Jim Sheridan"
+                    }
+                ],
+                "release_year": "1989-04-07"
+            },
+            "start_time": {
+                "seconds": 518,
+                "nanos": 880000000
+            },
+            "end_time": {
+                "seconds": 520,
+                "nanos": 560000000
+            },
+            "confidence": 0.9800000000000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 7984,
+                    "poster_path": "/pbAFTdg3QmXb041of8BTarB1AIi.jpg",
+                    "title": "Au nom du père"
+                },
+                "crew": [
+                    {
+                        "id": 53334,
+                        "name": "Jim Sheridan"
+                    }
+                ],
+                "release_year": "1994-03-09"
+            },
+            "start_time": {
+                "seconds": 531,
+                "nanos": 480000000
+            },
+            "end_time": {
+                "seconds": 534,
+                "nanos": 600000000
+            },
+            "confidence": 0.9928698225
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 18533,
+                    "poster_path": "/6NF2do8CeQzaNQVpJ993Ek9EP8X.jpg",
+                    "title": "Bronson"
+                },
+                "crew": [
+                    {
+                        "id": 21183,
+                        "name": "Nicolas Winding Refn"
+                    }
+                ],
+                "release_year": "2009-03-13"
+            },
+            "start_time": {
+                "seconds": 549,
+                "nanos": 120000000
+            },
+            "end_time": {
+                "seconds": 551,
+                "nanos": 280000000
+            },
+            "confidence": 0.7979082820000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 8741,
+                    "poster_path": "/lI1idojUCegX0e6CPMooNugb7O5.jpg",
+                    "title": "La ligne rouge"
+                },
+                "crew": [
+                    {
+                        "id": 30715,
+                        "name": "Terrence Malick"
+                    }
+                ],
+                "release_year": "1999-02-24"
+            },
+            "start_time": {
+                "seconds": 555,
+                "nanos": 120000000
+            },
+            "end_time": {
+                "seconds": 561,
+                "nanos": 120000000
+            },
+            "confidence": 0.9927546012499999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 8741,
+                    "poster_path": "/lI1idojUCegX0e6CPMooNugb7O5.jpg",
+                    "title": "La ligne rouge"
+                },
+                "crew": [
+                    {
+                        "id": 30715,
+                        "name": "Terrence Malick"
+                    }
+                ],
+                "release_year": "1999-02-24"
+            },
+            "start_time": {
+                "seconds": 564,
+                "nanos": 600000000
+            },
+            "end_time": {
+                "seconds": 567,
+                "nanos": 840000000
+            },
+            "confidence": 0.991828205
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 8741,
+                    "poster_path": "/lI1idojUCegX0e6CPMooNugb7O5.jpg",
+                    "title": "La ligne rouge"
+                },
+                "crew": [
+                    {
+                        "id": 30715,
+                        "name": "Terrence Malick"
+                    }
+                ],
+                "release_year": "1999-02-24"
+            },
+            "start_time": {
+                "seconds": 574,
+                "nanos": 800000000
+            },
+            "end_time": {
+                "seconds": 577,
+                "nanos": 80000000
+            },
+            "confidence": 0.9910657700000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 406,
+                    "poster_path": "/gfdhSzPyAWtAizqs4ytc0MwOlQg.jpg",
+                    "title": "La Haine"
+                },
+                "crew": [
+                    {
+                        "id": 2406,
+                        "name": "Mathieu Kassovitz"
+                    }
+                ],
+                "release_year": "1995-05-31"
+            },
+            "start_time": {
+                "seconds": 624,
+                "nanos": 840000000
+            },
+            "end_time": {
+                "seconds": 631,
+                "nanos": 440000000
+            },
+            "confidence": 0.9989796125
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 406,
+                    "poster_path": "/gfdhSzPyAWtAizqs4ytc0MwOlQg.jpg",
+                    "title": "La Haine"
+                },
+                "crew": [
+                    {
+                        "id": 2406,
+                        "name": "Mathieu Kassovitz"
+                    }
+                ],
+                "release_year": "1995-05-31"
+            },
+            "start_time": {
+                "seconds": 635,
+                "nanos": 160000000
+            },
+            "end_time": {
+                "seconds": 638,
+                "nanos": 40000000
+            },
+            "confidence": 0.996106865
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 406,
+                    "poster_path": "/gfdhSzPyAWtAizqs4ytc0MwOlQg.jpg",
+                    "title": "La Haine"
+                },
+                "crew": [
+                    {
+                        "id": 2406,
+                        "name": "Mathieu Kassovitz"
+                    }
+                ],
+                "release_year": "1995-05-31"
+            },
+            "start_time": {
+                "seconds": 642,
+                "nanos": 240000000
+            },
+            "end_time": {
+                "seconds": 648,
+                "nanos": 240000000
+            },
+            "confidence": 0.994526055
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 6346,
+                    "poster_path": "/cm1La1VlwRyuiBchew4k8zj4Ciz.jpg",
+                    "title": "L'Héritage de la haine"
+                },
+                "crew": [],
+                "release_year": "1997-08-13"
+            },
+            "start_time": {
+                "seconds": 662,
+                "nanos": 760000000
+            },
+            "end_time": {
+                "seconds": 664,
+                "nanos": 800000000
+            },
+            "confidence": 0.14735185120000002
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 406,
+                    "poster_path": "/gfdhSzPyAWtAizqs4ytc0MwOlQg.jpg",
+                    "title": "La Haine"
+                },
+                "crew": [
+                    {
+                        "id": 2406,
+                        "name": "Mathieu Kassovitz"
+                    }
+                ],
+                "release_year": "1995-05-31"
+            },
+            "start_time": {
+                "seconds": 664,
+                "nanos": 920000000
+            },
+            "end_time": {
+                "seconds": 667,
+                "nanos": 800000000
+            },
+            "confidence": 0.9996137599999999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 406,
+                    "poster_path": "/gfdhSzPyAWtAizqs4ytc0MwOlQg.jpg",
+                    "title": "La Haine"
+                },
+                "crew": [
+                    {
+                        "id": 2406,
+                        "name": "Mathieu Kassovitz"
+                    }
+                ],
+                "release_year": "1995-05-31"
+            },
+            "start_time": {
+                "seconds": 671,
+                "nanos": 880000000
+            },
+            "end_time": {
+                "seconds": 673,
+                "nanos": 800000000
+            },
+            "confidence": 0.9961242699999999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 204,
+                    "poster_path": "/cTPObc5qOQQG26UuNnvC5RK3QtA.jpg",
+                    "title": "Le Salaire de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 2559,
+                        "name": "Henri-Georges Clouzot"
+                    }
+                ],
+                "release_year": "1953-04-22"
+            },
+            "start_time": {
+                "seconds": 676,
+                "nanos": 440000000
+            },
+            "end_time": {
+                "seconds": 686,
+                "nanos": 160000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 374720,
+                    "poster_path": "/1VOKlC35yrwVKlfBSN52NY4zoF2.jpg",
+                    "title": "Dunkerque"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2017-07-19"
+            },
+            "start_time": {
+                "seconds": 688,
+                "nanos": 560000000
+            },
+            "end_time": {
+                "seconds": 691,
+                "nanos": 800000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 204,
+                    "poster_path": "/cTPObc5qOQQG26UuNnvC5RK3QtA.jpg",
+                    "title": "Le Salaire de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 2559,
+                        "name": "Henri-Georges Clouzot"
+                    }
+                ],
+                "release_year": "1953-04-22"
+            },
+            "start_time": {
+                "seconds": 697,
+                "nanos": 800000000
+            },
+            "end_time": {
+                "seconds": 701,
+                "nanos": 520000000
+            },
+            "confidence": 0.99982205
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 204,
+                    "poster_path": "/cTPObc5qOQQG26UuNnvC5RK3QtA.jpg",
+                    "title": "Le Salaire de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 2559,
+                        "name": "Henri-Georges Clouzot"
+                    }
+                ],
+                "release_year": "1953-04-22"
+            },
+            "start_time": {
+                "seconds": 709,
+                "nanos": 680000000
+            },
+            "end_time": {
+                "seconds": 711,
+                "nanos": 840000000
+            },
+            "confidence": 0.99739602
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 204,
+                    "poster_path": "/cTPObc5qOQQG26UuNnvC5RK3QtA.jpg",
+                    "title": "Le Salaire de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 2559,
+                        "name": "Henri-Georges Clouzot"
+                    }
+                ],
+                "release_year": "1953-04-22"
+            },
+            "start_time": {
+                "seconds": 716,
+                "nanos": 520000000
+            },
+            "end_time": {
+                "seconds": 718,
+                "nanos": 200000000
+            },
+            "confidence": 0.9924842700000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 204,
+                    "poster_path": "/cTPObc5qOQQG26UuNnvC5RK3QtA.jpg",
+                    "title": "Le Salaire de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 2559,
+                        "name": "Henri-Georges Clouzot"
+                    }
+                ],
+                "release_year": "1953-04-22"
+            },
+            "start_time": {
+                "seconds": 725,
+                "nanos": 520000000
+            },
+            "end_time": {
+                "seconds": 728,
+                "nanos": 400000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 38985,
+                    "poster_path": "/qNDjNzSlDW3p4n9PejiYZLjAS75.jpg",
+                    "title": "Le Convoi de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 15175,
+                        "name": "William Friedkin"
+                    }
+                ],
+                "release_year": "1978-11-15"
+            },
+            "start_time": {
+                "seconds": 735,
+                "nanos": 720000000
+            },
+            "end_time": {
+                "seconds": 740,
+                "nanos": 40000000
+            },
+            "confidence": 0.992677225
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 38985,
+                    "poster_path": "/qNDjNzSlDW3p4n9PejiYZLjAS75.jpg",
+                    "title": "Le Convoi de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 15175,
+                        "name": "William Friedkin"
+                    }
+                ],
+                "release_year": "1978-11-15"
+            },
+            "start_time": {
+                "seconds": 749,
+                "nanos": 280000000
+            },
+            "end_time": {
+                "seconds": 756,
+                "nanos": 960000000
+            },
+            "confidence": 0.990000999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 38985,
+                    "poster_path": "/qNDjNzSlDW3p4n9PejiYZLjAS75.jpg",
+                    "title": "Le Convoi de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 15175,
+                        "name": "William Friedkin"
+                    }
+                ],
+                "release_year": "1978-11-15"
+            },
+            "start_time": {
+                "seconds": 762,
+                "nanos": 360000000
+            },
+            "end_time": {
+                "seconds": 766,
+                "nanos": 200000000
+            },
+            "confidence": 0.998649715
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 38985,
+                    "poster_path": "/qNDjNzSlDW3p4n9PejiYZLjAS75.jpg",
+                    "title": "Le Convoi de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 15175,
+                        "name": "William Friedkin"
+                    }
+                ],
+                "release_year": "1978-11-15"
+            },
+            "start_time": {
+                "seconds": 769,
+                "nanos": 680000000
+            },
+            "end_time": {
+                "seconds": 772,
+                "nanos": 200000000
+            },
+            "confidence": 0.99895844
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 38985,
+                    "poster_path": "/qNDjNzSlDW3p4n9PejiYZLjAS75.jpg",
+                    "title": "Le Convoi de la peur"
+                },
+                "crew": [
+                    {
+                        "id": 15175,
+                        "name": "William Friedkin"
+                    }
+                ],
+                "release_year": "1978-11-15"
+            },
+            "start_time": {
+                "seconds": 786,
+                "nanos": 240000000
+            },
+            "end_time": {
+                "seconds": 789,
+                "nanos": 960000000
+            },
+            "confidence": 0.9867987625
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 25670,
+                    "poster_path": "/5dEIw7JfnYzHdY8KlgjnOdaSovz.jpg",
+                    "title": "Correspondant 17"
+                },
+                "crew": [
+                    {
+                        "id": 2636,
+                        "name": "Alfred Hitchcock"
+                    }
+                ],
+                "release_year": "1940-08-16"
+            },
+            "start_time": {
+                "seconds": 795,
+                "nanos": 720000000
+            },
+            "end_time": {
+                "seconds": 803,
+                "nanos": 640000000
+            },
+            "confidence": 0.8400000000000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 25670,
+                    "poster_path": "/5dEIw7JfnYzHdY8KlgjnOdaSovz.jpg",
+                    "title": "Correspondant 17"
+                },
+                "crew": [
+                    {
+                        "id": 2636,
+                        "name": "Alfred Hitchcock"
+                    }
+                ],
+                "release_year": "1940-08-16"
+            },
+            "start_time": {
+                "seconds": 811,
+                "nanos": 440000000
+            },
+            "end_time": {
+                "seconds": 813,
+                "nanos": 600000000
+            },
+            "confidence": 0.8358742308
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 25670,
+                    "poster_path": "/5dEIw7JfnYzHdY8KlgjnOdaSovz.jpg",
+                    "title": "Correspondant 17"
+                },
+                "crew": [
+                    {
+                        "id": 2636,
+                        "name": "Alfred Hitchcock"
+                    }
+                ],
+                "release_year": "1940-08-16"
+            },
+            "start_time": {
+                "seconds": 818,
+                "nanos": 40000000
+            },
+            "end_time": {
+                "seconds": 820,
+                "nanos": 80000000
+            },
+            "confidence": 0.8386111398000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 947,
+                    "poster_path": "/jEXGkKEIuyc6012BFpFJpaGOW5a.jpg",
+                    "title": "Lawrence d'Arabie"
+                },
+                "crew": [
+                    {
+                        "id": 12238,
+                        "name": "David Lean"
+                    }
+                ],
+                "release_year": "1963-03-15"
+            },
+            "start_time": {
+                "seconds": 849,
+                "nanos": 0
+            },
+            "end_time": {
+                "seconds": 850,
+                "nanos": 800000000
+            },
+            "confidence": 0.979613005
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 947,
+                    "poster_path": "/jEXGkKEIuyc6012BFpFJpaGOW5a.jpg",
+                    "title": "Lawrence d'Arabie"
+                },
+                "crew": [
+                    {
+                        "id": 12238,
+                        "name": "David Lean"
+                    }
+                ],
+                "release_year": "1963-03-15"
+            },
+            "start_time": {
+                "seconds": 853,
+                "nanos": 800000000
+            },
+            "end_time": {
+                "seconds": 859,
+                "nanos": 440000000
+            },
+            "confidence": 0.9841347475
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 947,
+                    "poster_path": "/jEXGkKEIuyc6012BFpFJpaGOW5a.jpg",
+                    "title": "Lawrence d'Arabie"
+                },
+                "crew": [
+                    {
+                        "id": 12238,
+                        "name": "David Lean"
+                    }
+                ],
+                "release_year": "1963-03-15"
+            },
+            "start_time": {
+                "seconds": 863,
+                "nanos": 760000000
+            },
+            "end_time": {
+                "seconds": 865,
+                "nanos": 800000000
+            },
+            "confidence": 0.979264525
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 947,
+                    "poster_path": "/jEXGkKEIuyc6012BFpFJpaGOW5a.jpg",
+                    "title": "Lawrence d'Arabie"
+                },
+                "crew": [
+                    {
+                        "id": 12238,
+                        "name": "David Lean"
+                    }
+                ],
+                "release_year": "1963-03-15"
+            },
+            "start_time": {
+                "seconds": 873,
+                "nanos": 120000000
+            },
+            "end_time": {
+                "seconds": 875,
+                "nanos": 640000000
+            },
+            "confidence": 0.9832007575
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 38953,
+                    "poster_path": "/4UB9qHb118boUuaV6nfMq5HMnIH.jpg",
+                    "title": "La Fille de Ryan"
+                },
+                "crew": [
+                    {
+                        "id": 12238,
+                        "name": "David Lean"
+                    }
+                ],
+                "release_year": "1970-12-23"
+            },
+            "start_time": {
+                "seconds": 890,
+                "nanos": 640000000
+            },
+            "end_time": {
+                "seconds": 892,
+                "nanos": 320000000
+            },
+            "confidence": 0.9970636825
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 983,
+                    "poster_path": "/ob2eV5XBD5UtcrOHU0ndCf9r17P.jpg",
+                    "title": "L'homme qui voulut être roi"
+                },
+                "crew": [
+                    {
+                        "id": 6593,
+                        "name": "John Huston"
+                    }
+                ],
+                "release_year": "1976-04-21"
+            },
+            "start_time": {
+                "seconds": 900,
+                "nanos": 960000000
+            },
+            "end_time": {
+                "seconds": 903,
+                "nanos": 0
+            },
+            "confidence": 0.9957072275
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 983,
+                    "poster_path": "/ob2eV5XBD5UtcrOHU0ndCf9r17P.jpg",
+                    "title": "L'homme qui voulut être roi"
+                },
+                "crew": [
+                    {
+                        "id": 6593,
+                        "name": "John Huston"
+                    }
+                ],
+                "release_year": "1976-04-21"
+            },
+            "start_time": {
+                "seconds": 904,
+                "nanos": 920000000
+            },
+            "end_time": {
+                "seconds": 908,
+                "nanos": 280000000
+            },
+            "confidence": 0.99365753
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 14433,
+                    "poster_path": "/F5EOTU20DXeh0th3raOgV6Eaqu.jpg",
+                    "title": "Zoulou"
+                },
+                "crew": [
+                    {
+                        "id": 76882,
+                        "name": "Cy Endfield"
+                    }
+                ],
+                "release_year": "1964-01-22"
+            },
+            "start_time": {
+                "seconds": 916,
+                "nanos": 800000000
+            },
+            "end_time": {
+                "seconds": 919,
+                "nanos": 200000000
+            },
+            "confidence": 0.2
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 15,
+                    "poster_path": "/89GnRTK1CjJSUelKKHLIPXsVam9.jpg",
+                    "title": "Citizen Kane"
+                },
+                "crew": [
+                    {
+                        "id": 40,
+                        "name": "Orson Welles"
+                    }
+                ],
+                "release_year": "1946-07-02"
+            },
+            "start_time": {
+                "seconds": 935,
+                "nanos": 280000000
+            },
+            "end_time": {
+                "seconds": 938,
+                "nanos": 640000000
+            },
+            "confidence": 0.9973131
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 15,
+                    "poster_path": "/89GnRTK1CjJSUelKKHLIPXsVam9.jpg",
+                    "title": "Citizen Kane"
+                },
+                "crew": [
+                    {
+                        "id": 40,
+                        "name": "Orson Welles"
+                    }
+                ],
+                "release_year": "1946-07-02"
+            },
+            "start_time": {
+                "seconds": 950,
+                "nanos": 160000000
+            },
+            "end_time": {
+                "seconds": 956,
+                "nanos": 160000000
+            },
+            "confidence": 0.994089185
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 15,
+                    "poster_path": "/89GnRTK1CjJSUelKKHLIPXsVam9.jpg",
+                    "title": "Citizen Kane"
+                },
+                "crew": [
+                    {
+                        "id": 40,
+                        "name": "Orson Welles"
+                    }
+                ],
+                "release_year": "1946-07-02"
+            },
+            "start_time": {
+                "seconds": 962,
+                "nanos": 280000000
+            },
+            "end_time": {
+                "seconds": 970,
+                "nanos": 320000000
+            },
+            "confidence": 0.9947838033333334
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 15,
+                    "poster_path": "/89GnRTK1CjJSUelKKHLIPXsVam9.jpg",
+                    "title": "Citizen Kane"
+                },
+                "crew": [
+                    {
+                        "id": 40,
+                        "name": "Orson Welles"
+                    }
+                ],
+                "release_year": "1946-07-02"
+            },
+            "start_time": {
+                "seconds": 973,
+                "nanos": 320000000
+            },
+            "end_time": {
+                "seconds": 979,
+                "nanos": 80000000
+            },
+            "confidence": 0.995435607
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1405,
+                    "poster_path": "/eur2vc2BGiOocBuBLVPXySO7lRh.jpg",
+                    "title": "Les Rapaces"
+                },
+                "crew": [
+                    {
+                        "id": 8630,
+                        "name": "Erich von Stroheim"
+                    }
+                ],
+                "release_year": "1924-12-04"
+            },
+            "start_time": {
+                "seconds": 985,
+                "nanos": 920000000
+            },
+            "end_time": {
+                "seconds": 989,
+                "nanos": 640000000
+            },
+            "confidence": 0.9972143025
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1405,
+                    "poster_path": "/eur2vc2BGiOocBuBLVPXySO7lRh.jpg",
+                    "title": "Les Rapaces"
+                },
+                "crew": [
+                    {
+                        "id": 8630,
+                        "name": "Erich von Stroheim"
+                    }
+                ],
+                "release_year": "1924-12-04"
+            },
+            "start_time": {
+                "seconds": 1002,
+                "nanos": 120000000
+            },
+            "end_time": {
+                "seconds": 1007,
+                "nanos": 160000000
+            },
+            "confidence": 0.995422869
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 599,
+                    "poster_path": "/6QmSuYfsKdf4PcRRQj4ijAn1AfB.jpg",
+                    "title": "Boulevard du crépuscule"
+                },
+                "crew": [
+                    {
+                        "id": 3146,
+                        "name": "Billy Wilder"
+                    }
+                ],
+                "release_year": "1951-04-18"
+            },
+            "start_time": {
+                "seconds": 1025,
+                "nanos": 880000000
+            },
+            "end_time": {
+                "seconds": 1028,
+                "nanos": 520000000
+            },
+            "confidence": 0.9800000000000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 63247,
+                    "poster_path": "/iblRK215A0oz3ewTtIIXO9XcW1N.jpg",
+                    "name": "Westworld"
+                },
+                "crew": [
+                    {
+                        "id": 527,
+                        "name": "Jonathan Nolan"
+                    },
+                    {
+                        "id": 1497967,
+                        "name": "Lisa Joy"
+                    }
+                ],
+                "release_year": "2016-10-02"
+            },
+            "start_time": {
+                "seconds": 1032,
+                "nanos": 120000000
+            },
+            "end_time": {
+                "seconds": 1039,
+                "nanos": 920000000
+            },
+            "confidence": 0.9941316433333333
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 87108,
+                    "poster_path": "/z7vcXBWfA3POvroAFRaTvZgX0HY.jpg",
+                    "name": "Chernobyl"
+                },
+                "crew": [
+                    {
+                        "id": 35796,
+                        "name": "Craig Mazin"
+                    }
+                ],
+                "release_year": "2019-05-06"
+            },
+            "start_time": {
+                "seconds": 1045,
+                "nanos": 440000000
+            },
+            "end_time": {
+                "seconds": 1050,
+                "nanos": 360000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 87108,
+                    "poster_path": "/z7vcXBWfA3POvroAFRaTvZgX0HY.jpg",
+                    "name": "Chernobyl"
+                },
+                "crew": [
+                    {
+                        "id": 35796,
+                        "name": "Craig Mazin"
+                    }
+                ],
+                "release_year": "2019-05-06"
+            },
+            "start_time": {
+                "seconds": 1056,
+                "nanos": 0
+            },
+            "end_time": {
+                "seconds": 1058,
+                "nanos": 520000000
+            },
+            "confidence": 0.99766478
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 87108,
+                    "poster_path": "/z7vcXBWfA3POvroAFRaTvZgX0HY.jpg",
+                    "name": "Chernobyl"
+                },
+                "crew": [
+                    {
+                        "id": 35796,
+                        "name": "Craig Mazin"
+                    }
+                ],
+                "release_year": "2019-05-06"
+            },
+            "start_time": {
+                "seconds": 1061,
+                "nanos": 400000000
+            },
+            "end_time": {
+                "seconds": 1064,
+                "nanos": 880000000
+            },
+            "confidence": 0.9981983
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 5998,
+                    "poster_path": "/zTd699LVJ6D3KB0ni2Z78BSp4Ex.jpg",
+                    "title": "Docteur Mabuse le joueur"
+                },
+                "crew": [
+                    {
+                        "id": 68,
+                        "name": "Fritz Lang"
+                    }
+                ],
+                "release_year": "1922-04-27"
+            },
+            "start_time": {
+                "seconds": 1073,
+                "nanos": 40000000
+            },
+            "end_time": {
+                "seconds": 1074,
+                "nanos": 840000000
+            },
+            "confidence": 0.9543026736000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 5998,
+                    "poster_path": "/zTd699LVJ6D3KB0ni2Z78BSp4Ex.jpg",
+                    "title": "Docteur Mabuse le joueur"
+                },
+                "crew": [
+                    {
+                        "id": 68,
+                        "name": "Fritz Lang"
+                    }
+                ],
+                "release_year": "1922-04-27"
+            },
+            "start_time": {
+                "seconds": 1079,
+                "nanos": 280000000
+            },
+            "end_time": {
+                "seconds": 1082,
+                "nanos": 400000000
+            },
+            "confidence": 0.9543890496
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 155,
+                    "poster_path": "/pyNXnq8QBWoK3b37RS6C3axwUOy.jpg",
+                    "title": "The Dark Knight : Le Chevalier noir"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2008-08-13"
+            },
+            "start_time": {
+                "seconds": 1087,
+                "nanos": 200000000
+            },
+            "end_time": {
+                "seconds": 1088,
+                "nanos": 400000000
+            },
+            "confidence": 0.9962759600000001
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 11948,
+                    "poster_path": "/5RTn77fRM6jtopJ0SVIGqCHGj2U.jpg",
+                    "title": "Furyo"
+                },
+                "crew": [
+                    {
+                        "id": 46230,
+                        "name": "Nagisa Ôshima"
+                    }
+                ],
+                "release_year": "1983-06-01"
+            },
+            "start_time": {
+                "seconds": 1109,
+                "nanos": 280000000
+            },
+            "end_time": {
+                "seconds": 1112,
+                "nanos": 160000000
+            },
+            "confidence": 1.0
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 11948,
+                    "poster_path": "/5RTn77fRM6jtopJ0SVIGqCHGj2U.jpg",
+                    "title": "Furyo"
+                },
+                "crew": [
+                    {
+                        "id": 46230,
+                        "name": "Nagisa Ôshima"
+                    }
+                ],
+                "release_year": "1983-06-01"
+            },
+            "start_time": {
+                "seconds": 1113,
+                "nanos": 840000000
+            },
+            "end_time": {
+                "seconds": 1117,
+                "nanos": 440000000
+            },
+            "confidence": 0.996732325
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 872585,
+                    "poster_path": "/boAUuJBeID7VNp4L7LNMQs8mfQS.jpg",
+                    "title": "Oppenheimer"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2023-07-19"
+            },
+            "start_time": {
+                "seconds": 1117,
+                "nanos": 920000000
+            },
+            "end_time": {
+                "seconds": 1119,
+                "nanos": 0
+            },
+            "confidence": 0.9965177199999999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 11948,
+                    "poster_path": "/5RTn77fRM6jtopJ0SVIGqCHGj2U.jpg",
+                    "title": "Furyo"
+                },
+                "crew": [
+                    {
+                        "id": 46230,
+                        "name": "Nagisa Ôshima"
+                    }
+                ],
+                "release_year": "1983-06-01"
+            },
+            "start_time": {
+                "seconds": 1127,
+                "nanos": 640000000
+            },
+            "end_time": {
+                "seconds": 1129,
+                "nanos": 560000000
+            },
+            "confidence": 0.9971108449999999
+        },
+        {
+            "media_item": {
+                "details": {
+                    "id": 1124,
+                    "poster_path": "/37Fr7lY4QBHsuxlLJIfTNxW6nGW.jpg",
+                    "title": "Le Prestige"
+                },
+                "crew": [
+                    {
+                        "id": 525,
+                        "name": "Christopher Nolan"
+                    }
+                ],
+                "release_year": "2006-11-15"
+            },
+            "start_time": {
+                "seconds": 1134,
+                "nanos": 600000000
+            },
+            "end_time": {
+                "seconds": 1137,
+                "nanos": 0
+            },
+            "confidence": 1.0
+        }
+    ]
+}

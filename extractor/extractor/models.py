@@ -1,6 +1,8 @@
 from datetime import date
-from pydantic import BaseModel
+from typing import Annotated, Any, Literal, Union
+from pydantic import BaseModel, Field, Discriminator, Tag
 from themoviedb import PartialMovie, Person, PartialTV
+from themoviedb.schemas._enums import MediaType
 
 
 # Video Intelligence API models
@@ -71,7 +73,7 @@ class VideoAnnotation(BaseModel):
 
 class MediaItem(BaseModel):
     details: PartialMovie | PartialTV
-    director: Person | None
+    crew: list[Person] | None
     release_year: date | None
 
 
