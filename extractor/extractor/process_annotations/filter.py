@@ -29,7 +29,7 @@ def is_bbox_too_small(bbox: RotatedBoundingBox):
     xmin, ymin = min(xx), min(yy)
     xmax, ymax = max(xx), max(yy)
 
-    return (xmax - xmin) < 0.02 or (ymax - ymin) < 0.04
+    return (xmax - xmin) < 0.01 or (ymax - ymin) < 0.02
 
 
 def is_bbox_vertical(bbox: RotatedBoundingBox):
