@@ -1,5 +1,5 @@
 import json
-from pathlib import Path
+import re
 from typing import Any, Coroutine
 from extractor.download import upload_json_blob
 from extractor.models import (
@@ -21,7 +21,6 @@ tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region=
 
 def get_director(details: str):
     director = details.split("-")[0].strip()
-    print(f"Director of details {details} is:", director)
     return director
 
 
@@ -34,6 +33,7 @@ def get_year(details: str):
             return None
     return None
 
+
 async def is_director_in_movie(director_id: int, movie_id: int):
     director_credits = await tmdb.person(director_id).combined_credits()
     director_jobs_in_movie = (
@@ -42,7 +42,6 @@ async def is_director_in_movie(director_id: int, movie_id: int):
         else []
     )
     is_director = len(director_jobs_in_movie) > 0
-    print(f"Director of ID: {director_id}, is director in {movie_id}: {is_director}")
     return is_director
 
 
@@ -72,33 +71,42 @@ async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
     ]
 
     if len(movies_or_tv_series_interleaved) == 0:
-        print(f"ERROR: No movie or TV series found for {segment_group.get_heading_text()}")
+        print(
+            f"ERROR: No movie or TV series found for {segment_group.get_heading_text()}"
+        )
         if movies.results:
-            print(f"INFO: {len(movies.results)=}")
+            print(f"\tINFO: {len(movies.results)=}")
         else:
-            print("INFO: No movie found")
+            print("\tINFO: No movie found")
         if tv_series.results:
-            print(f"INFO: {len(tv_series.results)=}")
+            print(f"\tINFO: {len(tv_series.results)=}")
         else:
-            print("INFO: No TV series found")
+            print("\tINFO: No TV series found")
         return None
 
     if directors.total_results == 0:
-        print(f"ERROR: No director found for {get_director(segment_group.get_details_text())}")
+        print(
+            f"ERROR: No director found for details: {segment_group.get_details_text()}"
+        )
         return None
     directors.results = directors.results or []
 
     async def dummy_false():
         return False
+
     # Movie or TV Serie - director matching
     movie_director_match: list[list[Coroutine[Any, Any, bool]]] = (
-        [[dummy_false()] for _ in range(len(movies_or_tv_series_interleaved))] if movies_or_tv_series_interleaved else []
+        [[] for _ in range(len(movies_or_tv_series_interleaved))]
+        if movies_or_tv_series_interleaved
+        else []
     )
     results_limit = 3  # Limit the number of results to check
     for i, media_item in enumerate(movies_or_tv_series_interleaved[:results_limit]):
         movie_director_match[i] = [
             is_director_in_movie(director.id, media_item.id)
-            if director.id and media_item.id and director.known_for_department == "Directing"
+            if director.id
+            and media_item.id
+            and director.known_for_department == "Directing"
             else dummy_false()
             for director in directors.results[:results_limit]
         ]
@@ -106,7 +114,7 @@ async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
     # Movie - year matching
     year = get_year(segment_group.get_details_text())
     if year is None:
-        print(f"INFO: No year found for {segment_group.get_details_text()}")
+        print(f"INFO: No year found for details: {segment_group.get_details_text()}")
     year_confidence = (
         [0.0 for _ in range(len(movies_or_tv_series_interleaved))]
         if movies_or_tv_series_interleaved
@@ -124,8 +132,12 @@ async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
                 year_confidence[i] = max(1.0 - diff / 10, 0.0)
 
     # Combine confidence scores
-    movie_director_match = await asyncio.gather(*[asyncio.gather(*x) for x in movie_director_match])
-    movie_director_match_confidence = [[float(y) for y in x] for x in movie_director_match]
+    movie_director_match_awaited = await asyncio.gather(
+        *[asyncio.gather(*x) for x in movie_director_match]
+    )
+    movie_director_match_confidence = [
+        [float(y) for y in x] for x in movie_director_match_awaited
+    ]
     confidence_scores = [
         0.5 * mean(movie_director_match_confidence[i]) + 0.5 * year_confidence[i]
         for i in range(len(movies_or_tv_series_interleaved))
@@ -144,9 +156,9 @@ async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
         )
 
         # Get the director
-        best_director_index = movie_director_match[best_media_item_index].index(
-            max(movie_director_match[best_media_item_index])
-        )
+        best_director_index = movie_director_match_confidence[
+            best_media_item_index
+        ].index(max(movie_director_match_confidence[best_media_item_index]))
         director = directors.results[best_director_index] if directors.results else None
 
         # Get the release year
@@ -170,7 +182,9 @@ async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
 
     if media_item:
         return MediaItemTimestamp(
-            media_item=MediaItem(details=media_item, director=director, release_year=release_date),
+            media_item=MediaItem(
+                details=media_item, director=director, release_year=release_date
+            ),
             confidence=final_confidence,
             start_time=segment_group.get_start_time(),
             end_time=segment_group.get_end_time(),
@@ -182,7 +196,11 @@ async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
 async def _extract_media_items(annotations: list[TextAnnotationSegmentGroupOrganized]):
     tasks = [get_media_details(x) for x in annotations]
     details = await asyncio.gather(*tasks)
-    return MediaItemsTimestamps(media_items_timestamps=[media_timestamp for media_timestamp in details if media_timestamp])
+    return MediaItemsTimestamps(
+        media_items_timestamps=[
+            media_timestamp for media_timestamp in details if media_timestamp
+        ]
+    )
 
 
 async def extract_media_items(
@@ -190,30 +208,24 @@ async def extract_media_items(
 ):
     blob_data = download_blob(bucket_name, annotation_blob_name)
     blob_list = json.loads(blob_data)
+    assert len(blob_list) == 1
+    blob_list = blob_list[0]
     annotations = [TextAnnotationSegmentGroupOrganized(**d) for d in blob_list]
 
     items = await _extract_media_items(annotations)
-    blob_name = upload_json_blob(bucket_name, items.model_dump(), output_blob_name)
-    return blob_name
-
-
-if __name__ == "__main__":
-    import sys
-
-    annotations = [
-        TextAnnotationSegmentGroupOrganized(**d)
-        for d in json.loads(Path(sys.argv[1]).read_text())
-    ]
-    items = asyncio.run(_extract_media_items(annotations))
-    # sort movies by start time
-    items.media_items_timestamps.sort(key=lambda x: x.start_time)
-    Path(sys.argv[2]).write_text(
+    blob_name = upload_json_blob(
+        bucket_name,
         items.model_dump_json(
             include={
                 "media_items_timestamps": {
                     "__all__": {
                         "media_item": {
-                            "details": {"id", "title", "name"},
+                            "details": {
+                                "id",
+                                "title",
+                                "name",
+                                "poster_path",
+                            },
                             "director": {"id", "name"},
                             "release_year": True,
                         },
@@ -223,5 +235,18 @@ if __name__ == "__main__":
                     }
                 }
             }
-        )
+        ),
+        output_blob_name,
     )
+    return blob_name
+
+
+if __name__ == "__main__":
+    import sys
+    import asyncio
+    import warnings
+
+    # filter warning PydanticSerializationUnexpectedValue
+    warnings.filterwarnings("ignore", category=UserWarning)
+
+    print(asyncio.run(extract_media_items(sys.argv[1], sys.argv[2], sys.argv[3])))
