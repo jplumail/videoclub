@@ -146,7 +146,7 @@ async def get_persons_and_years(details: str):
         print(f"INFO: No director(s) found for names: {directors_names}. Falling back to LLM.")
         directors_names, years = get_directors_names_and_years_llm(details)
         directors = await search_persons(directors_names)
-        if any(len(persons) == 0 for persons in directors):
+        if len(directors) == 0 or any(len(persons) == 0 for persons in directors):
             print(f"ERROR: LLM failed. No director(s) found for names: {directors_names}.")
         else:
             print(f"INFO: LLM succeeded. Found director(s) for names: {directors_names}.")
