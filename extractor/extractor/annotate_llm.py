@@ -1,4 +1,5 @@
 from datetime import datetime
+import asyncio
 import json
 from typing import Any, List
 from google.genai.models import _GenerateContentParameters_to_vertex, _common
@@ -184,9 +185,7 @@ def create_batch_prediction_job(
     return job.name
 
 
-import asyncio
-
-async def annotate_video(
+async def annotate_videos(
     bucket_name: str, video_blob_list: list[str], annotation_output_blob_list: list[str]
 ):
     job_id = int(datetime.now().timestamp())
@@ -200,6 +199,7 @@ async def annotate_video(
     )
     if job_name is None:
         raise Exception("Job creation failed")
+    print(f"Job {job_name} created")
     job = client.batches.get(name=job_name)
     completed_states = set(
         [
@@ -212,7 +212,7 @@ async def annotate_video(
     while job.state is None or job.state not in completed_states:
         await asyncio.sleep(10)
         job = client.batches.get(name=job_name)
-        print(f"{datetime.now().isoformat()}: {job.state}")
+        print(f"{datetime.now().isoformat()}: {job_name} {job.state}")
     
     success_states = {"JOB_STATE_SUCCEEDED"}
     if job.state not in success_states:
@@ -226,18 +226,19 @@ async def annotate_video(
         if blob.name.endswith("predictions.jsonl")
     ]))
     print(f"Downloading {prediction_blob.name}")
+    annotations_done = []
     with prediction_blob.open("r") as f:
         for line, annotation_output_blob in zip(f, annotation_output_blob_list):
             try:
                 response = json.loads(line)
                 json_payload = response["response"]["candidates"][0]["content"]["parts"][0]["text"]
                 AnnotationResponse.model_validate_json(json_payload)
-                upload_json_blob(bucket_name, json_payload, annotation_output_blob)
+                annotations_done.append(upload_json_blob(bucket_name, json_payload, annotation_output_blob))
             except Exception as e:
                 print(f"Error in response: {e}")
                 continue
-
+    return annotations_done
 if __name__ == "__main__":
     import asyncio
 
-    asyncio.run(annotate_video("videoclub-test", ["videos/xDNo7a48uOg/video.webm"], ["videos/xDNo7a48uOg/annotations.json"]))
+    asyncio.run(annotate_videos("videoclub-test", ["videos/xDNo7a48uOg/video.webm"], ["videos/xDNo7a48uOg/annotations.json"]))
