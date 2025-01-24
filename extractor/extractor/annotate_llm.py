@@ -156,7 +156,8 @@ def create_batch_prediction_request_file(
 ) -> str:
     assert request_blob_name.endswith(".jsonl")
     requests = [
-        json.dumps(create_request(f"gs://{bucket_name}/{blob}"), ensure_ascii=False) for blob in video_blobs
+        json.dumps(create_request(f"gs://{bucket_name}/{blob}"), ensure_ascii=False)
+        for blob in video_blobs
     ]
 
     storage_client = storage.Client()
@@ -213,38 +214,56 @@ async def annotate_videos(
         await asyncio.sleep(10)
         job = client.batches.get(name=job_name)
         print(f"{datetime.now().isoformat()}: {job_name} {job.state}")
-    
+
     success_states = {"JOB_STATE_SUCCEEDED"}
     if job.state not in success_states:
         print(job)
         raise Exception("Job failed")
-    
+
     bucket = storage.Client().bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=output_folder)
-    prediction_blob = next(iter([
-        blob for blob in blobs 
-        if blob.name.endswith("predictions.jsonl")
-    ]))
+    prediction_blob = next(
+        iter([blob for blob in blobs if blob.name.endswith("predictions.jsonl")])
+    )
     print(f"Downloading {prediction_blob.name}")
     annotations_done = []
     with prediction_blob.open("r") as f:
         for line in f:
             try:
                 response = json.loads(line)
-                video_uri = response["request"]["contents"][0]["parts"][0]["fileData"]["file_uri"] # "gs://videoclub-test/xDNo7a48uOg/video.webm"
+                video_uri = response["request"]["contents"][0]["parts"][0]["fileData"][
+                    "file_uri"
+                ]  # "gs://videoclub-test/xDNo7a48uOg/video.webm"
                 video_id = video_uri.split("/")[-2]
-                annotation_output_blob = next(iter([
-                    blob for blob in annotation_output_blob_list
-                    if video_id in blob
-                ]))
-                json_payload = response["response"]["candidates"][0]["content"]["parts"][0]["text"]
+                annotation_output_blob = next(
+                    iter(
+                        [
+                            blob
+                            for blob in annotation_output_blob_list
+                            if video_id in blob
+                        ]
+                    )
+                )
+                json_payload = response["response"]["candidates"][0]["content"][
+                    "parts"
+                ][0]["text"]
                 AnnotationResponse.model_validate_json(json_payload)
-                annotations_done.append(upload_json_blob(bucket_name, json_payload, annotation_output_blob))
+                annotations_done.append(
+                    upload_json_blob(bucket_name, json_payload, annotation_output_blob)
+                )
             except Exception as e:
                 print(f"Error for {annotation_output_blob}: {e}")
                 continue
     return annotations_done
+
+
 if __name__ == "__main__":
     import asyncio
 
-    asyncio.run(annotate_videos("videoclub-test", ["videos/xDNo7a48uOg/video.webm"], ["videos/xDNo7a48uOg/annotations.json"]))
+    asyncio.run(
+        annotate_videos(
+            "videoclub-test",
+            ["videos/xDNo7a48uOg/video.webm"],
+            ["videos/xDNo7a48uOg/annotations.json"],
+        )
+    )
