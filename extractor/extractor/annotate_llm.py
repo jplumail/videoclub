@@ -117,7 +117,7 @@ Si un film est montré plusieurs fois, tu ajoutes un nouveau MediaItem avec un n
 
 3. OPTIONNEL: Donne le(s) auteur(s) et l'année de sortie de chaque MediaItem mentionné(e), cela servira à identifier le film en question.
 Mais si elles ne sont pas disponibles, tu n'a pas besoin de les mentionner.
-Ces informations sont disponibles à l'écran, généralement en haut à gauche.
+Ces informations sont disponibles à l'écran, généralement en haut à gauche ou en bas à gauche.
 
 Ta réponse sera au format JSON suivant:
 {to_vertexai_compatible_schema(AnnotationResponse.model_json_schema())}"""
