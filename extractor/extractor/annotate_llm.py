@@ -123,7 +123,7 @@ Ta réponse sera au format JSON suivant:
 {to_vertexai_compatible_schema(AnnotationResponse.model_json_schema())}"""
 
     generation_config = types.GenerateContentConfig(
-        max_output_tokens=8192,
+        max_output_tokens=None,
         temperature=TEMP,
         top_p=0.95,
         response_mime_type="application/json",
@@ -228,14 +228,20 @@ async def annotate_videos(
     print(f"Downloading {prediction_blob.name}")
     annotations_done = []
     with prediction_blob.open("r") as f:
-        for line, annotation_output_blob in zip(f, annotation_output_blob_list):
+        for line in f:
             try:
                 response = json.loads(line)
+                video_uri = response["request"]["contents"][0]["parts"][0]["fileData"]["file_uri"] # "gs://videoclub-test/xDNo7a48uOg/video.webm"
+                video_id = video_uri.split("/")[-2]
+                annotation_output_blob = next(iter([
+                    blob for blob in annotation_output_blob_list
+                    if video_id in blob
+                ]))
                 json_payload = response["response"]["candidates"][0]["content"]["parts"][0]["text"]
                 AnnotationResponse.model_validate_json(json_payload)
                 annotations_done.append(upload_json_blob(bucket_name, json_payload, annotation_output_blob))
             except Exception as e:
-                print(f"Error in response: {e}")
+                print(f"Error for {annotation_output_blob}: {e}")
                 continue
     return annotations_done
 if __name__ == "__main__":
