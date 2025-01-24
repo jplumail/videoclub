@@ -2,7 +2,7 @@ import sys
 import asyncio
 import warnings
 
-from extractor.extract.extract import extract_media_items
+from .extract import extract_media_items
 
 # filter warning PydanticSerializationUnexpectedValue
 warnings.filterwarnings("ignore", category=UserWarning)

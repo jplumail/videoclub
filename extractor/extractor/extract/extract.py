@@ -1,20 +1,20 @@
 import json
 import re
-from typing import Any, Coroutine
 from extractor.download import upload_json_blob
 from extractor.extract.llm import get_directors_names_and_years_llm
 from extractor.models import (
     MediaItem,
     MediaItemTimestamp,
     MediaItemsTimestamps,
+    TimeOffset,
 )
 from extractor.utils import year_pattern
 from extractor.download import download_blob
 import asyncio
 from itertools import zip_longest
 
-from extractor.process_annotations.models import TextAnnotationSegmentGroupOrganized
 from themoviedb import aioTMDb, PartialMovie, PartialTV, Person
+from extractor.annotate_llm import AnnotationResponse, MediaItem as MediaItemLLM
 
 
 tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region="FR")
@@ -139,38 +139,22 @@ def get_movie_year_confidence(
     ]
     return [1.0 - abs(date.year - year) / 10 if date else 0.0 for date in release_dates]
 
-async def get_persons_and_years(details: str):
-    directors_names, years = get_directors_names_and_years(details)
-    directors = await search_persons(directors_names)
-    if any(len(persons) == 0 for persons in directors):
-        print(f"INFO: No director(s) found for names: {directors_names}. Falling back to LLM.")
-        directors_names, years = get_directors_names_and_years_llm(details)
-        directors = await search_persons(directors_names)
-        if len(directors) == 0 or any(len(persons) == 0 for persons in directors):
-            print(f"ERROR: LLM failed. No director(s) found for names: {directors_names}.")
-        else:
-            print(f"INFO: LLM succeeded. Found director(s) for names: {directors_names}.")
-    else:
-        print(f"INFO: Found director(s) for names: {directors_names}.")
-    return directors, years
 
-
-async def get_best_media_item_director(title: str, details: str):
+async def get_best_media_item_director(title: str, authors_str: list[str], years: list[int]):
     media_items = await search_media_items(title)
     if len(media_items) == 0:
         return None, None, 0
-    directors, years = await get_persons_and_years(details)
+    authors = await search_persons(authors_str)
 
     # Movie or TV Serie - director matching
     results_limit = 3  # Limit the number of results to avoid too many API calls
     media_items = media_items[:results_limit]
-    directors = [persons[:results_limit] for persons in directors]
+    directors = [persons[:results_limit] for persons in authors]
     data = await get_movie_director_match_confidence_matrix(
         media_items, directors, limit=results_limit
     )
 
     # Movie - year matching
-    years = get_years(details)
     year_confidence = get_movie_year_confidence(
         [media_item for (media_item, _, _) in data], years[0] if years else None
     )
@@ -191,18 +175,19 @@ async def get_best_media_item_director(title: str, details: str):
 
     return media_item, crew, best_confidence
 
+def get_timeoffset_from_timecode(timecode: str):
+    minutes, seconds = timecode.split(":")
+    seconds = int(minutes) * 60 + int(seconds)
+    return TimeOffset(seconds=seconds)
 
-async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
+async def get_media_details(media_item_llm: MediaItemLLM):
     media_item, crew, confidence = await get_best_media_item_director(
-        segment_group.get_heading_text(),
-        segment_group.get_details_text(),
+        media_item_llm.title,
+        media_item_llm.authors,
+        media_item_llm.years
     )
     if media_item is None:
         return None
-
-    # Combine the confidence scores
-    final_confidence = confidence * segment_group.get_confidence()
-    # print(f"INFO: Confidence score for {segment_group.get_heading_text()}: {final_confidence:.2f} = {confidence:.2f} * {segment_group.get_confidence():.2f}")
 
     # Get the release year
     release_date = (
@@ -220,16 +205,16 @@ async def get_media_details(segment_group: TextAnnotationSegmentGroupOrganized):
             media_item=MediaItem(
                 details=media_item, crew=crew, release_year=release_date
             ),
-            confidence=final_confidence,
-            start_time=segment_group.get_start_time(),
-            end_time=segment_group.get_end_time(),
+            confidence=confidence,
+            start_time=get_timeoffset_from_timecode(media_item_llm.timecode.start_time),
+            end_time=get_timeoffset_from_timecode(media_item_llm.timecode.end_time),
         )
     else:
         return None
 
 
-async def _extract_media_items(annotations: list[TextAnnotationSegmentGroupOrganized]):
-    tasks = [get_media_details(x) for x in annotations]
+async def _extract_media_items(media_items: list[MediaItemLLM]):
+    tasks = [get_media_details(x) for x in media_items]
     details = await asyncio.gather(*tasks)
     return MediaItemsTimestamps(
         media_items_timestamps=[
@@ -242,12 +227,8 @@ async def extract_media_items(
     bucket_name: str, annotation_blob_name: str, output_blob_name: str
 ):
     blob_data = download_blob(bucket_name, annotation_blob_name)
-    blob_list = json.loads(blob_data)
-    assert len(blob_list) == 1
-    blob_list = blob_list[0]
-    annotations = [TextAnnotationSegmentGroupOrganized(**d) for d in blob_list]
-
-    items = await _extract_media_items(annotations)
+    annotations = AnnotationResponse.model_validate_json(blob_data)
+    items = await _extract_media_items(annotations.items)
     blob_name = upload_json_blob(
         bucket_name,
         items.model_dump_json(
