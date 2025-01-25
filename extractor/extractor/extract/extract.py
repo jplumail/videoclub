@@ -1,7 +1,6 @@
-import json
 import re
+import warnings
 from extractor.download import upload_json_blob
-from extractor.extract.llm import get_directors_names_and_years_llm
 from extractor.models import (
     MediaItem,
     MediaItemTimestamp,
@@ -15,6 +14,11 @@ from itertools import zip_longest
 
 from themoviedb import aioTMDb, PartialMovie, PartialTV, Person
 from extractor.annotate_llm import AnnotationResponse, MediaItem as MediaItemLLM
+
+
+# filter warning PydanticSerializationUnexpectedValue
+warnings.filterwarnings("ignore", category=UserWarning)
+
 
 
 tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region="FR")
@@ -225,7 +229,7 @@ async def _extract_media_items(media_items: list[MediaItemLLM]):
 
 async def extract_media_items(
     bucket_name: str, annotation_blob_name: str, output_blob_name: str
-):
+) -> str:
     blob_data = download_blob(bucket_name, annotation_blob_name)
     annotations = AnnotationResponse.model_validate_json(blob_data)
     items = await _extract_media_items(annotations.items)
@@ -254,4 +258,4 @@ async def extract_media_items(
         ),
         output_blob_name,
     )
-    return blob_name
+    return blob_name  # type: ignore
