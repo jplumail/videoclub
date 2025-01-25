@@ -6,7 +6,18 @@ interface MoviesData {
 }
 
 interface MovieData {
-    media_item: any;
+    media_item: {
+        details: {
+            id: number;
+            poster_path: string;
+            title: string;
+        };
+        crew: {
+            id: number;
+            name: string;
+        }[];
+        release_year: string;
+    };
     start_time: Timecode;
     end_time: Timecode;
     confidence: number;
@@ -73,6 +84,14 @@ function getYoutubeUrl(videoId: string, timecode: number) {
     return `https://www.youtube.com/watch?v=${videoId}&t=${timecode}s`;
 }
 
+function getMinutes(seconds: number) {
+    return Math.floor(seconds / 60).toString().padStart(2, '0');
+}
+
+function getSeconds(seconds: number) {
+    return (seconds % 60).toString().padStart(2, '0');
+}
+
 export default async function Page({
     params,
 }: {
@@ -90,11 +109,27 @@ export default async function Page({
     const moviesFile = files.filter(file => file.name.endsWith('movies.json'))[0];
     const [content] = await moviesFile.download();
     const moviesData: MoviesData = JSON.parse(content.toString());
-    moviesData.media_items_timestamps.sort((a, b) => a.start_time.seconds - b.start_time.seconds);
     const configurationDetails = await getConfigurationDetails();
 
-    return <div>{moviesData.media_items_timestamps.map((item) => {
+    const moviesSet = new Set();
+    const uniqueMoviesData = moviesData.media_items_timestamps.filter((item) => {
+        if (moviesSet.has(item.media_item.details.id)) {
+            return false;
+        }
+        moviesSet.add(item.media_item.details.id);
+        return true;
+    });
+
+    moviesData.media_items_timestamps.sort((a, b) => a.start_time.seconds - b.start_time.seconds);
+    return <div>{uniqueMoviesData.map((item) => {
         const posterUrl = getPosterUrl(item.media_item.details.poster_path, configurationDetails);
-        return <a href={getYoutubeUrl(videoId, item.start_time.seconds)} target='_blank'><img src={posterUrl} /></a>
+        return <a >
+            <img src={posterUrl} />
+            {moviesData.media_items_timestamps
+                .filter((item2) => item2.media_item.details.id === item.media_item.details.id)
+                .map((item2) => <a href={getYoutubeUrl(videoId, item2.start_time.seconds)} target='_blank'>
+                    <p>{getMinutes(item2.start_time.seconds)}:{getSeconds(item2.start_time.seconds)}</p>
+                </a>)}
+        </a>
     })}</div>
 }
