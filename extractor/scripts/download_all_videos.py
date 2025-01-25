@@ -1,8 +1,6 @@
 from extractor.utils import get_videos_playlist
 from tqdm import tqdm
 
-import googleapiclient.discovery
-import googleapiclient.errors
 import requests
 import yt_dlp
 from extractor.download import download_video
