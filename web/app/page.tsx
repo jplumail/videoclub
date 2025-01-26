@@ -26,6 +26,8 @@ export default async function Home() {
             <a href={videoUrl}>
               <Image
                 src={video.snippet.thumbnails.standard.url}
+                width={video.snippet.thumbnails.standard.width}
+                height={video.snippet.thumbnails.standard.height}
                 alt="thumbnail"
               />
             </a>

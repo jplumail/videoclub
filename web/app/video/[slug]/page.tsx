@@ -57,18 +57,21 @@ export default async function Page({
   return (
     <div>
       {uniqueMoviesData.map(async (item1, key1) => {
-        const posterUrl = await ConfigurationManager.getPosterUrl(
+        const poster = await ConfigurationManager.getPosterUrl(
           item1.media_item.details.poster_path,
         );
         const sameMovies = moviesData.media_items_timestamps.filter(
           (item2) =>
             item2.media_item.details.id === item1.media_item.details.id,
         );
+        console.log(poster);
         return (
           <div key={key1}>
             <Image
-              src={posterUrl}
+              src={poster.url}
               alt={`Poster du film ${item1.media_item.details.title}`}
+              width={poster.width}
+              height={poster.height}
             />
             {sameMovies.map((item2, key2) => (
               <a

@@ -140,15 +140,23 @@ export class ConfigurationManager {
     return (await this.getConfigurationDetails()).images.secure_base_url;
   }
 
-  private static async getPosterSize() {
+  private static async getPosterSize(width: number) {
     return (await this.getConfigurationDetails()).images.poster_sizes.filter(
-      (size) => size === "w185",
+      (size) => {
+        return parseInt(size.substring(1)) == width;
+      },
     )[0];
   }
 
   public static async getPosterUrl(posterPath: string) {
+    const width = 185;
+    const height = 278;
     const secureBaseUrl = await this.getSecureBaseUrl();
-    const posterSize = await this.getPosterSize();
-    return `${secureBaseUrl}${posterSize}${posterPath}`;
+    const posterSize = await this.getPosterSize(width);
+    return {
+      width: width,
+      height: height,
+      url: `${secureBaseUrl}${posterSize}${posterPath}`,
+    };
   }
 }
