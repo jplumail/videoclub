@@ -3,10 +3,13 @@ import googleapiclient.discovery
 import requests
 
 
-
 year_pattern = re.compile(r"\b\d{4}\b")
 
 API_KEY = "AIzaSyC-8WuhND8YDjvzZLNf0Jw8MGTQ3E1qCXA"
+
+videos_exclude = [
+    "PYBNm843pmQ",
+]
 
 
 def is_video_a_short(video_id: str):
@@ -17,8 +20,18 @@ def is_video_a_short(video_id: str):
     response = requests.head(url)
     return response.status_code == 200
 
+
 def is_video_public(item):
     return item["status"]["privacyStatus"] == "public"
+
+
+def filter_video(item):
+    return (
+        item["snippet"]["resourceId"]["videoId"] not in videos_exclude
+        and is_video_public(item)
+        and not is_video_a_short(item["snippet"]["resourceId"]["videoId"])
+    )
+
 
 def get_videos_playlist(playlist_id: str):
     youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=API_KEY)
@@ -31,10 +44,13 @@ def get_videos_playlist(playlist_id: str):
     items = []
     while request is not None:
         items_page = request.execute()
-        items.extend([
-            item for item in items_page["items"]
-            if is_video_public(item) and not is_video_a_short(item["snippet"]["resourceId"]["videoId"])
-        ])
+        items.extend(
+            [
+                item
+                for item in items_page["items"]
+                if filter_video(item)
+            ]
+        )
         request = playlistItems.list_next(request, items_page)
 
     return items
