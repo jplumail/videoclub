@@ -1,7 +1,7 @@
 from datetime import datetime
 import asyncio
 import json
-from typing import Any, List
+from typing import List
 from google.genai.models import _GenerateContentParameters_to_vertex, _common
 from extractor.download import upload_json_blob
 import googleapiclient.discovery
@@ -12,23 +12,14 @@ from google.cloud import storage
 import io
 import json_stream
 from json_stream.base import PersistentStreamingJSONObject, PersistentStreamingJSONList
+from .utils import safety_settings, to_vertexai_compatible_schema
 
-import jsonref
 
 client = genai.Client(
     vertexai=True, project="videoclub-447210", location="europe-west9"
 )
 
 TEMP = 0
-
-
-def to_vertexai_compatible_schema(schema: dict[str, Any]):
-    d: dict[str, Any] = json.loads(
-        jsonref.dumps(jsonref.replace_refs(schema, proxies=False))
-    )
-    if "$defs" in d:
-        del d["$defs"]
-    return d
 
 
 class TimeSegment(BaseModel):
@@ -47,26 +38,6 @@ class AnnotationResponse(BaseModel):
     items: List[MediaItem]
 
 
-safety_settings = [
-    types.SafetySetting(
-        category="HARM_CATEGORY_HATE_SPEECH",
-        threshold="OFF",
-    ),
-    types.SafetySetting(
-        category="HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold="OFF",
-    ),
-    types.SafetySetting(
-        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold="OFF",
-    ),
-    types.SafetySetting(
-        category="HARM_CATEGORY_HARASSMENT",
-        threshold="OFF",
-    ),
-]
-
-
 def get_title(youtube_id: str):
     API_KEY = "AIzaSyC-8WuhND8YDjvzZLNf0Jw8MGTQ3E1qCXA"
 
@@ -75,34 +46,6 @@ def get_title(youtube_id: str):
     request = youtube.videos().list(part="snippet", id=youtube_id)
     response = request.execute()
     return response["items"][0]["snippet"]["title"]
-
-
-class NamesResponse(BaseModel):
-    names: list[str]
-
-
-async def get_names_from_title(title: str):
-    response = await client.aio.models.generate_content(
-        model="gemini-2.0-flash-exp",
-        contents=[f"Titre: {title}"],
-        config=types.GenerateContentConfig(
-            max_output_tokens=8192,
-            temperature=1,
-            top_p=0.95,
-            response_mime_type="application/json",
-            response_schema=NamesResponse,
-            safety_settings=safety_settings,
-            system_instruction=(
-                "Tu dois récupérer les noms des personnes présentes dans la vidéo d'apès son titre."
-                "Un élément par personne."
-                "Si le prénom et le nom de la personne sont donnés, tu dois les retourner ensemble."
-                "Exemple: si le titre est 'Interview de Quentin Tarantino', tu dois retourner ['Quentin Tarantino']"
-                "Exemple: si le titre est 'Interview de Quentin', tu dois retourner ['Quentin']"
-            ),
-        ),
-    )
-    if response.text:
-        return NamesResponse.model_validate_json(response.text)
 
 
 def create_request(video_blob_name: str, context: list[types.Content] | None = None):
@@ -279,7 +222,9 @@ def get_items(json_payload: str):
     except ValueError:
         pass
     done_items = [
-        persistent_streaming_object_to_python(item) for item in items if not item.streaming
+        persistent_streaming_object_to_python(item)
+        for item in items
+        if not item.streaming
     ]
     return done_items
 

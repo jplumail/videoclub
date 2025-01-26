@@ -1,6 +1,10 @@
+import json
 import re
+from typing import Any
 import googleapiclient.discovery
 import requests
+from google.genai import types
+import jsonref
 
 
 year_pattern = re.compile(r"\b\d{4}\b")
@@ -33,7 +37,7 @@ def filter_video(item):
     )
 
 
-def get_videos_playlist(playlist_id: str):
+def get_videos_playlist(playlist_id: str) -> list[dict[str, Any]]:
     youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=API_KEY)
 
     playlistItems = youtube.playlistItems()
@@ -44,13 +48,36 @@ def get_videos_playlist(playlist_id: str):
     items = []
     while request is not None:
         items_page = request.execute()
-        items.extend(
-            [
-                item
-                for item in items_page["items"]
-                if filter_video(item)
-            ]
-        )
+        items.extend([item for item in items_page["items"] if filter_video(item)])
         request = playlistItems.list_next(request, items_page)
 
     return items
+
+
+def to_vertexai_compatible_schema(schema: dict[str, Any]):
+    d: dict[str, Any] = json.loads(
+        jsonref.dumps(jsonref.replace_refs(schema, proxies=False))
+    )
+    if "$defs" in d:
+        del d["$defs"]
+    return d
+
+
+safety_settings = [
+    types.SafetySetting(
+        category="HARM_CATEGORY_HATE_SPEECH",
+        threshold="OFF",
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold="OFF",
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        threshold="OFF",
+    ),
+    types.SafetySetting(
+        category="HARM_CATEGORY_HARASSMENT",
+        threshold="OFF",
+    ),
+]
