@@ -1,6 +1,6 @@
 "use server";
 
-import { Storage } from '@google-cloud/storage';
+import { BucketManager } from "@/lib/data";
 
 function convertTitleToSlug(title: string): string {
   return title
@@ -11,45 +11,8 @@ function convertTitleToSlug(title: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-interface VideoData {
-  snippet: {
-    publishedAt: string;
-    title: string;
-    videoId: string;
-    thumbnails: {
-      standard: {
-        url: string;
-        width: number;
-        height: number;
-      };
-    };
-    resourceId: {
-      videoId: string;
-    }
-  }
-}
-
 export default async function Home() {
-  const storage = new Storage();
-  const bucket = storage.bucket('videoclub-test');
-
-  const [files] = await bucket.getFiles({
-    prefix: 'videos/',
-  });
-
-  const jsonFiles = files.filter(file => file.name.endsWith('video.json'));
-  const videos: VideoData[] = [];
-
-  for (const file of jsonFiles) {
-    const [content] = await file.download();
-    const videoData = JSON.parse(content.toString()) as VideoData;
-    videos.push(videoData);
-  }
-
-  videos.sort((a, b) =>
-    new Date(b.snippet.publishedAt).getTime() - new Date(a.snippet.publishedAt).getTime()
-  );
-  console.log(videos[2]);
+  const videos = await BucketManager.getVideosSorted();
 
   return (
     <main>
