@@ -1,4 +1,4 @@
 from extractor.annotate.models import MediaItemsTimestamps
-from extractor.youtube.models import PlaylistItem
+from extractor.video.models import PlaylistItemPersonnalites
 
-__all__ = ["MediaItemsTimestamps", "PlaylistItem"]
+__all__ = ["MediaItemsTimestamps", "PlaylistItemPersonnalites"]
