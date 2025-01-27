@@ -10,7 +10,6 @@ from .extract.extract import search_persons
 
 
 class Personnalite(BaseModel):
-    prenom: str
     nom: str
 
 
@@ -32,7 +31,7 @@ async def extract_names(title: str, description: str):
         contents=[f'{{"titre": "{title}", "description": "{description}"}}'],
         config=types.GenerateContentConfig(
             max_output_tokens=8192,
-            temperature=1,
+            temperature=0,
             top_p=0.95,
             response_mime_type="application/json",
             response_schema=to_vertexai_compatible_schema(
@@ -55,8 +54,7 @@ async def get_personnalites(title: str, description: str):
     personnalites = await extract_names(title, description)
     if personnalites:
         personalites_names = [
-            f"{personnalite.prenom} {personnalite.nom}"
-            for personnalite in personnalites.personnalites
+            personnalite.nom for personnalite in personnalites.personnalites
         ]
         potential_persons = await search_persons(personalites_names)
         res = [p[0] if p else None for p in potential_persons]
