@@ -1,10 +1,10 @@
 import { Bucket, Storage } from "@google-cloud/storage";
 
-export interface MoviesData {
+interface MoviesData {
   media_items_timestamps: MovieData[];
 }
 
-interface MovieData {
+export interface MovieData {
   media_item: {
     details: {
       id: number;
@@ -63,20 +63,27 @@ export class BucketManager {
   private static async getFiles(prefix: string) {
     return (await this.getBucket()).getFiles({ prefix });
   }
-  public static async getMovies(videoId: string): Promise<MoviesData> {
+  public static async getMovies(videoId: string) {
     const [files] = await this.getFiles(`videos/${videoId}`);
     const moviesFiles = files.filter((file) =>
       file.name.endsWith("movies.json"),
     );
+    let moviesData: MovieData[] | null;
     if (moviesFiles.length === 0) {
-      throw new Error(`No movies file found for video ${videoId}`);
+      console.error(`No movies file found for video ${videoId}`);
+      moviesData = null;
     } else if (moviesFiles.length > 1) {
       throw new Error("Multiple movies files found for video ${videoId}");
     } else {
       const moviesFile = moviesFiles[0];
       const [content] = await moviesFile.download();
-      return JSON.parse(content.toString());
+      moviesData = (JSON.parse(content.toString()) as MoviesData)
+        .media_items_timestamps;
     }
+    if (moviesData) {
+      moviesData = moviesData.filter((item) => item.confidence > 0.5);
+    }
+    return moviesData;
   }
 
   public static async getVideos() {
