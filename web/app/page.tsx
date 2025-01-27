@@ -21,6 +21,9 @@ export default async function Home() {
         const videoUrl = `/video/${convertTitleToSlug(video.snippet.title)}_${
           video.snippet.resourceId.videoId
         }`;
+        const names = video.personnalites
+          .filter((p) => p !== null)
+          .map((p) => p.name);
         return (
           <div key={index}>
             <a href={videoUrl}>
@@ -34,6 +37,7 @@ export default async function Home() {
             <h2>
               <a href={videoUrl}>{video.snippet.title}</a>
             </h2>
+            {names.length > 0 && <p>Avec {names.join(" et ")}</p>}
           </div>
         );
       })}

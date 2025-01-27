@@ -43,6 +43,11 @@ interface VideoData {
       videoId: string;
     };
   };
+  personnalites: ({
+    id: number;
+    name: string;
+    profile_path: string;
+  } | null)[];
 }
 
 export class BucketManager {
