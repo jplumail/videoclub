@@ -27,6 +27,12 @@ interface Timecode {
   nanos: number;
 }
 
+interface Personnalite {
+  id: number;
+  name: string;
+  profile_path: string;
+}
+
 interface VideoData {
   snippet: {
     publishedAt: string;
@@ -43,11 +49,7 @@ interface VideoData {
       videoId: string;
     };
   };
-  personnalites: ({
-    id: number;
-    name: string;
-    profile_path: string;
-  } | null)[];
+  personnalites: (Personnalite | null)[];
 }
 
 export class BucketManager {

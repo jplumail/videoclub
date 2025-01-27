@@ -34,7 +34,6 @@ export default async function Page({
   if (moviesData == null) {
     return <div>No data available</div>;
   }
-  console.log(moviesData.length);
 
   const uniqueMoviesData = getUniqueMoviesData(moviesData);
   moviesData.sort((a, b) => a.start_time.seconds - b.start_time.seconds);
