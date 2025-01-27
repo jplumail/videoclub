@@ -1,11 +1,9 @@
-from extractor.process_annotations.models import TextAnnotationSegment
-from extractor.models import RotatedBoundingBox
-
-from extractor.process_annotations.utils import average_bboxes
+from .models import TextAnnotationSegment
+from ..videointelligence.models import RotatedBoundingBox
+from .utils import average_bboxes
 
 
 CONFIDENCE_THRESHOLD = 0.90
-
 
 
 def is_bbox_top_left(bbox: RotatedBoundingBox):

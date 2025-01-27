@@ -1,6 +1,5 @@
-from extractor.process_annotations.models import TextAnnotationSegment
-from extractor.process_annotations.utils import are_time_offsets_overlapping
-
+from .models import TextAnnotationSegment
+from .utils import are_time_offsets_overlapping
 
 
 def are_segments_overlapping(
@@ -12,7 +11,6 @@ def are_segments_overlapping(
         segment2.segment.segment.start_time_offset,
         segment2.segment.segment.end_time_offset,
     )
-
 
 
 def group_segments(segments: list[TextAnnotationSegment]):
@@ -42,7 +40,6 @@ def group_segments(segments: list[TextAnnotationSegment]):
             last_group = grouped_segments[-1]
 
     return grouped_segments
-
 
 
 def group_annotations(annotations: list[TextAnnotationSegment]):

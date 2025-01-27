@@ -1,15 +1,15 @@
 from difflib import SequenceMatcher
 import re
-from extractor.process_annotations.models import (
+from .models import (
     TextAnnotationSegment,
     TextAnnotationSegmentGroupOrganized,
 )
-from extractor.process_annotations.utils import (
+from .utils import (
     are_time_offsets_overlapping,
     average_bboxes,
 )
 from extractor.utils import year_pattern
-from extractor.models import Frame, Segment, TextSegment, TimeOffset
+from ..videointelligence.models import Frame, Segment, TextSegment, TimeOffset
 import numpy as np
 
 

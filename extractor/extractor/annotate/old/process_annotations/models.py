@@ -1,5 +1,4 @@
-
-from extractor.models import TextSegment
+from ..videointelligence.models import TextSegment
 from pydantic import BaseModel
 
 

@@ -5,8 +5,10 @@ from google import genai
 from google.genai import types
 from themoviedb.schemas.people import Person
 
-from .utils import safety_settings, to_vertexai_compatible_schema
-from .extract.extract import search_persons
+from .models import PlaylistItemPersonnalites
+from ..youtube.models import PlaylistItem
+from ..utils import safety_settings, to_vertexai_compatible_schema
+from ..movies.extract import search_persons
 
 
 class Personnalite(BaseModel):
@@ -47,11 +49,11 @@ async def extract_names(title: str, description: str):
         return PersonnalitesResponse.model_validate_json(response.text)
 
 
-async def get_personnalites(title: str, description: str):
+async def get_personnalites(item: PlaylistItem):
     """
     Extract personnalites from title and description
     """
-    personnalites = await extract_names(title, description)
+    personnalites = await extract_names(item.snippet.title, item.snippet.description)
     if personnalites:
         personalites_names = [
             personnalite.nom for personnalite in personnalites.personnalites
@@ -61,4 +63,5 @@ async def get_personnalites(title: str, description: str):
     else:
         res = [None]
     person_list_adapter = TypeAdapter(List[Union[Person, None]])
-    return person_list_adapter.validate_python(res)
+    personnalites = person_list_adapter.validate_python(res)
+    return PlaylistItemPersonnalites(playlist_item=item, personnalites=personnalites)

@@ -1,24 +1,21 @@
 import re
 import warnings
-from extractor.download import upload_json_blob
-from extractor.models import (
+from extractor.utils import upload_json_blob, download_blob, year_pattern
+from extractor.annotate.models import (
     MediaItem,
     MediaItemTimestamp,
-    MediaItemsTimestamps,
     TimeOffset,
 )
-from extractor.utils import year_pattern
-from extractor.download import download_blob
+from extractor.models import MediaItemsTimestamps
 import asyncio
 from itertools import zip_longest
 
 from themoviedb import aioTMDb, PartialMovie, PartialTV, Person
-from extractor.annotate_llm import AnnotationResponse, MediaItem as MediaItemLLM
+from extractor.annotate.annotate import AnnotationResponse, MediaItem as MediaItemLLM
 
 
 # filter warning PydanticSerializationUnexpectedValue
 warnings.filterwarnings("ignore", category=UserWarning)
-
 
 
 tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region="FR")
@@ -51,7 +48,7 @@ def get_directors_names_and_years(details: str):
     years = get_years(details)
     director_name = get_directors_names(details, years)
     return [director_name], years
-    
+
 
 async def is_person_in_movie(person_id: int, movie_id: int):
     director_credits = await tmdb.person(person_id).combined_credits()
@@ -144,7 +141,9 @@ def get_movie_year_confidence(
     return [1.0 - abs(date.year - year) / 10 if date else 0.0 for date in release_dates]
 
 
-async def get_best_media_item_director(title: str, authors_str: list[str], years: list[int]):
+async def get_best_media_item_director(
+    title: str, authors_str: list[str], years: list[int]
+):
     media_items = await search_media_items(title)
     if len(media_items) == 0:
         return None, None, 0
@@ -179,16 +178,16 @@ async def get_best_media_item_director(title: str, authors_str: list[str], years
 
     return media_item, crew, best_confidence
 
+
 def get_timeoffset_from_timecode(timecode: str):
     minutes, seconds = timecode.split(":")
     seconds = int(minutes) * 60 + int(seconds)
     return TimeOffset(seconds=seconds)
 
+
 async def get_media_details(media_item_llm: MediaItemLLM):
     media_item, crew, confidence = await get_best_media_item_director(
-        media_item_llm.title,
-        media_item_llm.authors,
-        media_item_llm.years
+        media_item_llm.title, media_item_llm.authors, media_item_llm.years
     )
     if media_item is None:
         return None
@@ -207,7 +206,10 @@ async def get_media_details(media_item_llm: MediaItemLLM):
     if media_item:
         return MediaItemTimestamp(
             media_item=MediaItem(
-                details=media_item, crew=crew, release_year=release_date
+                details=media_item,
+                crew=crew,
+                release_year=release_date,
+                type="movie" if isinstance(media_item, PartialMovie) else "tv",
             ),
             confidence=confidence,
             start_time=get_timeoffset_from_timecode(media_item_llm.timecode.start_time),

@@ -1,5 +1,10 @@
-from extractor.process_annotations.models import TextAnnotationSegment
-from extractor.models import RotatedBoundingBox, TimeOffset, Vertex, VideoAnnotation
+from .models import TextAnnotationSegment
+from ..videointelligence.models import (
+    RotatedBoundingBox,
+    TimeOffset,
+    Vertex,
+    VideoAnnotation,
+)
 
 
 def average_bboxes(rotated_bboxes: list[RotatedBoundingBox]):

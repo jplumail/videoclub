@@ -1,7 +1,8 @@
 import asyncio
-from extractor.annotate_llm import annotate_videos
-from extractor.utils import get_videos_playlist
 from google.cloud import storage
+
+from extractor.annotate import annotate_videos
+from extractor.youtube import get_videos_playlist
 
 
 async def annotate_all_videos(bucket_name):
@@ -11,7 +12,7 @@ async def annotate_all_videos(bucket_name):
     video_blobs: list[str] = []
     annotation_blobs: list[str] = []
     for item in items:
-        id_ = item["snippet"]["resourceId"]["videoId"]
+        id_ = item.snippet.resourceId.videoId
         video_prefix = "videos/" + id_ + "/"
         blobs = bucket.list_blobs(prefix=video_prefix)
         video_extension = None

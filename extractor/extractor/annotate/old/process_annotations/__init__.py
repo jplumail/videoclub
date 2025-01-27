@@ -1,13 +1,13 @@
 import json
 from pathlib import Path
 from collections.abc import Sequence
-from typing import Any, Mapping, Set, TypeAlias, Union
-from extractor.process_annotations.utils import flatten_video_annotations
-from extractor.models import VideoAnnotation
-from extractor.process_annotations.filter import filter_annotations
-from extractor.process_annotations.group import group_annotations
-from extractor.process_annotations.organize import organize_annotations
-from extractor.download import download_blob, upload_json_blob
+from typing import Mapping, Set, TypeAlias, Union
+from .utils import flatten_video_annotations
+from ..videointelligence.models import VideoAnnotation
+from .filter import filter_annotations
+from .group import group_annotations
+from .organize import organize_annotations
+from extractor.utils import download_blob, upload_json_blob
 from pydantic import BaseModel
 
 IncEx: TypeAlias = Union[

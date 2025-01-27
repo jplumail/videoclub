@@ -1,9 +1,10 @@
-import json
 from pathlib import Path
 import sys
-from typing import Any
+
 from yt_dlp import YoutubeDL
 from google.cloud import storage
+
+from ..utils import upload_blob
 
 
 # CustomLogger is a workaround for the issue with yt-dlp's logger
@@ -34,12 +35,18 @@ def download_video(video_id: str, bucket_name: str, destination_blob_name: str):
     bucket = storage_client.bucket(bucket_name)
     blobs: list[storage.Blob] = list(bucket.list_blobs())
     for blob in blobs:
-        if blob.name.startswith(destination_blob_name): # type: ignore
+        if blob.name.startswith(destination_blob_name):  # type: ignore
             return destination_blob_name
-    
+
     # download video if it doesn't exist
     video_url = f"https://www.youtube.com/watch?v={video_id}"
-    with YoutubeDL({"format": "bestvideo[height<=720]", "cookiesfrombrowser": ("chrome",), "logger": CustomLogger()}) as ydl:
+    with YoutubeDL(
+        {
+            "format": "bestvideo[height<=720]",
+            "cookiesfrombrowser": ("chrome",),
+            "logger": CustomLogger(),
+        }
+    ) as ydl:
         ydl.download([video_url])
 
     video = list(Path(".").glob(f"*{video_id}*"))[0]
@@ -48,41 +55,3 @@ def download_video(video_id: str, bucket_name: str, destination_blob_name: str):
     # upload video to bucket
     blob_name = upload_blob(bucket_name, str(video), f"{destination_blob_name}{ext}")
     return blob_name
-
-
-def download_blob(bucket_name, file_name):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(file_name)
-    return blob.download_as_text()
-
-
-def upload_blob(bucket_name: str, source_file_name: str, destination_blob_name: str):
-    """Uploads a file to the bucket."""
-
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-
-    blob.upload_from_filename(source_file_name)
-
-    return blob.name
-
-
-def upload_json_blob(bucket_name: str, json_payload: str | Any, destination_blob_name: str):
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-
-    if isinstance(json_payload, str):
-        payload = json_payload
-    else:
-        payload = json.dumps(json_payload)
-
-    blob.upload_from_string(payload, content_type="application/json")
-
-    return blob.name
-
-
-if __name__ == "__main__":
-    download_video(sys.argv[1], sys.argv[2], sys.argv[3])

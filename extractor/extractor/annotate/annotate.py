@@ -3,7 +3,6 @@ import asyncio
 import json
 from typing import List
 from google.genai.models import _GenerateContentParameters_to_vertex, _common
-from extractor.download import upload_json_blob
 import googleapiclient.discovery
 from pydantic import BaseModel
 from google import genai
@@ -12,7 +11,7 @@ from google.cloud import storage
 import io
 import json_stream
 from json_stream.base import PersistentStreamingJSONObject, PersistentStreamingJSONList
-from .utils import safety_settings, to_vertexai_compatible_schema
+from ..utils import safety_settings, to_vertexai_compatible_schema, upload_json_blob
 
 
 client = genai.Client(
