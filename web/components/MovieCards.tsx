@@ -66,11 +66,6 @@ export async function MovieCardTimestamps({
       throw new Error("All items must have the same id");
     }
   }
-  const poster = item.media_item.details.poster_path
-    ? await ConfigurationManager.getPosterUrl(
-        item.media_item.details.poster_path,
-      )
-    : null;
   return (
     <MovieCard media={item.media_item.details}>
       {items.map((item, key) => (
