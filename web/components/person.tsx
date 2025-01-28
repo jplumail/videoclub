@@ -1,6 +1,7 @@
 import { Person } from "@/lib/backend/types";
 import { ConfigurationManager, MoviesSet } from "@/lib/data";
 import Image from "next/image";
+import { MovieCard } from "./MovieCards";
 
 export async function PersonComponent({
   personData,
@@ -42,15 +43,7 @@ export async function PersonComponent({
       <ul>
         {personData.movies.values().map((movie) => (
           <li key={movie.id}>
-            <a
-              href={
-                movie.media_type == "movie"
-                  ? `/film/${movie.id}`
-                  : `/serie/${movie.id}`
-              }
-            >
-              {movie.title || movie.name}
-            </a>
+            <MovieCard media={movie} />
           </li>
         ))}
       </ul>
