@@ -1,4 +1,5 @@
-import { ConfigurationManager, MovieData } from "@/lib/data";
+import { MediaItemTimestamp } from "@/lib/backend/types";
+import { ConfigurationManager } from "@/lib/data";
 import Image from "next/image";
 
 function getYoutubeUrl(videoId: string, timecode: number | null) {
@@ -23,7 +24,7 @@ export async function MovieCard({
   items,
 }: {
   ytVideoId: string;
-  items: MovieData[];
+  items: MediaItemTimestamp[];
 }) {
   const item = items[0];
   const id = item.media_item.details.id;
@@ -33,26 +34,30 @@ export async function MovieCard({
       throw new Error("All items must have the same id");
     }
   }
-  const poster = await ConfigurationManager.getPosterUrl(
-    item.media_item.details.poster_path,
-  );
+  const poster = item.media_item.details.poster_path
+    ? await ConfigurationManager.getPosterUrl(
+        item.media_item.details.poster_path,
+      )
+    : null;
   return (
     <div>
-      <Image
-        src={poster.url}
-        alt={`Poster du film ${item.media_item.details.title}`}
-        width={poster.width}
-        height={poster.height}
-      />
+      {poster && (
+        <Image
+          src={poster.url}
+          alt={`Poster du film ${item.media_item.details.title}`}
+          width={poster.width}
+          height={poster.height}
+        />
+      )}
       {items.map((item, key) => (
         <a
-          href={getYoutubeUrl(ytVideoId, item.start_time.seconds)}
+          href={getYoutubeUrl(ytVideoId, item.start_time.seconds || null)}
           target="_blank"
           key={key}
         >
           <p>
-            {getMinutes(item.start_time.seconds)}:
-            {getSeconds(item.start_time.seconds)}
+            {getMinutes(item.start_time.seconds || 0)}:
+            {getSeconds(item.start_time.seconds || 0)}
           </p>
         </a>
       ))}

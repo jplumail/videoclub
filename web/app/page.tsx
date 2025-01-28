@@ -1,7 +1,4 @@
-"use server";
-
 import { BucketManager } from "@/lib/data";
-import { slugify } from "@/lib/utils";
 import Image from "next/image";
 
 export default async function Home() {
@@ -26,9 +23,9 @@ export default async function Home() {
               <a href={videoUrl}>{video.playlist_item.snippet.title}</a>
             </h2>
             {personnes.length > 0 &&
-              personnes.map((p) => {
+              personnes.map((p, key) => {
                 return (
-                  <a href={`/personne/${p.id}`}>
+                  <a key={key} href={`/personne/${p.id}`}>
                     <p>{p.name}</p>
                   </a>
                 );

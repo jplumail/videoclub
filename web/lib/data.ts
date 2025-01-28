@@ -50,9 +50,8 @@ class MoviesSet {
       key: PartialMedia,
       set: MoviesSet,
     ) => void,
-    thisArg?: any,
   ) {
-    this.moviesMap.forEach((value, key) => {
+    this.moviesMap.forEach((value) => {
       callbackfn(value, value, this);
     });
   }
@@ -206,7 +205,7 @@ export class BucketManager {
 
   public static async getVideos() {
     const [files] = await this.getFiles("videos/");
-    let jsonFiles = files.filter((file) => file.name.endsWith("video.json"));
+    const jsonFiles = files.filter((file) => file.name.endsWith("video.json"));
     const downloadPromises = jsonFiles.map(async (file) => {
       const [content] = await file.download();
       return JSON.parse(content.toString()) as PlaylistItemPersonnalites;
