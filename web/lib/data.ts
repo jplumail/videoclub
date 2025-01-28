@@ -140,7 +140,7 @@ export class BucketManager {
     );
     let mediaItems: MediaItemTimestamp[] | null;
     if (moviesFiles.length === 0) {
-      console.error(`No movies file found for video ${videoId}`);
+      console.log(`No movies file found for video ${videoId}`);
       mediaItems = null;
     } else if (moviesFiles.length > 1) {
       throw new Error("Multiple movies files found for video ${videoId}");
@@ -187,7 +187,7 @@ export class BucketManager {
       }));
   }
 
-  static async getMediaByPersonnalites() {
+  static async createMediaByPersonnalites() {
     const videos = await this.getVideos();
     const personnalitesMovies = await Promise.all(
       videos.map((video) => this.processVideoPersonnalites(video)),
@@ -201,6 +201,71 @@ export class BucketManager {
       personnalitesMoviesNonNull,
     );
     return createMoviesPersonnalitesMap(mergedPersonnalitesMovies);
+  }
+
+  static async getMediaByPersonnalites(): Promise<
+    {
+      movie: PartialMedia;
+      personnalites: { person: Person; videos: Set<string> }[];
+    }[]
+  >;
+  static async getMediaByPersonnalites(params: { media_type: string }): Promise<
+    {
+      movie: PartialMedia;
+      personnalites: { person: Person; videos: Set<string> }[];
+    }[]
+  >;
+  static async getMediaByPersonnalites(params: {
+    media_type: string;
+    id: string;
+  }): Promise<{
+    movie: PartialMedia;
+    personnalites: { person: Person; videos: Set<string> }[];
+  }>;
+  static async getMediaByPersonnalites(params?: {
+    media_type?: string;
+    id?: string;
+  }) {
+    function convertJSONToItem(json: {
+      movie: PartialMedia;
+      personnalites: { person: Person; videos: string[] }[];
+    }) {
+      return {
+        movie: json.movie,
+        personnalites: json.personnalites.map((x) => {
+          return { person: x.person, videos: new Set(x.videos) };
+        }),
+      };
+    }
+
+    if (params?.id) {
+      if (!params.media_type) {
+        throw new Error("media_type must be provided when id is provided");
+      }
+      const [files] = await this.getFiles(
+        `mediaByPersonnalites/${params.media_type}/${params.id}.json`,
+      );
+      const [content] = await files[0].download();
+      const data = JSON.parse(content.toString()) as {
+        movie: PartialMedia;
+        personnalites: { person: Person; videos: string[] }[];
+      };
+      return convertJSONToItem(data);
+    } else {
+      const [files] = await this.getFiles("mediaByPersonnalites.json");
+      const [content] = await files[0].download();
+      const data = JSON.parse(content.toString()) as {
+        movie: PartialMedia;
+        personnalites: { person: Person; videos: string[] }[];
+      }[];
+      let dataFiltered = data;
+      if (params?.media_type) {
+        dataFiltered = data.filter(
+          (item) => item.movie.media_type === params.media_type,
+        );
+      }
+      return dataFiltered.map(convertJSONToItem);
+    }
   }
 
   public static async getVideos() {

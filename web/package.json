@@ -25,6 +25,7 @@
     "eslint-config-next": "15.1.6",
     "eslint-config-prettier": "^10.0.1",
     "prettier": "3.4.2",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }
