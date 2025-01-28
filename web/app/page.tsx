@@ -1,16 +1,8 @@
 "use server";
 
 import { BucketManager } from "@/lib/data";
+import { slugify } from "@/lib/utils";
 import Image from "next/image";
-
-function convertTitleToSlug(title: string): string {
-  return title
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
 
 export default async function Home() {
   const videos = await BucketManager.getVideosSorted();
@@ -18,7 +10,7 @@ export default async function Home() {
   return (
     <main>
       {videos.map((video, index) => {
-        const videoUrl = `/video/${convertTitleToSlug(video.playlist_item.snippet.title)}_${
+        const videoUrl = `/video/${slugify(video.playlist_item.snippet.title)}_${
           video.playlist_item.snippet.resourceId.videoId
         }`;
         const personnes = video.personnalites.filter((p) => p !== null);
