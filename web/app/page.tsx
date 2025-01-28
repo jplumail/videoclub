@@ -18,26 +18,31 @@ export default async function Home() {
   return (
     <main>
       {videos.map((video, index) => {
-        const videoUrl = `/video/${convertTitleToSlug(video.snippet.title)}_${
-          video.snippet.resourceId.videoId
+        const videoUrl = `/video/${convertTitleToSlug(video.playlist_item.snippet.title)}_${
+          video.playlist_item.snippet.resourceId.videoId
         }`;
-        const names = video.personnalites
-          .filter((p) => p !== null)
-          .map((p) => p.name);
+        const personnes = video.personnalites.filter((p) => p !== null);
         return (
           <div key={index}>
             <a href={videoUrl}>
               <Image
-                src={video.snippet.thumbnails.standard.url}
-                width={video.snippet.thumbnails.standard.width}
-                height={video.snippet.thumbnails.standard.height}
+                src={video.playlist_item.snippet.thumbnails.standard.url}
+                width={video.playlist_item.snippet.thumbnails.standard.width}
+                height={video.playlist_item.snippet.thumbnails.standard.height}
                 alt="thumbnail"
               />
             </a>
             <h2>
-              <a href={videoUrl}>{video.snippet.title}</a>
+              <a href={videoUrl}>{video.playlist_item.snippet.title}</a>
             </h2>
-            {names.length > 0 && <p>Avec {names.join(" et ")}</p>}
+            {personnes.length > 0 &&
+              personnes.map((p) => {
+                return (
+                  <a href={`/personne/${p.id}`}>
+                    <p>{p.name}</p>
+                  </a>
+                );
+              })}
           </div>
         );
       })}
