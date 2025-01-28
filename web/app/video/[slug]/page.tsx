@@ -1,6 +1,7 @@
 import { MovieCard } from "@/components/movie-card";
 import { MediaItemTimestamp } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data";
+import { slugify } from "@/lib/utils";
 
 function getVideoId(slug: string): string {
   const videoId = slug.slice(-11);
@@ -43,7 +44,17 @@ export default async function Page({
         const sameMovies = moviesData.filter(
           (item2) => item2.media_item.details.id === item.media_item.details.id,
         );
-        return <MovieCard key={key} ytVideoId={videoId} items={sameMovies} />;
+        return (
+          <div
+            id={slugify(
+              sameMovies[0].media_item.details.name ||
+                sameMovies[0].media_item.details.title ||
+                "",
+            )}
+          >
+            <MovieCard key={key} ytVideoId={videoId} items={sameMovies} />
+          </div>
+        );
       })}
     </div>
   );
