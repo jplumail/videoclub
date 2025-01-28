@@ -3,8 +3,6 @@ import { MediaItemTimestamp } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data";
 import { slugify } from "@/lib/utils";
 
-export const dynamicParams = false;
-
 function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
   const moviesSet = new Set();
   return moviesData.filter((item) => {
@@ -19,7 +17,7 @@ function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
 export async function generateStaticParams() {
   const allVideos = await BucketManager.getVideos();
   return allVideos.map((video) => ({
-    params: { id: video.playlist_item.snippet.resourceId.videoId },
+    id: video.playlist_item.snippet.resourceId.videoId,
   }));
 }
 
@@ -50,6 +48,7 @@ export default async function Page({
         );
         return (
           <div
+            key={key}
             id={slugify(
               sameMovies[0].media_item.details.name ||
                 sameMovies[0].media_item.details.title ||
