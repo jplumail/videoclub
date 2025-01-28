@@ -1,24 +1,47 @@
 import asyncio
+import tempfile
+from extractor.youtube.models import PlaylistItem
+import requests
 from tqdm import tqdm
 import google.genai.errors
 
-from extractor.utils import upload_json_blob
+from extractor.utils import upload_json_blob, upload_blob
 from extractor.youtube import get_videos_playlist
 from extractor.video.get_infos_video import get_personnalites
 
 
+def upload_thumbnail(item: PlaylistItem, bucket_name: str):
+    id_ = item.snippet.resourceId.videoId
+    thumbnail = item.snippet.thumbnails.get("standard") or item.snippet.thumbnails.get(
+        "high"
+    )
+    if thumbnail is not None:
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as f:
+            f.write(requests.get(thumbnail.url).content)
+            f.seek(0)
+            thumbnail_name = f"videos/{id_}/thumbnail.jpg"
+            upload_blob(bucket_name, f.name, thumbnail_name)
+    else:
+        thumbnail_name = None
+    thumbnail_uri = f"gs://{bucket_name}/{thumbnail_name}" if thumbnail_name else None
+    return thumbnail_uri
+
+
 async def get_infos(bucket_name: str):
     items = get_videos_playlist("PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn")
-    for item in tqdm(items):
+    pbar = tqdm(items)
+    for item in pbar:
         id_ = item.snippet.resourceId.videoId
+        pbar.set_description(f"Processing video {id_}")
 
+        thumbnail_uri = upload_thumbnail(item, bucket_name)
         try:
-            item_personnalites = await get_personnalites(item)
+            item_personnalites = await get_personnalites(item, thumbnail_uri)
         except google.genai.errors.ClientError as e:
             if e.code == 429:
                 print("Rate limit exceeded, waiting 60s")
                 await asyncio.sleep(60)
-                item_personnalites = await get_personnalites(item)
+                item_personnalites = await get_personnalites(item, thumbnail_uri)
             else:
                 raise e
 

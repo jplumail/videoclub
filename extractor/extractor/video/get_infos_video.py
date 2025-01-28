@@ -24,13 +24,23 @@ client = genai.Client(
 )
 
 
-async def extract_names(title: str, description: str):
+async def extract_names(title: str, thumbnail_uri: str | None):
     """
     Extract personnalites from title and description
     """
+    parts = [
+        types.Part.from_text(f'{{"titre": "{title}"}}'),
+    ]
+    if thumbnail_uri:
+        parts.append(types.Part.from_uri(thumbnail_uri, mime_type="image/jpeg"))
     response = await client.aio.models.generate_content(
         model="gemini-1.5-flash-002",
-        contents=[f'{{"titre": "{title}", "description": "{description}"}}'],
+        contents=[
+            types.Content(
+                parts=parts,
+                role="user",
+            )
+        ],
         config=types.GenerateContentConfig(
             max_output_tokens=8192,
             temperature=0,
@@ -49,11 +59,11 @@ async def extract_names(title: str, description: str):
         return PersonnalitesResponse.model_validate_json(response.text)
 
 
-async def get_personnalites(item: PlaylistItem):
+async def get_personnalites(item: PlaylistItem, thumbnail_uri: str | None):
     """
     Extract personnalites from title and description
     """
-    personnalites = await extract_names(item.snippet.title, item.snippet.description)
+    personnalites = await extract_names(item.snippet.title, thumbnail_uri)
     if personnalites:
         personalites_names = [
             personnalite.nom for personnalite in personnalites.personnalites
