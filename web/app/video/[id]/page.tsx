@@ -1,4 +1,4 @@
-import { MovieCard } from "@/components/movie-card";
+import { MovieCardTimestamps } from "@/components/MovieCards";
 import { MediaItemTimestamp } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data";
 import { slugify } from "@/lib/utils";
@@ -55,7 +55,11 @@ export default async function Page({
                 "",
             )}
           >
-            <MovieCard key={key} ytVideoId={videoId} items={sameMovies} />
+            <MovieCardTimestamps
+              key={key}
+              ytVideoId={videoId}
+              items={sameMovies}
+            />
           </div>
         );
       })}

@@ -1,4 +1,4 @@
-import { MediaItemTimestamp } from "@/lib/backend/types";
+import { MediaItemTimestamp, PartialMedia } from "@/lib/backend/types";
 import { ConfigurationManager } from "@/lib/data";
 import Image from "next/image";
 
@@ -20,6 +20,39 @@ function getSeconds(seconds: number) {
 }
 
 export async function MovieCard({
+  media,
+  children,
+}: {
+  media: PartialMedia;
+  children?: React.ReactNode;
+}) {
+  const poster = media.poster_path
+    ? await ConfigurationManager.getPosterUrl(media.poster_path)
+    : null;
+  return (
+    <div>
+      <a
+        href={
+          media.media_type == "movie"
+            ? `/film/${media.id}`
+            : `/serie/${media.id}`
+        }
+      >
+        {poster && (
+          <Image
+            src={poster.url}
+            alt={`Poster du film ${media.title}`}
+            width={poster.width}
+            height={poster.height}
+          />
+        )}
+      </a>
+      {children}
+    </div>
+  );
+}
+
+export async function MovieCardTimestamps({
   ytVideoId,
   items,
 }: {
@@ -39,23 +72,7 @@ export async function MovieCard({
       )
     : null;
   return (
-    <div>
-      <a
-        href={
-          item.media_item.details.media_type == "movie"
-            ? `/film/${id}`
-            : `/serie/${id}`
-        }
-      >
-        {poster && (
-          <Image
-            src={poster.url}
-            alt={`Poster du film ${item.media_item.details.title}`}
-            width={poster.width}
-            height={poster.height}
-          />
-        )}
-      </a>
+    <MovieCard media={item.media_item.details}>
       {items.map((item, key) => (
         <a
           href={getYoutubeUrl(ytVideoId, item.start_time.seconds || null)}
@@ -68,6 +85,6 @@ export async function MovieCard({
           </p>
         </a>
       ))}
-    </div>
+    </MovieCard>
   );
 }
