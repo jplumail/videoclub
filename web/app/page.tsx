@@ -10,9 +10,7 @@ export default async function Home() {
   return (
     <main>
       {videos.map((video, index) => {
-        const videoUrl = `/video/${slugify(video.playlist_item.snippet.title)}_${
-          video.playlist_item.snippet.resourceId.videoId
-        }`;
+        const videoUrl = `/video/${video.playlist_item.snippet.resourceId.videoId}`;
         const personnes = video.personnalites.filter((p) => p !== null);
         return (
           <div key={index}>

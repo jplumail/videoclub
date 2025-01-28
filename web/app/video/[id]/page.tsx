@@ -3,10 +3,7 @@ import { MediaItemTimestamp } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data";
 import { slugify } from "@/lib/utils";
 
-function getVideoId(slug: string): string {
-  const videoId = slug.slice(-11);
-  return videoId;
-}
+export const dynamicParams = false;
 
 function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
   const moviesSet = new Set();
@@ -19,13 +16,20 @@ function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
   });
 }
 
+export async function generateStaticParams() {
+  const allVideos = await BucketManager.getVideos();
+  return allVideos.map((video) => ({
+    params: { id: video.playlist_item.snippet.resourceId.videoId },
+  }));
+}
+
 export default async function Page({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const slug = (await params).slug;
-  const videoId = getVideoId(slug);
+  const videoId = (await params).id;
+  console.log("videoId", videoId);
   const moviesData = await BucketManager.getMovies(videoId);
   if (moviesData == null) {
     return <div>No data available</div>;
