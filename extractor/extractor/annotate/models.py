@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Literal
 from pydantic import BaseModel
-from themoviedb import PartialMovie, Person, PartialTV
+from themoviedb import Person, PartialMedia
 
 
 class TimeOffset(BaseModel):
@@ -10,7 +10,7 @@ class TimeOffset(BaseModel):
 
 
 class MediaItem(BaseModel):
-    details: PartialMovie | PartialTV
+    details: PartialMedia
     type: Literal["movie"] | Literal["tv"]
     crew: list[Person] | None
     release_year: date | None

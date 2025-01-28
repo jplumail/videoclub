@@ -8,8 +8,6 @@
 export type MediaType = "movie" | "person" | "tv";
 export type MediaType1 = "movie" | "person" | "tv";
 export type MediaType2 = "movie" | "person" | "tv";
-export type MediaType3 = "movie" | "person" | "tv";
-export type MediaType4 = "movie" | "person" | "tv";
 export type ImageType = "backdrop" | "logo" | "poster" | "profile" | "still";
 
 export interface MediaItemsTimestamps {
@@ -23,73 +21,10 @@ export interface MediaItemTimestamp {
   [k: string]: unknown;
 }
 export interface MediaItem {
-  details: PartialMovie | PartialTV;
+  details: PartialMedia;
   type: "movie" | "tv";
   crew: Person[] | null;
   release_year: string | null;
-  [k: string]: unknown;
-}
-export interface PartialMovie {
-  id?: number | null;
-  poster_path?: string | null;
-  adult?: boolean | null;
-  overview?: string | null;
-  release_date?: string | null;
-  genre_ids?: number[] | null;
-  original_title?: string | null;
-  original_language?: string | null;
-  title?: string | null;
-  backdrop_path?: string | null;
-  popularity?: number | null;
-  vote_count?: number | null;
-  video?: boolean | null;
-  vote_average?: number | null;
-  media_type?: MediaType;
-  [k: string]: unknown;
-}
-export interface PartialTV {
-  id?: number | null;
-  poster_path?: string | null;
-  adult?: boolean | null;
-  popularity?: number | null;
-  backdrop_path?: string | null;
-  vote_average?: number | null;
-  overview?: string | null;
-  first_air_date?: string | null;
-  origin_country?: string[] | null;
-  genre_ids?: number[] | null;
-  original_language?: string | null;
-  vote_count?: number | null;
-  name?: string | null;
-  original_name?: string | null;
-  media_type?: MediaType1;
-  [k: string]: unknown;
-}
-export interface Person {
-  id?: number | null;
-  profile_path?: string | null;
-  adult?: boolean | null;
-  known_for?: PartialMedia[] | null;
-  known_for_department?: string | null;
-  gender?: number | null;
-  name?: string | null;
-  original_name?: string | null;
-  popularity?: number | null;
-  media_type?: MediaType3;
-  birthday?: string | null;
-  deathday?: string | null;
-  also_known_as?: string[] | null;
-  biography?: string | null;
-  place_of_birth?: string | null;
-  imdb_id?: string | null;
-  homepage?: string | null;
-  external_ids?: ExternalIDs | null;
-  images?: Images | null;
-  combined_credits?: CreditsCombined | null;
-  movie_credits?: CreditsMovie | null;
-  tv_credits?: CreditsTV | null;
-  tagged_images?: TaggedImages | null;
-  translations?: Translations | null;
   [k: string]: unknown;
 }
 export interface PartialMedia {
@@ -107,12 +42,39 @@ export interface PartialMedia {
   vote_count?: number | null;
   name?: string | null;
   original_name?: string | null;
-  media_type?: MediaType2;
+  media_type?: MediaType;
   release_date?: string | null;
   original_title?: string | null;
   title?: string | null;
   video?: boolean | null;
   _id?: string | null;
+  [k: string]: unknown;
+}
+export interface Person {
+  id?: number | null;
+  profile_path?: string | null;
+  adult?: boolean | null;
+  known_for?: PartialMedia[] | null;
+  known_for_department?: string | null;
+  gender?: number | null;
+  name?: string | null;
+  original_name?: string | null;
+  popularity?: number | null;
+  media_type?: MediaType1;
+  birthday?: string | null;
+  deathday?: string | null;
+  also_known_as?: string[] | null;
+  biography?: string | null;
+  place_of_birth?: string | null;
+  imdb_id?: string | null;
+  homepage?: string | null;
+  external_ids?: ExternalIDs | null;
+  images?: Images | null;
+  combined_credits?: CreditsCombined | null;
+  movie_credits?: CreditsMovie | null;
+  tv_credits?: CreditsTV | null;
+  tagged_images?: TaggedImages | null;
+  translations?: Translations | null;
   [k: string]: unknown;
 }
 export interface ExternalIDs {
@@ -180,7 +142,7 @@ export interface CastCombined {
   video?: boolean | null;
   title?: string | null;
   original_title?: string | null;
-  media_type?: MediaType4 | null;
+  media_type?: MediaType2 | null;
   [k: string]: unknown;
 }
 export interface CrewCombined {
@@ -207,7 +169,7 @@ export interface CrewCombined {
   video?: boolean | null;
   title?: string | null;
   release_date?: string | null;
-  media_type?: MediaType4 | null;
+  media_type?: MediaType2 | null;
   [k: string]: unknown;
 }
 export interface CreditsMovie {
@@ -327,7 +289,7 @@ export interface TaggedImage {
   width?: number | null;
   image_type?: ImageType | null;
   media?: PartialMedia | null;
-  media_type?: MediaType4 | null;
+  media_type?: MediaType2 | null;
   [k: string]: unknown;
 }
 export interface Dates {

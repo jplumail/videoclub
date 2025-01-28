@@ -10,7 +10,7 @@ from extractor.models import MediaItemsTimestamps
 import asyncio
 from itertools import zip_longest
 
-from themoviedb import aioTMDb, PartialMovie, PartialTV, Person
+from themoviedb import aioTMDb, PartialMovie, PartialTV, Person, PartialMedia
 from extractor.annotate.annotate import AnnotationResponse, MediaItem as MediaItemLLM
 
 
@@ -185,6 +185,40 @@ def get_timeoffset_from_timecode(timecode: str):
     return TimeOffset(seconds=seconds)
 
 
+def to_partial_media(media_item: PartialMovie | PartialTV):
+    return PartialMedia(
+        id=media_item.id,
+        poster_path=media_item.poster_path,
+        adult=media_item.adult,
+        popularity=media_item.popularity,
+        backdrop_path=media_item.backdrop_path,
+        vote_average=media_item.vote_average,
+        overview=media_item.overview,
+        first_air_date=media_item.first_air_date
+        if isinstance(media_item, PartialTV)
+        else None,
+        origin_country=media_item.origin_country
+        if isinstance(media_item, PartialTV)
+        else None,
+        genre_ids=media_item.genre_ids,
+        original_language=media_item.original_language,
+        vote_count=media_item.vote_count,
+        name=media_item.name if isinstance(media_item, PartialTV) else None,
+        original_name=media_item.original_name
+        if isinstance(media_item, PartialTV)
+        else None,
+        media_type=media_item.media_type,
+        release_date=media_item.release_date
+        if isinstance(media_item, PartialMovie)
+        else None,
+        original_title=media_item.original_title
+        if isinstance(media_item, PartialMovie)
+        else None,
+        title=media_item.title if isinstance(media_item, PartialMovie) else None,
+        video=media_item.video if isinstance(media_item, PartialMovie) else None,
+    )
+
+
 async def get_media_details(media_item_llm: MediaItemLLM):
     media_item, crew, confidence = await get_best_media_item_director(
         media_item_llm.title, media_item_llm.authors, media_item_llm.years
@@ -206,7 +240,7 @@ async def get_media_details(media_item_llm: MediaItemLLM):
     if media_item:
         return MediaItemTimestamp(
             media_item=MediaItem(
-                details=media_item,
+                details=to_partial_media(media_item),
                 crew=crew,
                 release_year=release_date,
                 type="movie" if isinstance(media_item, PartialMovie) else "tv",
@@ -237,27 +271,7 @@ async def extract_media_items(
     items = await _extract_media_items(annotations.items)
     blob_name = upload_json_blob(
         bucket_name,
-        items.model_dump_json(
-            include={
-                "media_items_timestamps": {
-                    "__all__": {
-                        "media_item": {
-                            "details": {
-                                "id",
-                                "title",
-                                "name",
-                                "poster_path",
-                            },
-                            "crew": {"__all__": {"id", "name"}},
-                            "release_year": True,
-                        },
-                        "start_time": True,
-                        "end_time": True,
-                        "confidence": True,
-                    }
-                }
-            }
-        ),
+        items.model_dump_json(),
         output_blob_name,
     )
     return blob_name  # type: ignore
