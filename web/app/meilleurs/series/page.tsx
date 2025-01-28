@@ -2,6 +2,7 @@ import { BucketManager } from "@/lib/data";
 import Meilleurs from "@/components/meilleurs";
 
 export default async function Page() {
-  const medias = await BucketManager.getMediaByPersonnalites();
+  let medias = await BucketManager.getMediaByPersonnalites();
+  medias = medias.filter((item) => item.movie.media_type === "tv");
   return <Meilleurs medias={medias} />;
 }
