@@ -7,11 +7,13 @@ from tqdm import tqdm
 async def extract_all_videos(bucket_name: str):
     items = get_videos_playlist("PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn")
 
-    for item in tqdm(items):
+    pbar = tqdm(items)
+    for item in pbar:
         id_ = item.snippet.resourceId.videoId
+        pbar.set_description(f"Processing video {id_}")
         try:
             await asyncio.sleep(1)
-            output_blob_name = await extract_media_items(
+            await extract_media_items(
                 bucket_name,
                 "videos/" + id_ + "/annotations.json",
                 "videos/" + id_ + "/movies.json",
@@ -19,7 +21,6 @@ async def extract_all_videos(bucket_name: str):
         except Exception as e:
             print(e)
             continue
-        print(output_blob_name)
 
 
 if __name__ == "__main__":
