@@ -1,55 +1,107 @@
 import { Bucket, Storage } from "@google-cloud/storage";
+import {
+  MediaItemsTimestamps,
+  MediaItemTimestamp,
+  PartialMedia,
+  Person,
+  PlaylistItemPersonnalites,
+} from "./backend/types";
 
-interface MoviesData {
-  media_items_timestamps: MovieData[];
+class MoviesSet {
+  private moviesMap: Map<string, PartialMedia>;
+  private keysSet: Set<string>;
+  constructor(movies?: PartialMedia[]) {
+    this.moviesMap = new Map();
+    this.keysSet = new Set();
+    if (movies) {
+      movies.forEach((movie) => {
+        this.add(movie);
+      });
+    }
+  }
+  private getKey(movie: PartialMedia) {
+    return JSON.stringify({ id: movie.id, type: movie.type });
+  }
+  add(movie: PartialMedia) {
+    const key = this.getKey(movie);
+    if (!this.keysSet.has(key)) {
+      this.keysSet.add(key);
+      this.moviesMap.set(key, movie);
+    }
+  }
+  clear() {
+    this.moviesMap.clear();
+    this.keysSet.clear();
+  }
+  delete(movie: PartialMedia) {
+    const key = this.getKey(movie);
+    this.keysSet.delete(key);
+    return this.moviesMap.delete(key);
+  }
+  has(movie: PartialMedia) {
+    return this.keysSet.has(this.getKey(movie));
+  }
+  values() {
+    return Array.from(this.moviesMap.values());
+  }
+  forEach(
+    callbackfn: (
+      value: PartialMedia,
+      key: PartialMedia,
+      set: MoviesSet,
+    ) => void,
+    thisArg?: any,
+  ) {
+    this.moviesMap.forEach((value, key) => {
+      callbackfn(value, value, this);
+    });
+  }
 }
 
-export interface MovieData {
-  media_item: {
-    details: {
-      id: number;
-      poster_path: string;
-      title: string;
-    };
-    crew: {
-      id: number;
-      name: string;
-    }[];
-    release_year: string;
-  };
-  start_time: Timecode;
-  end_time: Timecode;
-  confidence: number;
+function mergePersonnalitesMovies(
+  personnalitesMovies: { personnalite: Person; movies: MoviesSet }[],
+) {
+  return personnalitesMovies.reduce(
+    (acc, item) => {
+      const existingPersonnalite = acc.find(
+        (accItem) => accItem.personnalite.id === item.personnalite.id,
+      );
+      if (existingPersonnalite) {
+        existingPersonnalite.movies = new MoviesSet([
+          ...existingPersonnalite.movies.values(),
+          ...item.movies.values(),
+        ]);
+      } else {
+        acc.push(item);
+      }
+      return acc;
+    },
+    [] as { personnalite: Person; movies: MoviesSet }[],
+  );
 }
 
-interface Timecode {
-  seconds: number;
-  nanos: number;
-}
+function createMoviesPersonnalitesMap(
+  personnalitesMovies: { personnalite: Person; movies: MoviesSet }[],
+) {
+  const allMovies = new MoviesSet();
+  personnalitesMovies.forEach((item) => {
+    item.movies.forEach((movie) => {
+      allMovies.add(movie);
+    });
+  });
 
-interface Personnalite {
-  id: number;
-  name: string;
-  profile_path: string;
-}
+  const moviesPersonnalites: {
+    movie: PartialMedia;
+    personnalites: Person[];
+  }[] = [];
+  allMovies.forEach((movie) => {
+    const personnalites = personnalitesMovies
+      .filter((item) => item.movies.has(movie))
+      .map((item) => item.personnalite);
+    moviesPersonnalites.push({ movie, personnalites });
+  });
 
-interface VideoData {
-  snippet: {
-    publishedAt: string;
-    title: string;
-    videoId: string;
-    thumbnails: {
-      standard: {
-        url: string;
-        width: number;
-        height: number;
-      };
-    };
-    resourceId: {
-      videoId: string;
-    };
-  };
-  personnalites: (Personnalite | null)[];
+  return moviesPersonnalites;
 }
 
 export class BucketManager {
@@ -70,30 +122,74 @@ export class BucketManager {
     const moviesFiles = files.filter((file) =>
       file.name.endsWith("movies.json"),
     );
-    let moviesData: MovieData[] | null;
+    let mediaItems: MediaItemTimestamp[] | null;
     if (moviesFiles.length === 0) {
       console.error(`No movies file found for video ${videoId}`);
-      moviesData = null;
+      mediaItems = null;
     } else if (moviesFiles.length > 1) {
       throw new Error("Multiple movies files found for video ${videoId}");
     } else {
       const moviesFile = moviesFiles[0];
       const [content] = await moviesFile.download();
-      moviesData = (JSON.parse(content.toString()) as MoviesData)
+      mediaItems = (JSON.parse(content.toString()) as MediaItemsTimestamps)
         .media_items_timestamps;
     }
-    if (moviesData) {
-      moviesData = moviesData.filter((item) => item.confidence > 0.5);
+    if (mediaItems) {
+      mediaItems = mediaItems.filter((item) => item.confidence > 0.5);
     }
-    return moviesData;
+    return mediaItems;
+  }
+
+  private static async processVideoPersonnalites(
+    video: PlaylistItemPersonnalites,
+  ) {
+    if (video.personnalites == null) {
+      return null;
+    }
+    const moviesData = await this.getMovies(
+      video.playlist_item.snippet.resourceId.videoId,
+    );
+    if (moviesData == null) {
+      return null;
+    }
+
+    const uniqueMoviesData = new MoviesSet();
+    moviesData.forEach((item) => {
+      if (!uniqueMoviesData.has(item.media_item.details)) {
+        uniqueMoviesData.add(item.media_item.details);
+      }
+    });
+
+    return video.personnalites
+      .filter((personnalite) => personnalite != null)
+      .map((personnalite) => ({
+        personnalite: personnalite,
+        movies: uniqueMoviesData,
+      }));
+  }
+
+  static async getMediaByPersonnalites() {
+    const videos = await this.getVideos();
+    const personnalitesMovies = await Promise.all(
+      videos.map((video) => this.processVideoPersonnalites(video)),
+    );
+
+    const personnalitesMoviesNonNull = personnalitesMovies
+      .filter((item) => item !== null)
+      .flat();
+
+    const mergedPersonnalitesMovies = mergePersonnalitesMovies(
+      personnalitesMoviesNonNull,
+    );
+    return createMoviesPersonnalitesMap(mergedPersonnalitesMovies);
   }
 
   public static async getVideos() {
     const [files] = await this.getFiles("videos/");
-    const jsonFiles = files.filter((file) => file.name.endsWith("video.json"));
+    let jsonFiles = files.filter((file) => file.name.endsWith("video.json"));
     const downloadPromises = jsonFiles.map(async (file) => {
       const [content] = await file.download();
-      return JSON.parse(content.toString()) as VideoData;
+      return JSON.parse(content.toString()) as PlaylistItemPersonnalites;
     });
     return Promise.all(downloadPromises);
   }
@@ -102,8 +198,8 @@ export class BucketManager {
     const videos = await this.getVideos();
     videos.sort(
       (a, b) =>
-        new Date(b.snippet.publishedAt).getTime() -
-        new Date(a.snippet.publishedAt).getTime(),
+        new Date(b.playlist_item.snippet.publishedAt).getTime() -
+        new Date(a.playlist_item.snippet.publishedAt).getTime(),
     );
     return videos;
   }
