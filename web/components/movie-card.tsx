@@ -28,7 +28,6 @@ export async function MovieCard({
 }) {
   const item = items[0];
   const id = item.media_item.details.id;
-  // assert that all items have the same id
   for (const item of items) {
     if (item.media_item.details.id !== id) {
       throw new Error("All items must have the same id");
@@ -41,14 +40,22 @@ export async function MovieCard({
     : null;
   return (
     <div>
-      {poster && (
-        <Image
-          src={poster.url}
-          alt={`Poster du film ${item.media_item.details.title}`}
-          width={poster.width}
-          height={poster.height}
-        />
-      )}
+      <a
+        href={
+          item.media_item.details.media_type == "movie"
+            ? `/film/${id}`
+            : `/serie/${id}`
+        }
+      >
+        {poster && (
+          <Image
+            src={poster.url}
+            alt={`Poster du film ${item.media_item.details.title}`}
+            width={poster.width}
+            height={poster.height}
+          />
+        )}
+      </a>
       {items.map((item, key) => (
         <a
           href={getYoutubeUrl(ytVideoId, item.start_time.seconds || null)}
