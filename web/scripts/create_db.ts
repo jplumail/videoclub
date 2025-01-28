@@ -49,15 +49,16 @@ function convertItemToJSON(item: {
   };
 }
 
-async function exportMediaByPersonalities() {
-  const bucket = new Storage().bucket("videoclub-test");
+async function exportMediaByPersonnalites() {
   const media = await BucketManager.createMediaByPersonnalites();
   const jsonString = JSON.stringify(
     media.map((m) => {
       return convertItemToJSON(m);
     }),
   );
-  await bucket.file("mediaByPersonnalites.json").save(jsonString);
+  await BucketManager.getBucket()
+    .file("mediaByPersonnalites.json")
+    .save(jsonString);
 
   // Save each movie in a separate file
   const uploadPromises = media.map(async (m) => {
@@ -68,9 +69,43 @@ async function exportMediaByPersonalities() {
     } else {
       filePath = `mediaByPersonnalites/tv/${m.movie.id}.json`;
     }
-    return uploadWithRetry(bucket, jsonString, filePath);
+    return uploadWithRetry(BucketManager.getBucket(), jsonString, filePath);
   });
-  Promise.all(uploadPromises);
+  await Promise.all(uploadPromises);
 }
 
-exportMediaByPersonalities().catch(console.error);
+async function exportPersonnalitesByMedia() {
+  const personnes = await BucketManager.createPersonnalitesByMovies();
+  const jsonData = personnes.map((p) => {
+    return {
+      personnalite: {
+        person: p.personnalite.person,
+        videos: Array.from(p.personnalite.videos),
+      },
+      movies: p.movies.values(),
+    };
+  });
+  await BucketManager.getBucket()
+    .file("personnalitesByMedia.json")
+    .save(JSON.stringify(jsonData));
+
+  // Save each person in a separate file
+  const uploadPromises = personnes.map(async (p) => {
+    const jsonString = JSON.stringify({
+      personnalite: {
+        person: p.personnalite.person,
+        videos: Array.from(p.personnalite.videos),
+      },
+      movies: Array.from(p.movies.values()),
+    });
+    const filePath = `personnalitesByMedia/${p.personnalite.person.id}.json`;
+    return uploadWithRetry(BucketManager.getBucket(), jsonString, filePath);
+  });
+  await Promise.all(uploadPromises);
+}
+async function exportDB() {
+  await exportMediaByPersonnalites();
+  await exportPersonnalitesByMedia();
+}
+
+exportDB().catch(console.error);

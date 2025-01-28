@@ -7,7 +7,7 @@ import {
   PlaylistItemPersonnalites,
 } from "./backend/types";
 
-class MoviesSet {
+export class MoviesSet {
   private moviesMap: Map<string, PartialMedia>;
   private keysSet: Set<string>;
   constructor(movies?: PartialMedia[]) {
@@ -123,7 +123,7 @@ function createMoviesPersonnalitesMap(
 export class BucketManager {
   private static bucket: Bucket | null = null;
   private constructor() {}
-  private static getBucket() {
+  static getBucket() {
     if (this.bucket) {
       return this.bucket;
     }
@@ -187,7 +187,7 @@ export class BucketManager {
       }));
   }
 
-  static async createMediaByPersonnalites() {
+  static async createPersonnalitesByMovies() {
     const videos = await this.getVideos();
     const personnalitesMovies = await Promise.all(
       videos.map((video) => this.processVideoPersonnalites(video)),
@@ -197,10 +197,59 @@ export class BucketManager {
       .filter((item) => item !== null)
       .flat();
 
-    const mergedPersonnalitesMovies = mergePersonnalitesMovies(
-      personnalitesMoviesNonNull,
+    return mergePersonnalitesMovies(personnalitesMoviesNonNull);
+  }
+
+  static async createMediaByPersonnalites() {
+    return createMoviesPersonnalitesMap(
+      await this.createPersonnalitesByMovies(),
     );
-    return createMoviesPersonnalitesMap(mergedPersonnalitesMovies);
+  }
+
+  static async getPersonnalitesByMedia(): Promise<
+    {
+      personnalite: { person: Person; videos: Set<string> };
+      movies: MoviesSet;
+    }[]
+  >;
+  static async getPersonnalitesByMedia(params: { id: string }): Promise<{
+    personnalite: { person: Person; videos: Set<string> };
+    movies: MoviesSet;
+  }>;
+  static async getPersonnalitesByMedia(params?: { id?: string }) {
+    function convertJSONToItem(json: {
+      personnalite: { person: Person; videos: string[] };
+      movies: PartialMedia[];
+    }) {
+      return {
+        personnalite: {
+          person: json.personnalite.person,
+          videos: new Set(json.personnalite.videos),
+        },
+        movies: new MoviesSet(json.movies),
+      };
+    }
+    if (params?.id) {
+      const [files] = await this.getFiles(
+        `personnalitesByMedia/${params.id}.json`,
+      );
+      const jsonFile = files[0];
+      const [content] = await jsonFile.download();
+      const data = JSON.parse(content.toString()) as {
+        personnalite: { person: Person; videos: string[] };
+        movies: PartialMedia[];
+      };
+      return convertJSONToItem(data);
+    } else {
+      const [files] = await this.getFiles("personnalitesByMedia.json");
+      const jsonFile = files[0];
+      const [content] = await jsonFile.download();
+      const data = JSON.parse(content.toString()) as {
+        personnalite: { person: Person; videos: string[] };
+        movies: PartialMedia[];
+      }[];
+      return data.map(convertJSONToItem);
+    }
   }
 
   static async getMediaByPersonnalites(): Promise<
@@ -351,6 +400,25 @@ export class ConfigurationManager {
       width: width,
       height: height,
       url: `${secureBaseUrl}${posterSize}${posterPath}`,
+    };
+  }
+
+  private static async getProfileSize(height: number) {
+    return (await this.getConfigurationDetails()).images.profile_sizes.filter(
+      (size) => {
+        return parseInt(size.substring(1)) == height;
+      },
+    )[0];
+  }
+  public static async getProfileUrl(profilePath: string) {
+    const height = 632;
+    const width = 400;
+    const secureBaseUrl = await this.getSecureBaseUrl();
+    const profileSize = await this.getProfileSize(height);
+    return {
+      width: width,
+      height: height,
+      url: `${secureBaseUrl}${profileSize}${profilePath}`,
     };
   }
 }
