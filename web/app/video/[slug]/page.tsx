@@ -1,18 +1,13 @@
 import { MovieCard } from "@/components/movie-card";
-import { BucketManager, MovieData } from "@/lib/data";
+import { MediaItemTimestamp } from "@/lib/backend/types";
+import { BucketManager } from "@/lib/data";
 
 function getVideoId(slug: string): string {
-  const videoIdArray: string[] = [];
-  slug.split("_").map((item, key) => {
-    if (key > 0) {
-      videoIdArray.push(item);
-    }
-  });
-  const videoId = videoIdArray.join("_");
+  const videoId = slug.slice(-11);
   return videoId;
 }
 
-function getUniqueMoviesData(moviesData: MovieData[]) {
+function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
   const moviesSet = new Set();
   return moviesData.filter((item) => {
     if (moviesSet.has(item.media_item.details.id)) {
@@ -36,7 +31,12 @@ export default async function Page({
   }
 
   const uniqueMoviesData = getUniqueMoviesData(moviesData);
-  moviesData.sort((a, b) => a.start_time.seconds - b.start_time.seconds);
+  moviesData.sort((a, b) => {
+    if (!a.start_time.seconds || !b.start_time.seconds) {
+      return 0;
+    }
+    return a.start_time.seconds - b.start_time.seconds;
+  });
   return (
     <div>
       {uniqueMoviesData.map(async (item, key) => {
