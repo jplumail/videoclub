@@ -1,5 +1,4 @@
 import { PartialMedia, Person } from "@/lib/backend/types";
-import { BucketManager } from "@/lib/data";
 
 function getTitle(media: PartialMedia) {
   return media.title || media.name || null;
@@ -10,7 +9,10 @@ export default async function Meilleurs({
 }: {
   medias: {
     movie: PartialMedia;
-    personnalites: Person[];
+    personnalites: {
+      person: Person;
+      videos: Set<string>;
+    }[];
   }[];
 }) {
   medias.sort((a, b) => b.personnalites.length - a.personnalites.length);
@@ -29,7 +31,7 @@ export default async function Meilleurs({
             </a>
             <ul>
               {Array.from(item.personnalites).map((p, k) => {
-                return <li key={k}>{p.name}</li>;
+                return <li key={k}>{p.person.name}</li>;
               })}
             </ul>
           </div>

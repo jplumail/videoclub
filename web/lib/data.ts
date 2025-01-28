@@ -59,29 +59,46 @@ class MoviesSet {
 }
 
 function mergePersonnalitesMovies(
-  personnalitesMovies: { personnalite: Person; movies: MoviesSet }[],
+  personnalitesMovies: {
+    personnalite: { person: Person; video: string };
+    movies: MoviesSet;
+  }[],
 ) {
   return personnalitesMovies.reduce(
     (acc, item) => {
       const existingPersonnalite = acc.find(
-        (accItem) => accItem.personnalite.id === item.personnalite.id,
+        (accItem) =>
+          accItem.personnalite.person.id === item.personnalite.person.id,
       );
       if (existingPersonnalite) {
         existingPersonnalite.movies = new MoviesSet([
           ...existingPersonnalite.movies.values(),
           ...item.movies.values(),
         ]);
+        existingPersonnalite.personnalite.videos.add(item.personnalite.video);
       } else {
-        acc.push(item);
+        acc.push({
+          personnalite: {
+            person: item.personnalite.person,
+            videos: new Set([item.personnalite.video]),
+          },
+          movies: item.movies,
+        });
       }
       return acc;
     },
-    [] as { personnalite: Person; movies: MoviesSet }[],
+    [] as {
+      personnalite: { person: Person; videos: Set<string> };
+      movies: MoviesSet;
+    }[],
   );
 }
 
 function createMoviesPersonnalitesMap(
-  personnalitesMovies: { personnalite: Person; movies: MoviesSet }[],
+  personnalitesMovies: {
+    personnalite: { person: Person; videos: Set<string> };
+    movies: MoviesSet;
+  }[],
 ) {
   const allMovies = new MoviesSet();
   personnalitesMovies.forEach((item) => {
@@ -92,7 +109,7 @@ function createMoviesPersonnalitesMap(
 
   const moviesPersonnalites: {
     movie: PartialMedia;
-    personnalites: Person[];
+    personnalites: { person: Person; videos: Set<string> }[];
   }[] = [];
   allMovies.forEach((movie) => {
     const personnalites = personnalitesMovies
@@ -163,7 +180,10 @@ export class BucketManager {
     return video.personnalites
       .filter((personnalite) => personnalite != null)
       .map((personnalite) => ({
-        personnalite: personnalite,
+        personnalite: {
+          person: personnalite,
+          video: video.playlist_item.snippet.resourceId.videoId,
+        },
         movies: uniqueMoviesData,
       }));
   }
