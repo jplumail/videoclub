@@ -23,14 +23,20 @@ export default async function Home() {
             <h2>
               <a href={videoUrl}>{video.playlist_item.snippet.title}</a>
             </h2>
-            {personnes.length > 0 &&
-              personnes.map((p, key) => {
-                return (
-                  <a key={key} href={`/personne/${p.id}`}>
-                    <p>{p.name}</p>
-                  </a>
-                );
-              })}
+            <div className={styles.additionalInfo}>
+              <div className={styles.personnesContainer}>
+                {personnes.length > 0 &&
+                  personnes.map((p, key) => {
+                    return (
+                      <div key={key} className={styles.personne}>
+                        <a href={`/personne/${p.id}`}>{p.name}</a>
+                        {key < personnes.length - 2 && ", "}
+                        {key === personnes.length - 2 && " et "}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
           </a>
         );
       })}
