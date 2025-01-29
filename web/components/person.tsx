@@ -2,6 +2,7 @@ import { Person } from "@/lib/backend/types";
 import { ConfigurationManager, MoviesSet } from "@/lib/data";
 import Image from "next/image";
 import { MovieCard } from "./MovieCards";
+import Link from "next/link";
 
 export async function PersonComponent({
   personData,
@@ -34,7 +35,7 @@ export async function PersonComponent({
         {Array.from(personData.personnalite.videos).map((videoId, key) => {
           return (
             <li key={key}>
-              <a href={`/video/${videoId}`}>{videoId}</a>
+              <Link href={`/video/${videoId}`}>{videoId}</Link>
             </li>
           );
         })}

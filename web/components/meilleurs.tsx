@@ -1,5 +1,6 @@
 import { PartialMedia, Person } from "@/lib/backend/types";
 import { slugify } from "@/lib/utils";
+import Link from "next/link";
 
 function getTitle(media: PartialMedia) {
   return media.title || media.name || null;
@@ -27,9 +28,9 @@ export default async function Meilleurs({
             : `/tv/${item.movie.id}`;
         return (
           <li key={key}>
-            <a href={url}>
+            <Link href={url}>
               <h1>{title}</h1>
-            </a>
+            </Link>
             <ul>
               {Array.from(item.personnalites).map((p, k) => {
                 return (
@@ -39,11 +40,11 @@ export default async function Meilleurs({
                       {Array.from(p.videos).map((video) => {
                         return (
                           <li key={video}>
-                            <a
+                            <Link
                               href={`/video/${video}#${slugify(item.movie.name || item.movie.title || "")}`}
                             >
                               lien
-                            </a>
+                            </Link>
                           </li>
                         );
                       })}

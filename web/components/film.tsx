@@ -1,5 +1,6 @@
 import { PartialMedia, Person } from "@/lib/backend/types";
 import { slugify } from "@/lib/utils";
+import Link from "next/link";
 
 export function Film({
   movie,
@@ -18,17 +19,17 @@ export function Film({
       <ul>
         {movie.personnalites.map((personnalite, index) => (
           <li key={index}>
-            <a href={`/personne/${personnalite.person.id}`}>
+            <Link href={`/personne/${personnalite.person.id}`}>
               {personnalite.person.name}
-            </a>
+            </Link>
             {Array.from(personnalite.videos).map((videoId, key) => {
               return (
-                <a
+                <Link
                   key={key}
                   href={`/video/${videoId}#${slugify(movie.movie.name || movie.movie.title || "")}`}
                 >
                   <p>{videoId}</p>
-                </a>
+                </Link>
               );
             })}
           </li>

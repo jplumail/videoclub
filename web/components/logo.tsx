@@ -1,11 +1,12 @@
 import { Candal } from "next/font/google";
 import styles from "./logo.module.css";
+import Link from "next/link";
 
 const candal = Candal({ weight: "400", subsets: ["latin"] });
 
 export default function Logo() {
   return (
-    <a href="/" className={`${styles.logo} ${candal.className}`}>
+    <Link href="/" className={`${styles.logo} ${candal.className}`}>
       <div className={`${styles.red} ${styles.gauche}`}>
         <span>VIDEO</span>
       </div>
@@ -18,6 +19,6 @@ export default function Logo() {
       <div className={`${styles.black} ${styles.droite}`}>
         <span>Fame</span>
       </div>
-    </a>
+    </Link>
   );
 }

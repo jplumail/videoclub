@@ -1,6 +1,7 @@
 import { MediaItemTimestamp, PartialMedia } from "@/lib/backend/types";
 import { ConfigurationManager } from "@/lib/data";
 import Image from "next/image";
+import Link from "next/link";
 
 function getYoutubeUrl(videoId: string, timecode: number | null) {
   if (timecode === null) {
@@ -31,7 +32,7 @@ export async function MovieCard({
     : null;
   return (
     <div>
-      <a
+      <Link
         href={
           media.media_type == "movie"
             ? `/film/${media.id}`
@@ -46,7 +47,7 @@ export async function MovieCard({
             height={poster.height}
           />
         )}
-      </a>
+      </Link>
       {children}
     </div>
   );
@@ -69,7 +70,7 @@ export async function MovieCardTimestamps({
   return (
     <MovieCard media={item.media_item.details}>
       {items.map((item, key) => (
-        <a
+        <Link
           href={getYoutubeUrl(ytVideoId, item.start_time.seconds || null)}
           target="_blank"
           key={key}
@@ -78,7 +79,7 @@ export async function MovieCardTimestamps({
             {getMinutes(item.start_time.seconds || 0)}:
             {getSeconds(item.start_time.seconds || 0)}
           </p>
-        </a>
+        </Link>
       ))}
     </MovieCard>
   );
