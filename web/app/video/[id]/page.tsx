@@ -27,7 +27,6 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const videoId = (await params).id;
-  console.log("videoId", videoId);
   const moviesData = await BucketManager.getMovies(videoId);
   if (moviesData == null) {
     return <div>No data available</div>;
