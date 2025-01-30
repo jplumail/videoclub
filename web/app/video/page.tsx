@@ -12,15 +12,19 @@ export default async function Home() {
         const videoUrl = `/video/${video.playlist_item.snippet.resourceId.videoId}`;
         const personnes = video.personnalites.filter((p) => p !== null);
         return (
-          <Link key={index} className={styles.video} href={videoUrl}>
-            <div className={styles.thumbnail}>
-              <Image
-                src={video.playlist_item.snippet.thumbnails.standard.url}
-                width={video.playlist_item.snippet.thumbnails.standard.width}
-                height={video.playlist_item.snippet.thumbnails.standard.height}
-                alt="thumbnail"
-              />
-            </div>
+          <div className={styles.video} key={index}>
+            <Link href={videoUrl}>
+              <div className={styles.thumbnail}>
+                <Image
+                  src={video.playlist_item.snippet.thumbnails.standard.url}
+                  width={video.playlist_item.snippet.thumbnails.standard.width}
+                  height={
+                    video.playlist_item.snippet.thumbnails.standard.height
+                  }
+                  alt="thumbnail"
+                />
+              </div>
+            </Link>
             <h2>
               <Link href={videoUrl}>{video.playlist_item.snippet.title}</Link>
             </h2>
@@ -38,7 +42,7 @@ export default async function Home() {
                   })}
               </div>
             </div>
-          </Link>
+          </div>
         );
       })}
     </main>
