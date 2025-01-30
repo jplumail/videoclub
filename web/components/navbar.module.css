@@ -1,0 +1,27 @@
+.nav {
+  padding: 1rem;
+  font-size: large;
+}
+
+.list {
+  display: flex;
+}
+
+ul.list > li {
+  list-style-type: none;
+}
+
+.link {
+  border: white solid 1px;
+  padding-inline: 1rem;
+}
+
+.link:hover {
+  background-color: var(--konbini-red);
+  color: var(--konbini-yellow);
+}
+
+.currentLink {
+  background-color: var(--konbini-red);
+  color: var(--konbini-yellow);
+}

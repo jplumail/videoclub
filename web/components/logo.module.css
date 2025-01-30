@@ -17,11 +17,11 @@
   flex-wrap: wrap;
 }
 
-.logo > div.red {
-  background-color: #f71c12;
-  color: #fdc607;
+.red {
+  background-color: var(--konbini-red);
+  color: var(--konbini-yellow);
 }
-.logo > div.black {
+.black {
   background-color: black;
 }
 

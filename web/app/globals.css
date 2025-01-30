@@ -2,6 +2,9 @@
   --background: hsl(0, 0%, 4%);
   --foreground: hsl(0, 0%, 93%);
   --background-light: hsl(0, 0%, 10%);
+
+  --konbini-red: #f71c12;
+  --konbini-yellow: #fdc607;
 }
 
 html,
@@ -36,7 +39,8 @@ a {
 header {
   margin-bottom: 2rem;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 @media (prefers-color-scheme: dark) {
