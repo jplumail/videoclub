@@ -2,6 +2,13 @@
   "hosting": {
     "public": "out",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "trailingSlash": false
+    "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/film/meilleurs",
+        "type": 307
+      }
+    ]
   }
 }
