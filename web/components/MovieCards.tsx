@@ -32,7 +32,8 @@ export async function MovieCard({
   const poster = media.poster_path
     ? await ConfigurationManager.getPosterUrl(media.poster_path)
     : null;
-  const date = media.first_air_date ? new Date(media.first_air_date) : null;
+  const commonDate = media.release_date || media.first_air_date;
+  const date = commonDate ? new Date(commonDate) : null;
   return (
     <div className={styles.container}>
       {poster && (
