@@ -24,8 +24,8 @@ export default async function Meilleurs({
         const title = getTitle(item.movie) || "Sans titre";
         const url =
           item.movie.media_type === "movie"
-            ? `/movie/${item.movie.id}`
-            : `/tv/${item.movie.id}`;
+            ? `/film/${item.movie.id}`
+            : `/serie/${item.movie.id}`;
         return (
           <li key={key}>
             <Link href={url}>
