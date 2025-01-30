@@ -1,8 +1,10 @@
 import { MediaItemTimestamp, PartialMedia } from "@/lib/backend/types";
 import { ConfigurationManager } from "@/lib/data";
 import Image from "next/image";
+import Link from "next/link";
+import styles from "./MovieCard.module.css";
 
-function getYoutubeUrl(videoId: string, timecode: number | null) {
+export function getYoutubeUrl(videoId: string, timecode: number | null) {
   if (timecode === null) {
     return `https://www.youtube.com/watch?v=${videoId}`;
   }
@@ -26,28 +28,47 @@ export async function MovieCard({
   media: PartialMedia;
   children?: React.ReactNode;
 }) {
+  const title = media.title || media.name || "";
   const poster = media.poster_path
     ? await ConfigurationManager.getPosterUrl(media.poster_path)
     : null;
+  const date = media.first_air_date ? new Date(media.first_air_date) : null;
   return (
-    <div>
-      <a
-        href={
-          media.media_type == "movie"
-            ? `/film/${media.id}`
-            : `/serie/${media.id}`
-        }
-      >
-        {poster && (
+    <div className={styles.container}>
+      {poster && (
+        <Link
+          href={
+            media.media_type == "movie"
+              ? `/film/${media.id}`
+              : `/serie/${media.id}`
+          }
+          className={styles.link}
+        >
           <Image
             src={poster.url}
-            alt={`Poster du film ${media.title}`}
+            alt={`Poster du film ${title}`}
             width={poster.width}
             height={poster.height}
           />
-        )}
-      </a>
-      {children}
+        </Link>
+      )}
+      <div className={styles.children}>
+        {children}
+        <p className={styles.movieDetails}>
+          <Link
+            href={
+              media.media_type == "movie"
+                ? `/film/${media.id}`
+                : `/serie/${media.id}`
+            }
+            className={styles.details}
+          >
+            <span className={styles.title}>{title}</span>
+          </Link>
+
+          {date && <span> - {date.getFullYear()}</span>}
+        </p>
+      </div>
     </div>
   );
 }

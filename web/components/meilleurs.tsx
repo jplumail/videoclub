@@ -1,9 +1,73 @@
-import { PartialMedia, Person } from "@/lib/backend/types";
+import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
 import { slugify } from "@/lib/utils";
+import styles from "./meilleurs.module.css";
 import Link from "next/link";
+import { getYoutubeUrl, MovieCard } from "./MovieCards";
 
 function getTitle(media: PartialMedia) {
   return media.title || media.name || null;
+}
+
+async function LeaderBoardItem({
+  item,
+  rank,
+}: {
+  item: {
+    movie: PartialMedia;
+    personnalites: {
+      person: Person;
+      videos: {
+        videoId: string;
+        timestamps: {
+          start_time: TimeOffset;
+          end_time: TimeOffset;
+          confidence: number;
+        }[];
+      }[];
+    }[];
+  };
+  rank: number | null;
+}) {
+  return (
+    <div className={styles.itemContainer}>
+      <div className={styles.imageContainer}>
+        <MovieCard media={item.movie}>
+          <ul className={styles.citeList}>
+            {Array.from(item.personnalites).map((p, k) => (
+              <li key={k} className={styles.citeItem}>
+                <p>
+                  <Link
+                    href={`/video/${Array.from(p.videos)[0].videoId}#${slugify(getTitle(item.movie) || "")}`}
+                  >
+                    {p.person.name}
+                  </Link>
+                </p>
+                <ul>
+                  {Array.from(p.videos).map((video) => (
+                    <Link
+                      key={video.videoId}
+                      href={getYoutubeUrl(
+                        video.videoId,
+                        video.timestamps[0]?.start_time?.seconds || null,
+                      )}
+                      className={styles.link}
+                      target="_blank"
+                    ></Link>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </MovieCard>
+        {rank && (
+          <span className={`${styles.rank} ${styles.bottom}`}>{rank}</span>
+        )}
+        <span className={`${styles.citationCount} ${styles.bottom}`}>
+          Cité {item.personnalites.length} fois
+        </span>
+      </div>
+    </div>
+  );
 }
 
 export default async function Meilleurs({
@@ -13,46 +77,23 @@ export default async function Meilleurs({
     movie: PartialMedia;
     personnalites: {
       person: Person;
-      videos: Set<string>;
+      videos: {
+        videoId: string;
+        timestamps: {
+          start_time: TimeOffset;
+          end_time: TimeOffset;
+          confidence: number;
+        }[];
+      }[];
     }[];
   }[];
 }) {
-  medias.sort((a, b) => b.personnalites.length - a.personnalites.length);
   return (
-    <ol>
+    <ol className={styles.liste}>
       {medias.map((item, key) => {
-        const title = getTitle(item.movie) || "Sans titre";
-        const url =
-          item.movie.media_type === "movie"
-            ? `/film/${item.movie.id}`
-            : `/serie/${item.movie.id}`;
         return (
           <li key={key}>
-            <Link href={url}>
-              <h1>{title}</h1>
-            </Link>
-            <ul>
-              {Array.from(item.personnalites).map((p, k) => {
-                return (
-                  <li key={k}>
-                    <p>{p.person.name}</p>
-                    <ul>
-                      {Array.from(p.videos).map((video) => {
-                        return (
-                          <li key={video}>
-                            <Link
-                              href={`/video/${video}#${slugify(item.movie.name || item.movie.title || "")}`}
-                            >
-                              lien
-                            </Link>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
-                );
-              })}
-            </ul>
+            <LeaderBoardItem item={item} rank={key < 9 ? key + 1 : null} />
           </li>
         );
       })}

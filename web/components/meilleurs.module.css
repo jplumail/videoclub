@@ -1,0 +1,95 @@
+.liste {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.liste > * {
+  margin: 1rem;
+  list-style-type: none;
+}
+
+.itemContainer {
+  position: relative;
+}
+
+.itemContainer:hover .details {
+  color: var(--font-color-light);
+}
+
+.imageContainer {
+  position: relative;
+}
+
+.bottom {
+  display: block;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  margin: 0;
+  transform: translateY(14%) translateX(-3%);
+  line-height: 1;
+  pointer-events: none;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.rank {
+  font-size: 20rem;
+  font-weight: 600;
+  color: hsla(0, 0%, 100%, 0.75);
+}
+
+.citationCount {
+  right: 0;
+  left: unset;
+  bottom: 0.2rem;
+  margin: 0.1rem;
+  text-shadow:
+    0px 0.5px black,
+    0px -0.5px black,
+    -0.5px 0px black,
+    0.5px 0px black;
+}
+
+.details {
+  height: 2.2rem;
+  font-size: 1.6rem;
+  color: var(--font-color-dark);
+}
+.details:hover {
+  color: var(--font-color-light);
+}
+
+.citeList {
+  margin: 1rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.citeItem {
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  margin-block: 0.4rem;
+}
+
+.citeItem p {
+  text-overflow: clip;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.citeItem p:hover {
+  text-decoration: underline;
+}
+
+.link {
+  display: block;
+  background-image: url("/youtube-icon.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 1em;
+  aspect-ratio: 28.57 / 20;
+  margin-inline: 0.5em;
+}

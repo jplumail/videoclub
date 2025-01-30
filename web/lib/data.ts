@@ -5,6 +5,7 @@ import {
   PartialMedia,
   Person,
   PlaylistItemPersonnalites,
+  TimeOffset,
 } from "./backend/types";
 
 export class MoviesSet {
@@ -122,6 +123,8 @@ function createMoviesPersonnalitesMap(
 
 export class BucketManager {
   private static bucket: Bucket | null = null;
+  public static mediaPersonTimestampsSortedPath =
+    "mediaPersonTimestampsSorted.json";
   private constructor() {}
   static getBucket() {
     if (this.bucket) {
@@ -212,11 +215,11 @@ export class BucketManager {
       movies: MoviesSet;
     }[]
   >;
-  static async getPersonnalitesByMedia(params: { id: string }): Promise<{
+  static async getPersonnalitesByMedia(params: { personId: string }): Promise<{
     personnalite: { person: Person; videos: Set<string> };
     movies: MoviesSet;
   }>;
-  static async getPersonnalitesByMedia(params?: { id?: string }) {
+  static async getPersonnalitesByMedia(params?: { personId?: string }) {
     function convertJSONToItem(json: {
       personnalite: { person: Person; videos: string[] };
       movies: PartialMedia[];
@@ -229,9 +232,9 @@ export class BucketManager {
         movies: new MoviesSet(json.movies),
       };
     }
-    if (params?.id) {
+    if (params?.personId) {
       const [files] = await this.getFiles(
-        `personnalitesByMedia/${params.id}.json`,
+        `personnalitesByMedia/${params.personId}.json`,
       );
       const jsonFile = files[0];
       const [content] = await jsonFile.download();
@@ -336,6 +339,77 @@ export class BucketManager {
     );
     return videos;
   }
+
+  public static async createMediaTimestampsSorted() {
+    const medias = await BucketManager.getMediaByPersonnalites();
+    medias.sort((a, b) => b.personnalites.length - a.personnalites.length);
+    return await Promise.all(
+      medias.map(async (media) => {
+        return {
+          movie: media.movie,
+          personnalites: await Promise.all(
+            media.personnalites.map(async (person) => {
+              return {
+                person: person.person,
+                videos: await Promise.all(
+                  Array.from(person.videos).map(async (videoId) => {
+                    let timestamps = (
+                      await BucketManager.getMovies(videoId)
+                    )?.filter(
+                      (timestamp) =>
+                        timestamp.media_item.details.media_type ==
+                          media.movie.media_type &&
+                        timestamp.media_item.details.id == media.movie.id,
+                    );
+                    if (!timestamps) {
+                      timestamps = [];
+                    }
+                    return {
+                      videoId: videoId,
+                      timestamps: timestamps.map((t) => {
+                        return {
+                          start_time: t.start_time,
+                          end_time: t.end_time,
+                          confidence: t.confidence,
+                        };
+                      }),
+                    };
+                  }),
+                ),
+              };
+            }),
+          ),
+        };
+      }),
+    );
+  }
+
+  public static async getMediaTimestampsSorted(params?: {
+    media_type: string;
+  }) {
+    const [files] = await this.getFiles(this.mediaPersonTimestampsSortedPath);
+    const [content] = await files[0].download();
+    const medias = JSON.parse(content.toString()) as {
+      movie: PartialMedia;
+      personnalites: {
+        person: Person;
+        videos: {
+          videoId: string;
+          timestamps: {
+            start_time: TimeOffset;
+            end_time: TimeOffset;
+            confidence: number;
+          }[];
+        }[];
+      }[];
+    }[];
+    if (params?.media_type) {
+      return medias.filter(
+        (media) => media.movie.media_type == params.media_type,
+      );
+    }
+    return medias;
+  }
 }
 
 export interface ConfigurationDetails {
@@ -392,8 +466,8 @@ export class ConfigurationManager {
   }
 
   public static async getPosterUrl(posterPath: string) {
-    const width = 185;
-    const height = 278;
+    const width = 780;
+    const height = 1170;
     const secureBaseUrl = await this.getSecureBaseUrl();
     const posterSize = await this.getPosterSize(width);
     return {

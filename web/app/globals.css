@@ -5,6 +5,9 @@
 
   --konbini-red: #f71c12;
   --konbini-yellow: #fdc607;
+
+  --font-color-dark: hsl(0, 0%, 67%);
+  --font-color-light: hsl(0, 0%, 93%);
 }
 
 html,

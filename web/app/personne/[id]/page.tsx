@@ -15,7 +15,7 @@ export default async function Page({
 }) {
   const personneId = (await params).id;
   const personne = await BucketManager.getPersonnalitesByMedia({
-    id: personneId,
+    personId: personneId,
   });
   return personne && <PersonComponent personData={personne} />;
 }

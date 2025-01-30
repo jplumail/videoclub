@@ -103,9 +103,20 @@ async function exportPersonnalitesByMedia() {
   });
   await Promise.all(uploadPromises);
 }
+
+async function exportMediaTimestampsSorted() {
+  const mediasTimestamps = await BucketManager.createMediaTimestampsSorted();
+  return uploadWithRetry(
+    BucketManager.getBucket(),
+    JSON.stringify(mediasTimestamps),
+    BucketManager.mediaPersonTimestampsSortedPath,
+  );
+}
+
 async function exportDB() {
   await exportMediaByPersonnalites();
   await exportPersonnalitesByMedia();
+  await exportMediaTimestampsSorted();
 }
 
 exportDB().catch(console.error);
