@@ -1,6 +1,8 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
 import { slugify } from "@/lib/utils";
 import styles from "./meilleurs.module.css";
+import ytIconStyle from "./yt-icon.module.css";
+import utilsStyles from "./utils.module.css";
 import Link from "next/link";
 import { getYoutubeUrl, MovieCard } from "./MovieCards";
 
@@ -50,7 +52,7 @@ async function LeaderBoardItem({
                         video.videoId,
                         video.timestamps[0]?.start_time?.seconds || null,
                       )}
-                      className={styles.link}
+                      className={`${styles.link} ${ytIconStyle.ytIcon}`}
                       target="_blank"
                     ></Link>
                   ))}
@@ -62,7 +64,9 @@ async function LeaderBoardItem({
         {rank && (
           <span className={`${styles.rank} ${styles.bottom}`}>{rank}</span>
         )}
-        <span className={`${styles.citationCount} ${styles.bottom}`}>
+        <span
+          className={`${styles.citationCount} ${styles.bottom} ${utilsStyles.textShadow}`}
+        >
           Cité {item.personnalites.length} fois
         </span>
       </div>

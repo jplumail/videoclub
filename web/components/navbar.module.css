@@ -21,6 +21,19 @@ ul.list > li {
   color: var(--konbini-yellow);
 }
 
+.videoLink {
+  display: flex;
+  align-items: center;
+}
+.videoLink > * {
+  margin-inline: 0.2em;
+}
+
+.videoLink > div {
+  position: relative;
+  top: 0.07em;
+}
+
 .currentLink {
   background-color: var(--konbini-red);
   color: var(--konbini-yellow);

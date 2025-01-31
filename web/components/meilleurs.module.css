@@ -45,11 +45,6 @@
   left: unset;
   bottom: 0.2rem;
   margin: 0.1rem;
-  text-shadow:
-    0px 0.5px black,
-    0px -0.5px black,
-    -0.5px 0px black,
-    0.5px 0px black;
 }
 
 .details {
@@ -85,11 +80,5 @@
 }
 
 .link {
-  display: block;
-  background-image: url("/youtube-icon.svg");
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 1em;
-  aspect-ratio: 28.57 / 20;
   margin-inline: 0.5em;
 }

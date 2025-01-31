@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import styles from "./navbar.module.css";
+import ytIconStyle from "./yt-icon.module.css";
+import utilsStyles from "./utils.module.css";
 import { Candal } from "next/font/google";
 import { usePathname } from "next/navigation";
 
@@ -10,9 +12,16 @@ const candal = Candal({ weight: "400", subsets: ["latin"] });
 export default function Navbar() {
   const pathname = usePathname();
   const links = [
-    { href: "/film/meilleurs", content: "Films" },
-    { href: "/serie/meilleures", content: "Séries" },
-    { href: "/video", content: "Vidéos" },
+    { href: "/film/meilleurs", content: <span>Top films</span> },
+    { href: "/serie/meilleures", content: <span>Top séries</span> },
+    {
+      href: "/video",
+      content: (
+        <div className={`${styles.videoLink}`}>
+          <span>Vidéos</span> <div className={ytIconStyle.ytIcon} />
+        </div>
+      ),
+    },
   ];
   return (
     <nav className={`${styles.nav} ${candal.className}`}>
@@ -22,10 +31,10 @@ export default function Navbar() {
             key={key}
             href={href}
             className={`${styles.link} ${
-              pathname?.replace(/\/$/, "") === href.replace(/\/$/, "")
+              pathname?.replace(/\/$/, "").startsWith(href.replace(/\/$/, ""))
                 ? styles.currentLink
                 : ""
-            }`}
+            } ${utilsStyles.textShadow}`}
           >
             {content}
           </Link>
