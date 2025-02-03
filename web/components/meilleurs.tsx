@@ -1,10 +1,10 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
-import { slugify } from "@/lib/utils";
+import { getYoutubeUrl, slugify } from "@/lib/utils";
 import styles from "./meilleurs.module.css";
 import ytIconStyle from "./yt-icon.module.css";
 import utilsStyles from "./utils.module.css";
 import Link from "next/link";
-import { getYoutubeUrl, MovieCard } from "./MovieCards";
+import { MovieCard } from "./MovieCard";
 
 function getTitle(media: PartialMedia) {
   return media.title || media.name || null;

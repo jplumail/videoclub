@@ -1,4 +1,4 @@
-import { BucketManager } from "@/lib/data";
+import { BucketManager } from "@/lib/data/bucket";
 import Image from "next/image";
 import styles from "./page.module.css";
 import Link from "next/link";

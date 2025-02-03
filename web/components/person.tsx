@@ -1,7 +1,8 @@
 import { Person } from "@/lib/backend/types";
-import { ConfigurationManager, MoviesSet } from "@/lib/data";
+import { ConfigurationManager } from "@/lib/data/tmdb";
+import { MoviesSet } from "@/lib/data/bucket";
 import Image from "next/image";
-import { MovieCard } from "./MovieCards";
+import { MovieCard } from "./MovieCard";
 import Link from "next/link";
 
 export async function PersonComponent({

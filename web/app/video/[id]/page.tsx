@@ -1,7 +1,8 @@
-import { MovieCardTimestamps } from "@/components/MovieCards";
 import { MediaItemTimestamp } from "@/lib/backend/types";
-import { BucketManager } from "@/lib/data";
-import { slugify } from "@/lib/utils";
+import { BucketManager } from "@/lib/data/bucket";
+import VideoPlayer from "@/components/videoPlayer";
+import { Poster } from "@/components/MovieCard";
+import { Timecode } from "@/components/Timeline";
 
 function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
   const moviesSet = new Set();
@@ -32,36 +33,34 @@ export default async function Page({
     return <div>Pas de données disponibles</div>;
   }
 
+  // Remove duplicates
   const uniqueMoviesData = getUniqueMoviesData(moviesData);
-  moviesData.sort((a, b) => {
-    if (!a.start_time.seconds || !b.start_time.seconds) {
-      return 0;
-    }
-    return a.start_time.seconds - b.start_time.seconds;
+
+  // Aggregate Timestamps
+  const aggregatedMoviesData = uniqueMoviesData.map((item) => {
+    const timestamps = moviesData
+      .filter(
+        (timestamp) =>
+          timestamp.media_item.details.id === item.media_item.details.id,
+      )
+      .map((timestamp) => ({
+        start_time: timestamp.start_time,
+        end_time: timestamp.end_time,
+        confidence: timestamp.confidence,
+      }))
+      .filter((timestamp) => timestamp.confidence > 0.5);
+    return {
+      ...item.media_item,
+      timestamps,
+    };
   });
-  return (
-    <div>
-      {uniqueMoviesData.map(async (item, key) => {
-        const sameMovies = moviesData.filter(
-          (item2) => item2.media_item.details.id === item.media_item.details.id,
-        );
-        return (
-          <div
-            key={key}
-            id={slugify(
-              sameMovies[0].media_item.details.name ||
-                sameMovies[0].media_item.details.title ||
-                "",
-            )}
-          >
-            <MovieCardTimestamps
-              key={key}
-              ytVideoId={videoId}
-              items={sameMovies}
-            />
-          </div>
-        );
-      })}
-    </div>
+
+  const movies = await Promise.all(
+    aggregatedMoviesData.map(async (item) => ({
+      item: item,
+      poster: <Poster media={item.details} />,
+    })),
   );
+
+  return <VideoPlayer videoId={videoId} movies={movies} />;
 }

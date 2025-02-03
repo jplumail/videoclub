@@ -1,5 +1,5 @@
 import { Film } from "@/components/film";
-import { BucketManager } from "@/lib/data";
+import { BucketManager } from "@/lib/data/bucket";
 export async function generateStaticParams() {
   const allMovies = await BucketManager.getMediaByPersonnalites({
     media_type: "movie",

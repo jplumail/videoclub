@@ -1,0 +1,25 @@
+.container {
+  width: 100%;
+  position: relative;
+  padding: 2rem 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.content {
+  min-width: max-content;
+  display: inline-flex;
+  gap: 1.5rem;
+  scroll-snap-align: start;
+}
+
+.content > * {
+  transition: transform 0.2s;
+}
+
+.content > *:hover {
+  transform: scale(1.05);
+}

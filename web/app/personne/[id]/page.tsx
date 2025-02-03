@@ -1,5 +1,5 @@
 import { PersonComponent } from "@/components/person";
-import { BucketManager } from "@/lib/data";
+import { BucketManager } from "@/lib/data/bucket";
 
 export async function generateStaticParams() {
   const allPersonnes = await BucketManager.getPersonnalitesByMedia();

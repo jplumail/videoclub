@@ -1,5 +1,5 @@
 import { PartialMedia, Person } from "@/lib/backend/types";
-import { BucketManager } from "@/lib/data";
+import { BucketManager } from "@/lib/data/bucket";
 import { Storage, Bucket } from "@google-cloud/storage";
 
 const MAX_RETRIES = 3;

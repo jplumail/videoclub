@@ -1,4 +1,4 @@
-import { BucketManager } from "@/lib/data";
+import { BucketManager } from "@/lib/data/bucket";
 import { Film } from "@/components/film";
 
 export async function generateStaticParams() {

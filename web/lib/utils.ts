@@ -6,3 +6,11 @@ export function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+
+export function getYoutubeUrl(videoId: string, timecode: number | null) {
+  if (timecode === null) {
+    return `https://www.youtube.com/watch?v=${videoId}`;
+  }
+  return `https://www.youtube.com/watch?v=${videoId}&t=${timecode}s`;
+}

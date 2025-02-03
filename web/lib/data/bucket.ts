@@ -6,57 +6,59 @@ import {
   Person,
   PlaylistItemPersonnalites,
   TimeOffset,
-} from "./backend/types";
+} from "../backend/types";
+
 
 export class MoviesSet {
-  private moviesMap: Map<string, PartialMedia>;
-  private keysSet: Set<string>;
-  constructor(movies?: PartialMedia[]) {
-    this.moviesMap = new Map();
-    this.keysSet = new Set();
-    if (movies) {
-      movies.forEach((movie) => {
-        this.add(movie);
+    private moviesMap: Map<string, PartialMedia>;
+    private keysSet: Set<string>;
+    constructor(movies?: PartialMedia[]) {
+      this.moviesMap = new Map();
+      this.keysSet = new Set();
+      if (movies) {
+        movies.forEach((movie) => {
+          this.add(movie);
+        });
+      }
+    }
+    private getKey(movie: PartialMedia) {
+      return JSON.stringify({ id: movie.id, type: movie.type });
+    }
+    add(movie: PartialMedia) {
+      const key = this.getKey(movie);
+      if (!this.keysSet.has(key)) {
+        this.keysSet.add(key);
+        this.moviesMap.set(key, movie);
+      }
+    }
+    clear() {
+      this.moviesMap.clear();
+      this.keysSet.clear();
+    }
+    delete(movie: PartialMedia) {
+      const key = this.getKey(movie);
+      this.keysSet.delete(key);
+      return this.moviesMap.delete(key);
+    }
+    has(movie: PartialMedia) {
+      return this.keysSet.has(this.getKey(movie));
+    }
+    values() {
+      return Array.from(this.moviesMap.values());
+    }
+    forEach(
+      callbackfn: (
+        value: PartialMedia,
+        key: PartialMedia,
+        set: MoviesSet,
+      ) => void,
+    ) {
+      this.moviesMap.forEach((value) => {
+        callbackfn(value, value, this);
       });
     }
   }
-  private getKey(movie: PartialMedia) {
-    return JSON.stringify({ id: movie.id, type: movie.type });
-  }
-  add(movie: PartialMedia) {
-    const key = this.getKey(movie);
-    if (!this.keysSet.has(key)) {
-      this.keysSet.add(key);
-      this.moviesMap.set(key, movie);
-    }
-  }
-  clear() {
-    this.moviesMap.clear();
-    this.keysSet.clear();
-  }
-  delete(movie: PartialMedia) {
-    const key = this.getKey(movie);
-    this.keysSet.delete(key);
-    return this.moviesMap.delete(key);
-  }
-  has(movie: PartialMedia) {
-    return this.keysSet.has(this.getKey(movie));
-  }
-  values() {
-    return Array.from(this.moviesMap.values());
-  }
-  forEach(
-    callbackfn: (
-      value: PartialMedia,
-      key: PartialMedia,
-      set: MoviesSet,
-    ) => void,
-  ) {
-    this.moviesMap.forEach((value) => {
-      callbackfn(value, value, this);
-    });
-  }
-}
+  
 
 function mergePersonnalitesMovies(
   personnalitesMovies: {
@@ -409,90 +411,5 @@ export class BucketManager {
       );
     }
     return medias;
-  }
-}
-
-export interface ConfigurationDetails {
-  images: {
-    base_url: string;
-    secure_base_url: string;
-    backdrop_sizes: string[];
-    logo_sizes: string[];
-    poster_sizes: string[];
-    profile_sizes: string[];
-    still_sizes: string[];
-  };
-  change_keys: string[];
-}
-
-export class ConfigurationManager {
-  private static configurationDetails: ConfigurationDetails | null = null;
-
-  private constructor() {}
-
-  private static async getConfigurationDetails(): Promise<ConfigurationDetails> {
-    if (this.configurationDetails) {
-      return this.configurationDetails;
-    }
-    this.configurationDetails = await this.getTheMovieDBConfig();
-    return this.configurationDetails;
-  }
-
-  private static async getTheMovieDBConfig(): Promise<ConfigurationDetails> {
-    return fetch("https://api.themoviedb.org/3/configuration", {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        Authorization:
-          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2NjRiZGFiMmZiODY0NGFjYzRiZTJjZmYyYmI1MjQxNCIsIm5iZiI6MTczNjQxNTQzNi4xMzMsInN1YiI6IjY3N2Y5OGNjMDQ0YjZjYTY3NjRlODgwYiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.200sno32bOBgHhi_Jv1pCrDWJaal8tClKsHUFf2TZIQ",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        return data;
-      });
-  }
-
-  private static async getSecureBaseUrl() {
-    return (await this.getConfigurationDetails()).images.secure_base_url;
-  }
-
-  private static async getPosterSize(width: number) {
-    return (await this.getConfigurationDetails()).images.poster_sizes.filter(
-      (size) => {
-        return parseInt(size.substring(1)) == width;
-      },
-    )[0];
-  }
-
-  public static async getPosterUrl(posterPath: string) {
-    const width = 780;
-    const height = 1170;
-    const secureBaseUrl = await this.getSecureBaseUrl();
-    const posterSize = await this.getPosterSize(width);
-    return {
-      width: width,
-      height: height,
-      url: `${secureBaseUrl}${posterSize}${posterPath}`,
-    };
-  }
-
-  private static async getProfileSize(height: number) {
-    return (await this.getConfigurationDetails()).images.profile_sizes.filter(
-      (size) => {
-        return parseInt(size.substring(1)) == height;
-      },
-    )[0];
-  }
-  public static async getProfileUrl(profilePath: string) {
-    const height = 632;
-    const width = 400;
-    const secureBaseUrl = await this.getSecureBaseUrl();
-    const profileSize = await this.getProfileSize(height);
-    return {
-      width: width,
-      height: height,
-      url: `${secureBaseUrl}${profileSize}${profilePath}`,
-    };
   }
 }
