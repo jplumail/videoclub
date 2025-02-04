@@ -50,6 +50,10 @@
   padding: 1rem;
   width: 100%;
   font-size: 1.4rem;
+  box-sizing: border-box;
+  min-height: fit-content;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .title {
