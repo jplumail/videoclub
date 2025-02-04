@@ -23,3 +23,18 @@
 .content > *:hover {
   transform: scale(1.05);
 }
+
+.timecode {
+  font-size: 1.6rem;
+  width: fit-content;
+}
+
+a.timecode:hover {
+  text-decoration: underline;
+}
+
+.timecodesContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
