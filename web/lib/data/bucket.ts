@@ -8,57 +8,55 @@ import {
   TimeOffset,
 } from "../backend/types";
 
-
 export class MoviesSet {
-    private moviesMap: Map<string, PartialMedia>;
-    private keysSet: Set<string>;
-    constructor(movies?: PartialMedia[]) {
-      this.moviesMap = new Map();
-      this.keysSet = new Set();
-      if (movies) {
-        movies.forEach((movie) => {
-          this.add(movie);
-        });
-      }
-    }
-    private getKey(movie: PartialMedia) {
-      return JSON.stringify({ id: movie.id, type: movie.type });
-    }
-    add(movie: PartialMedia) {
-      const key = this.getKey(movie);
-      if (!this.keysSet.has(key)) {
-        this.keysSet.add(key);
-        this.moviesMap.set(key, movie);
-      }
-    }
-    clear() {
-      this.moviesMap.clear();
-      this.keysSet.clear();
-    }
-    delete(movie: PartialMedia) {
-      const key = this.getKey(movie);
-      this.keysSet.delete(key);
-      return this.moviesMap.delete(key);
-    }
-    has(movie: PartialMedia) {
-      return this.keysSet.has(this.getKey(movie));
-    }
-    values() {
-      return Array.from(this.moviesMap.values());
-    }
-    forEach(
-      callbackfn: (
-        value: PartialMedia,
-        key: PartialMedia,
-        set: MoviesSet,
-      ) => void,
-    ) {
-      this.moviesMap.forEach((value) => {
-        callbackfn(value, value, this);
+  private moviesMap: Map<string, PartialMedia>;
+  private keysSet: Set<string>;
+  constructor(movies?: PartialMedia[]) {
+    this.moviesMap = new Map();
+    this.keysSet = new Set();
+    if (movies) {
+      movies.forEach((movie) => {
+        this.add(movie);
       });
     }
   }
-  
+  private getKey(movie: PartialMedia) {
+    return JSON.stringify({ id: movie.id, type: movie.type });
+  }
+  add(movie: PartialMedia) {
+    const key = this.getKey(movie);
+    if (!this.keysSet.has(key)) {
+      this.keysSet.add(key);
+      this.moviesMap.set(key, movie);
+    }
+  }
+  clear() {
+    this.moviesMap.clear();
+    this.keysSet.clear();
+  }
+  delete(movie: PartialMedia) {
+    const key = this.getKey(movie);
+    this.keysSet.delete(key);
+    return this.moviesMap.delete(key);
+  }
+  has(movie: PartialMedia) {
+    return this.keysSet.has(this.getKey(movie));
+  }
+  values() {
+    return Array.from(this.moviesMap.values());
+  }
+  forEach(
+    callbackfn: (
+      value: PartialMedia,
+      key: PartialMedia,
+      set: MoviesSet,
+    ) => void,
+  ) {
+    this.moviesMap.forEach((value) => {
+      callbackfn(value, value, this);
+    });
+  }
+}
 
 function mergePersonnalitesMovies(
   personnalitesMovies: {

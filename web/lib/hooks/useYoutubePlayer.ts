@@ -28,7 +28,7 @@ export function useYoutubePlayer(
           rel: 0,
           showinfo: 0,
           iv_load_policy: 3,
-        }
+        },
       });
     }
     if (window.YT && window.YT.Player) {
@@ -53,7 +53,7 @@ export function useYoutubePlayer(
         playerRef.current.destroy();
       }
     };
-  }, [videoId]);
+  }, [videoId, containerId]);
 
   return { player: playerRef.current, isAPIReady };
 }

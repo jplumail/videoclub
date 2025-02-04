@@ -23,7 +23,7 @@ export function Timecode({
   return (
     <a
       href={"#"}
-      onClick={(e) => setTimecode(time_offset)}
+      onClick={() => setTimecode(time_offset)}
       className={styles.timecode}
     >
       <p>

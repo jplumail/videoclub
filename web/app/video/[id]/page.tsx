@@ -2,7 +2,6 @@ import { MediaItemTimestamp } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data/bucket";
 import VideoPlayer from "@/components/videoPlayer";
 import { Poster } from "@/components/MovieCard";
-import { Timecode } from "@/components/Timeline";
 
 function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
   const moviesSet = new Set();

@@ -18,12 +18,14 @@ export async function Poster({ media }: PosterProps) {
   const href = mediaType === "movie" ? `/film/${id}` : `/serie/${id}`;
   return (
     <Link href={href} className={styles.link}>
-      {poster && <Image
-        src={poster.url}
-        alt={`Poster du film ${title}`}
-        width={poster.width}
-        height={poster.height}
-      />}
+      {poster && (
+        <Image
+          src={poster.url}
+          alt={`Poster du film ${title}`}
+          width={poster.width}
+          height={poster.height}
+        />
+      )}
     </Link>
   );
 }
@@ -34,11 +36,7 @@ interface MovieCardBaseProps {
   children?: React.ReactNode;
 }
 
-function MovieCardBase({
-  media,
-  poster,
-  children,
-}: MovieCardBaseProps) {
+function MovieCardBase({ media, poster, children }: MovieCardBaseProps) {
   const title = media.title || media.name || "";
   const commonDate = media.release_date || media.first_air_date;
   const date = commonDate ? new Date(commonDate) : null;
@@ -71,11 +69,9 @@ interface MovieCardSyncProps {
 
 export function MovieCardSync({ media, poster, children }: MovieCardSyncProps) {
   return (
-    <MovieCardBase
-      media={media}
-      poster={poster}
-      children={children}
-    />
+    <MovieCardBase media={media} poster={poster}>
+      {children}
+    </MovieCardBase>
   );
 }
 
@@ -88,10 +84,8 @@ interface MovieCardProps {
 export async function MovieCard({ media, children, poster }: MovieCardProps) {
   const defaultPoster = <Poster media={media} />;
   return (
-    <MovieCardBase
-      media={media}
-      poster={poster || defaultPoster}
-      children={children}
-    />
+    <MovieCardBase media={media} poster={poster || defaultPoster}>
+      {children}
+    </MovieCardBase>
   );
 }

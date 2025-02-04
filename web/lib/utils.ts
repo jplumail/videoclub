@@ -7,7 +7,6 @@ export function slugify(s: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-
 export function getYoutubeUrl(videoId: string, timecode: number | null) {
   if (timecode === null) {
     return `https://www.youtube.com/watch?v=${videoId}`;

@@ -2,11 +2,9 @@
 
 import type { TimeOffset } from "@/lib/backend/types";
 import { useState, useEffect } from "react";
-import { MovieDataTimestamps, Timeline, Timestamp } from "./Timeline";
+import { MovieDataTimestamps, Timeline } from "./Timeline";
 import { useYoutubePlayer } from "@/lib/hooks/useYoutubePlayer";
 import styles from "./VideoPlayer.module.css";
-
-
 
 function YoutubeIframePlayer({
   videoId,
@@ -29,7 +27,7 @@ function YoutubeIframePlayer({
     if (youtubePlayer.isAPIReady && youtubePlayer.player && timecode.seconds) {
       youtubePlayer.player.seekTo(timecode.seconds, true);
     }
-  }, [timecode.seconds]);
+  }, [timecode.seconds, youtubePlayer.isAPIReady, youtubePlayer.player]);
 
   return <div id="player"></div>;
 }
