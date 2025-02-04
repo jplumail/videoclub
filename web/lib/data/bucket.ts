@@ -320,9 +320,19 @@ export class BucketManager {
     }
   }
 
-  public static async getVideos() {
+  public static async getVideos(): Promise<PlaylistItemPersonnalites[]>;
+  public static async getVideos(params: { videoId: string }): Promise<PlaylistItemPersonnalites>;
+  public static async getVideos(params?: { videoId?: string }) {
     const [files] = await this.getFiles("videos/");
     const jsonFiles = files.filter((file) => file.name.endsWith("video.json"));
+    if (params?.videoId !== undefined) {
+      const videoFile = jsonFiles.find(file => file.name.includes(params.videoId!));
+      if (!videoFile) {
+        throw new Error(`Video not found with id ${params.videoId}`);
+      }
+      const [content] = await videoFile.download();
+      return JSON.parse(content.toString()) as PlaylistItemPersonnalites;
+    }
     const downloadPromises = jsonFiles.map(async (file) => {
       const [content] = await file.download();
       return JSON.parse(content.toString()) as PlaylistItemPersonnalites;

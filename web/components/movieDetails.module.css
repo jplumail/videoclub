@@ -49,3 +49,18 @@
 .tmdbButton:hover {
   background-color: hsl(211, 66%, 25%);
 }
+
+.container > ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.citationTitle {
+  margin: 1.25rem 0;
+}
