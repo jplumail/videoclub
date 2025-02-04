@@ -1,4 +1,4 @@
-import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
+import { PartialMedia, Person } from "@/lib/backend/types";
 import { getYoutubeUrl, slugify } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
