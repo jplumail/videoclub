@@ -1,4 +1,4 @@
-import { Film } from "@/components/film";
+import { MovieDetails } from "@/components/movieDetails";
 import { BucketManager } from "@/lib/data/bucket";
 export async function generateStaticParams() {
   const allMovies = await BucketManager.getMediaByPersonnalites({
@@ -19,5 +19,5 @@ export default async function Page({
     id: movieId,
     media_type: "movie",
   });
-  return movie && <Film movie={movie}></Film>;
+  return movie && <MovieDetails movie={movie}></MovieDetails>;
 }
