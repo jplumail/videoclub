@@ -4,7 +4,7 @@ import type { TimeOffset } from "@/lib/backend/types";
 import { useState, useEffect } from "react";
 import { MovieDataTimestamps, Timeline } from "./Timeline";
 import { useYoutubePlayer } from "@/lib/hooks/useYoutubePlayer";
-import styles from "./VideoPlayer.module.css";
+import styles from "./videoPlayer.module.css";
 
 function YoutubeIframePlayer({
   videoId,
