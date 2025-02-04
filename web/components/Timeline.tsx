@@ -1,12 +1,7 @@
-import {
-  MediaItemTimestamp,
-  PartialMedia,
-  Person,
-  TimeOffset,
-} from "@/lib/backend/types";
+import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
 import styles from "./Timeline.module.css";
 import { slugify } from "@/lib/utils";
-import { MovieCard, MovieCardSync, PosterProps } from "./MovieCard";
+import { MovieCardSync, PosterProps } from "./MovieCard";
 
 function getMinutes(seconds: number) {
   return Math.floor(seconds / 60)
@@ -26,7 +21,11 @@ export function Timecode({
   setTimecode: (timecode: TimeOffset) => void;
 }) {
   return (
-    <a href={"#"} onClick={(e) => setTimecode(time_offset)}>
+    <a
+      href={"#"}
+      onClick={(e) => setTimecode(time_offset)}
+      className={styles.timecode}
+    >
       <p>
         {getMinutes(time_offset.seconds || 0)}:
         {getSeconds(time_offset.seconds || 0)}
@@ -41,9 +40,9 @@ export interface Timestamp {
   confidence: number;
 }
 
-export interface MovieDataTimestamp {
+export interface MovieDataTimestamps {
   item: {
-    timestamp: Timestamp;
+    timestamps: Timestamp[];
     details: PartialMedia;
     type: "movie" | "tv";
     crew: Person[] | null;
@@ -56,14 +55,14 @@ export function Timeline({
   movies,
   setTimecode,
 }: {
-  movies: MovieDataTimestamp[];
+  movies: MovieDataTimestamps[];
   setTimecode: (timecode: TimeOffset) => void;
 }) {
   // sort movies
   movies.sort((a, b) => {
     return (
-      (a.item.timestamp.start_time.seconds || 0) -
-      (b.item.timestamp.start_time.seconds || 0)
+      Math.min(...a.item.timestamps.map((t) => t.start_time.seconds || 3600)) -
+      Math.min(...b.item.timestamps.map((t) => t.start_time.seconds || 3600))
     );
   });
   return (
@@ -75,11 +74,17 @@ export function Timeline({
           return (
             <div key={key} id={slugify(title || "")}>
               <MovieCardSync media={movie.item.details} poster={movie.poster}>
-                <Timecode
-                  key={key}
-                  time_offset={movie.item.timestamp.start_time}
-                  setTimecode={setTimecode}
-                />
+                <div className={styles.timecodesContainer}>
+                  {movie.item.timestamps.map((timestamp, i) => {
+                    return (
+                      <Timecode
+                        key={i}
+                        time_offset={timestamp.start_time}
+                        setTimecode={setTimecode}
+                      />
+                    );
+                  })}
+                </div>
               </MovieCardSync>
             </div>
           );
