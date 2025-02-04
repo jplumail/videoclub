@@ -21,6 +21,14 @@ export function useYoutubePlayer(
         events: {
           onReady: onReady,
         },
+        playerVars: {
+          controls: 2,
+          loop: 1,
+          modestbranding: 1,
+          rel: 0,
+          showinfo: 0,
+          iv_load_policy: 3,
+        }
       });
     }
     if (window.YT && window.YT.Player) {
