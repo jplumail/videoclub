@@ -29,7 +29,7 @@ function YoutubeIframePlayer({
     }
   }, [timecode.seconds, youtubePlayer.isAPIReady, youtubePlayer.player]);
 
-  return <div id="player"></div>;
+  return <div id="player" className={styles.playerIframe}></div>;
 }
 
 interface VideoPlayerProps {
@@ -42,7 +42,9 @@ export default function VideoPlayer({ videoId, movies }: VideoPlayerProps) {
   return (
     <div className={styles.videoPlayer}>
       <YoutubeIframePlayer videoId={videoId} timecode={timecode} />
-      <Timeline movies={movies} setTimecode={setTimecode} />
+      <div className={styles.timelineWrapper}>
+        <Timeline movies={movies} setTimecode={setTimecode} />
+      </div>
     </div>
   );
 }
