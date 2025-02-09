@@ -1,5 +1,5 @@
 import { PersonComponent } from "@/components/person";
-import { MediaItemTimestamp, TimeOffset } from "@/lib/backend/types";
+import { TimeOffset } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data/bucket";
 
 export async function generateStaticParams() {
@@ -27,7 +27,7 @@ export default async function Page({
   const personneWithTimestamps = {
     personnalite: personne.personnalite,
     movies: personne.movies.values().map((movie) => {
-      let matchingMovies: {
+      const matchingMovies: {
         videoId: string;
         timestamp: TimeOffset;
       }[] = [];

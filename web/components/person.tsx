@@ -1,12 +1,10 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
-import { ConfigurationManager } from "@/lib/data/tmdb";
-import { BucketManager, MoviesSet } from "@/lib/data/bucket";
+import { BucketManager } from "@/lib/data/bucket";
 import { MovieCard } from "./MovieCard";
 import VideoThumbnail from "./videoThumbnail";
 import MovieCardDetails from "./MovieCardDetails";
 import Gallery from "./Gallery";
 import { slugify } from "@/lib/utils";
-import { PersonCard } from "./PersonCard";
 import ytIconStyle from "./yt-icon.module.css";
 
 export async function PersonComponent({
@@ -27,9 +25,6 @@ export async function PersonComponent({
   };
 }) {
   const person = personData.personnalite.person;
-  const profilePicture = person.profile_path
-    ? await ConfigurationManager.getProfileUrl(person.profile_path)
-    : null;
   return (
     <>
       <section>

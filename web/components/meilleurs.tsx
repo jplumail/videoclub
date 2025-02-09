@@ -1,9 +1,7 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
-import { getYoutubeUrl, slugify } from "@/lib/utils";
+import { slugify } from "@/lib/utils";
 import styles from "./meilleurs.module.css";
-import ytIconStyle from "./yt-icon.module.css";
 import utilsStyles from "./utils.module.css";
-import Link from "next/link";
 import { MovieCard } from "./MovieCard";
 import MovieCardDetails from "./MovieCardDetails";
 
