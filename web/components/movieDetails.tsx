@@ -2,12 +2,13 @@ import { PartialMedia, Person } from "@/lib/backend/types";
 import { getYoutubeUrl, slugify } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
-import styles from "./movieDetails.module.css";
 import meilleursStyles from "./meilleurs.module.css";
 import ytIconStyle from "./yt-icon.module.css";
 import { MovieCard } from "./MovieCard";
 import { PersonCard } from "./PersonCard";
 import { BucketManager } from "@/lib/data/bucket";
+import MovieCardDetails from "./MovieCardDetails";
+import Gallery from "./Gallery";
 
 export async function MovieDetails({
   movie,
@@ -29,12 +30,16 @@ export async function MovieDetails({
           await Promise.all(
             Array.from(p.videos).map(async (videoId) => {
               const movies = await BucketManager.getMovies(videoId);
-              const firstMovie = movies ? movies[0] : null;
+              const firstMovieMatch = movies?.filter(
+                (m) =>
+                  m.media_item.details.media_type == movie.movie.media_type &&
+                  m.media_item.details.id == movie.movie.id,
+              )[0];
               const video = await BucketManager.getVideos({ videoId });
-              if (firstMovie) {
+              if (firstMovieMatch) {
                 return {
                   videoId: videoId,
-                  timestamp: firstMovie.start_time,
+                  timestamp: firstMovieMatch.start_time,
                   title: video.playlist_item.snippet.title,
                 };
               }
@@ -44,69 +49,56 @@ export async function MovieDetails({
       })),
     ),
   };
+  const date = movie.movie.release_date || movie.movie.first_air_date;
+  const release = date ? new Date(date) : null;
   return (
-    <main className={styles.container}>
-      <div className={styles.header}>
-        <h1>{movie.movie.title || movie.movie.name}</h1>
-      </div>
-
-      <div className={styles.mainContent}>
-        <MovieCard media={movie.movie} hasDetails={false} />
+    <>
+      <section>
+        <h1>{movie.movie.title || movie.movie.name}{release && <span> ({release.getFullYear().toString()})</span>}</h1>
         <div>
-          <p className={styles.description}>{movie.movie.overview}</p>
-          <div className={styles.tmdbButtonWrapper}>
-            <a
-              href={`https://www.themoviedb.org/movie/${movie.movie.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.tmdbButton}
-            >
-              <Image
-                src="/tmdb.svg"
-                alt="TMDB Logo"
-                width={190.24}
-                height={81.52}
-              />
-            </a>
+          <div>
+            <div style={{ marginBottom: "1rem" }}>
+              <MovieCard media={movie.movie} hasDetails={false} />
+            </div>
+          </div>
+
+          <div>
+            <section>
+              <h2>Résumé</h2>
+              <p>{movie.movie.overview}</p>
+            </section>
+
           </div>
         </div>
-      </div>
+      </section>
 
-      <h2 className={styles.citationTitle}>Cité par :</h2>
-      <ul>
-        {movieWithTimestamp.personnalites.map((personnalite, index) => (
-          <li key={index}>
-            <PersonCard person={personnalite.person}>
-              <ul className={meilleursStyles.citeList}>
-                {Array.from(personnalite.videos).map((video, key) => {
-                  return (
-                    <li key={key} className={meilleursStyles.citeItem}>
-                      <p>
-                        <Link
-                          href={`/video/${video.videoId}#${slugify(movie.movie.name || movie.movie.title || "")}`}
-                        >
-                          {video.title}
-                        </Link>
-                      </p>
-                      <div>
-                        <Link
-                          key={video.videoId}
-                          href={getYoutubeUrl(
-                            video.videoId,
-                            video.timestamp.seconds || null,
-                          )}
-                          className={`${meilleursStyles.link} ${ytIconStyle.ytIcon}`}
-                          target="_blank"
-                        />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </PersonCard>
-          </li>
-        ))}
-      </ul>
-    </main>
+      <section>
+        <h2>Cité par</h2>
+        <Gallery>
+          {movieWithTimestamp.personnalites.map((personnalite, index) => (
+            <li key={index}>
+              <PersonCard person={personnalite.person}>
+                <ul className={meilleursStyles.citeList}>
+                  <MovieCardDetails
+                    items={Array.from(personnalite.videos).map((video) => ({
+                      main: {
+                        title: video.title,
+                        href: `/video/${video.videoId}`,
+                      },
+                      youtubeUrls: [
+                        {
+                          videoId: video.videoId,
+                          timestamp: video.timestamp,
+                        },
+                      ],
+                    }))}
+                  />
+                </ul>
+              </PersonCard>
+            </li>
+          ))}
+        </Gallery>
+      </section>
+    </>
   );
 }

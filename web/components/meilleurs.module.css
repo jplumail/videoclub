@@ -55,30 +55,3 @@
 .details:hover {
   color: var(--font-color-light);
 }
-
-.citeList {
-  margin: 1rem;
-  font-size: 1.6rem;
-  font-weight: 600;
-}
-
-.citeItem {
-  list-style-type: none;
-  display: flex;
-  align-items: center;
-  margin-block: 0.4rem;
-}
-
-.citeItem p {
-  text-overflow: clip;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.citeItem p:hover {
-  text-decoration: underline;
-}
-
-.link {
-  margin-inline: 0.5em;
-}

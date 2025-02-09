@@ -5,6 +5,7 @@ import ytIconStyle from "./yt-icon.module.css";
 import utilsStyles from "./utils.module.css";
 import Link from "next/link";
 import { MovieCard } from "./MovieCard";
+import MovieCardDetails from "./MovieCardDetails";
 
 function getTitle(media: PartialMedia) {
   return media.title || media.name || null;
@@ -35,30 +36,16 @@ async function LeaderBoardItem({
       <div className={styles.imageContainer}>
         <MovieCard media={item.movie}>
           <ul className={styles.citeList}>
-            {Array.from(item.personnalites).map((p, k) => (
-              <li key={k} className={styles.citeItem}>
-                <p>
-                  <Link
-                    href={`/video/${Array.from(p.videos)[0].videoId}#${slugify(getTitle(item.movie) || "")}`}
-                  >
-                    {p.person.name}
-                  </Link>
-                </p>
-                <ul>
-                  {Array.from(p.videos).map((video) => (
-                    <Link
-                      key={video.videoId}
-                      href={getYoutubeUrl(
-                        video.videoId,
-                        video.timestamps[0]?.start_time?.seconds || null,
-                      )}
-                      className={`${styles.link} ${ytIconStyle.ytIcon}`}
-                      target="_blank"
-                    ></Link>
-                  ))}
-                </ul>
-              </li>
-            ))}
+            <MovieCardDetails items={Array.from(item.personnalites).map(p => ({
+              main: {
+                title: p.person.name || "",
+                href: `/video/${p.videos[0].videoId}#${slugify(getTitle(item.movie) || "")}`
+              },
+              youtubeUrls: p.videos.map(v => ({
+                videoId: v.videoId,
+                timestamp: v.timestamps[0]?.start_time || { seconds: 0 }
+              }))
+            }))}/>
           </ul>
         </MovieCard>
         {rank && (
