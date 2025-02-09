@@ -5,10 +5,14 @@
 
 .list {
   display: flex;
+  align-items: center;
 }
 
-ul.list > li {
+ul.list > * {
   list-style-type: none;
+  height: 3em;
+  display: flex;
+  align-items: center;
 }
 
 .link {
@@ -37,4 +41,10 @@ ul.list > li {
 .currentLink {
   background-color: var(--konbini-red);
   color: var(--konbini-yellow);
+}
+
+@media screen and (min-width: 414px) {
+  ul.list > * {
+    height: 2.5em;
+  }
 }
