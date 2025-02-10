@@ -31,6 +31,44 @@ export async function Poster({ media }: PosterProps) {
   );
 }
 
+
+interface MovieCardProps {
+  media: PartialMedia;
+  poster?: React.ReactElement<PosterProps>;
+  children?: React.ReactNode;
+  hasDetails?: boolean;
+}
+
+export function MovieCardSync({
+  media,
+  children,
+  poster,
+  hasDetails = true,
+}: MovieCardProps) {
+  const defaultPoster = <Poster media={media} />;
+  const title = media.title || media.name || "";
+  const commonDate = media.release_date || media.first_air_date;
+  const date = commonDate ? new Date(commonDate) : null;
+  const year = date?.getFullYear();
+  const id = media.id || 0;
+  const mediaType = media.media_type == "movie" ? "movie" : "tv";
+  const href = mediaType === "movie" ? `/film/${id}` : `/serie/${id}`;
+
+  return (
+    <Card
+      item={media}
+      href={href}
+      title={title}
+      media={poster || defaultPoster}
+      hasDetails={hasDetails}
+      year={year}
+    >
+      {children}
+    </Card>
+  );
+}
+
+
 interface MovieCardProps {
   media: PartialMedia;
   poster?: React.ReactElement<PosterProps>;
