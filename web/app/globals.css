@@ -51,3 +51,9 @@ header {
     color-scheme: dark;
   }
 }
+
+@media (max-width: 768px) {
+  body {
+    padding: 0;
+  }
+}
