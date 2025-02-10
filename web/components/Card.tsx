@@ -26,7 +26,8 @@ export function Card({
   if (item.media_type == "movie" || item.media_type == "tv") {
     href = item.media_type === "movie" ? `/film/${id}` : `/serie/${id}`;
     title = (item.title as string) || (item.name as string) || "";
-    const commonDate = item.release_date as string || item.first_air_date as string;
+    const commonDate =
+      (item.release_date as string) || (item.first_air_date as string);
     const date = commonDate ? new Date(commonDate) : null;
     year = date ? date.getFullYear() : null;
   } else {
@@ -38,17 +39,18 @@ export function Card({
     <div className={`${styles.container} ${isActive ? styles.active : ""}`}>
       {hasDetails && (
         <button
+          title="Afficher/masquer les détails"
           className={styles.toggleButton}
           onClick={() => setIsActive(!isActive)}
           aria-label="Afficher les détails"
         >
           <svg
-            width="12"
-            height="8"
+            width="16"
+            height="12"
             viewBox="0 0 12 8"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className={`${styles.triangle} ${isActive ? styles.rotated : ''}`}
+            className={`${styles.triangle} ${isActive ? styles.rotated : ""}`}
           >
             <path d="M1 1L6 6L11 1" stroke="white" strokeWidth="2" />
           </svg>
