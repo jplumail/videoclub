@@ -1,6 +1,6 @@
 import { TimeOffset } from "@/lib/backend/types";
-import styles from "./MovieCardDetails.module.css";
-import ytIconStyle from "./yt-icon.module.css";
+import styles from "./styles/MovieCardDetails.module.css";
+import ytIconStyle from "./styles/yt-icon.module.css";
 import Link from "next/link";
 import { getYoutubeUrl } from "@/lib/utils";
 

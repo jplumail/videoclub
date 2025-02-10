@@ -1,4 +1,4 @@
-import { MovieDetails } from "@/components/movieDetails";
+import { MovieDetails } from "../../movieDetails";
 import { BucketManager } from "@/lib/data/bucket";
 export async function generateStaticParams() {
   const allMovies = await BucketManager.getMediaByPersonnalites({

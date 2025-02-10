@@ -1,11 +1,11 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data/bucket";
-import { MovieCard } from "./MovieCard";
-import VideoThumbnail from "./videoThumbnail";
-import MovieCardDetails from "./MovieCardDetails";
-import Gallery from "./Gallery";
+import { MovieCard } from "@/components/MovieCard";
+import VideoThumbnail from "@/components/videoThumbnail";
+import MovieCardDetails from "@/components/MovieCardDetails";
+import Gallery from "@/components/Gallery";
 import { slugify } from "@/lib/utils";
-import ytIconStyle from "./yt-icon.module.css";
+import ytIconStyle from "@/components/styles/yt-icon.module.css";
 
 export async function PersonComponent({
   personData,

@@ -1,7 +1,7 @@
 import { PlaylistItemPersonnalites } from "@/lib/backend/types";
 import Link from "next/link";
 import Image from "next/image";
-import styles from "./videoThumbnail.module.css";
+import styles from "./styles/videoThumbnail.module.css";
 
 export default async function VideoThumbnail({
   video,

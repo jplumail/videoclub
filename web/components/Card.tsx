@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import styles from "./Card.module.css";
+import styles from "./styles/Card.module.css";
 import { useState } from "react";
 import { PartialMedia, Person } from "@/lib/backend/types";
 

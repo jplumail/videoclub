@@ -2,7 +2,7 @@ import { Person } from "@/lib/backend/types";
 import { ConfigurationManager } from "@/lib/data/tmdb";
 import Image from "next/image";
 import Link from "next/link";
-import styles from "./Card.module.css";
+import styles from "./styles/Card.module.css";
 import { Card } from "./Card";
 
 export interface ProfileProps {

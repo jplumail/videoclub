@@ -1,7 +1,7 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
 import styles from "./Timeline.module.css";
 import { slugify } from "@/lib/utils";
-import { MovieCardSync, PosterProps } from "./MovieCard";
+import { MovieCardSync, PosterProps } from "@/components/MovieCard";
 
 function getMinutes(seconds: number) {
   return Math.floor(seconds / 60)

@@ -1,4 +1,4 @@
-import { PersonComponent } from "@/components/person";
+import { PersonComponent } from "./person";
 import { TimeOffset } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data/bucket";
 

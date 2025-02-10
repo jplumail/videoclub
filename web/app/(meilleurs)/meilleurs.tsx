@@ -1,9 +1,9 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
 import { getTitle, slugify } from "@/lib/utils";
 import styles from "./meilleurs.module.css";
-import utilsStyles from "./utils.module.css";
-import { MovieCard } from "./MovieCard";
-import MovieCardDetails from "./MovieCardDetails";
+import utilsStyles from "@/components/styles/utils.module.css";
+import { MovieCard } from "@/components/MovieCard";
+import MovieCardDetails from "@/components/MovieCardDetails";
 
 async function LeaderBoardItem({
   item,

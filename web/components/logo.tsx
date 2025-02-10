@@ -1,5 +1,5 @@
 import { Candal } from "next/font/google";
-import styles from "./logo.module.css";
+import styles from "./styles/logo.module.css";
 import Link from "next/link";
 
 const candal = Candal({ weight: "400", subsets: ["latin"] });

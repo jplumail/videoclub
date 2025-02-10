@@ -1,10 +1,10 @@
 import { PartialMedia, Person } from "@/lib/backend/types";
-import meilleursStyles from "./meilleurs.module.css";
-import { MovieCard } from "./MovieCard";
-import { PersonCard } from "./PersonCard";
+import meilleursStyles from "@/app/(meilleurs)/meilleurs.module.css";
+import { MovieCard } from "@/components/MovieCard";
+import { PersonCard } from "@/components/PersonCard";
 import { BucketManager } from "@/lib/data/bucket";
-import MovieCardDetails from "./MovieCardDetails";
-import Gallery from "./Gallery";
+import MovieCardDetails from "@/components/MovieCardDetails";
+import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 
 export async function MovieDetails({
