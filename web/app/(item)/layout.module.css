@@ -27,6 +27,11 @@
       width: 100%;
       margin: 0 auto;
 
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
       & p {
         line-height: 1.6;
         margin-bottom: 2rem;
