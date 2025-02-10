@@ -1,13 +1,9 @@
 import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
-import { slugify } from "@/lib/utils";
+import { getTitle, slugify } from "@/lib/utils";
 import styles from "./meilleurs.module.css";
 import utilsStyles from "./utils.module.css";
 import { MovieCard } from "./MovieCard";
 import MovieCardDetails from "./MovieCardDetails";
-
-function getTitle(media: PartialMedia) {
-  return media.title || media.name || null;
-}
 
 async function LeaderBoardItem({
   item,

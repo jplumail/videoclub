@@ -5,6 +5,7 @@ import { PersonCard } from "./PersonCard";
 import { BucketManager } from "@/lib/data/bucket";
 import MovieCardDetails from "./MovieCardDetails";
 import Gallery from "./Gallery";
+import { getTitle, slugify } from "@/lib/utils";
 
 export async function MovieDetails({
   movie,
@@ -79,7 +80,7 @@ export async function MovieDetails({
                     items={Array.from(personnalite.videos).map((video) => ({
                       main: {
                         title: video.title,
-                        href: `/video/${video.videoId}`,
+                        href: `/video/${video.videoId}#${slugify(getTitle(movie.movie) || "")}`,
                       },
                       youtubeUrls: [
                         {
