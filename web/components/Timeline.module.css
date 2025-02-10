@@ -15,12 +15,19 @@
   scroll-snap-align: start;
 }
 
-.content > * {
+.movieCard {
   transition: transform 0.2s;
+  scroll-margin: 1rem;
+}
+
+.movieCard:focus {
+  outline: none;
+  border: 2px solid rgb(59, 130, 246);
+  border-radius: 0.5rem;
 }
 
 @media (hover: hover) {
-  .content > *:hover {
+  .movieCard {
     transform: scale(1.05);
   }
 }

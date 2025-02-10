@@ -72,7 +72,12 @@ export function Timeline({
           const title =
             movie.item.details.title || movie.item.details.name || "";
           return (
-            <div key={key} id={slugify(title || "")}>
+            <div
+              key={key}
+              id={slugify(title || "")}
+              className={styles.movieCard}
+              tabIndex={-1}
+            >
               <MovieCardSync media={movie.item.details} poster={movie.poster}>
                 <div className={styles.timecodesContainer}>
                   {movie.item.timestamps.map((timestamp, i) => {
