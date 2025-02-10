@@ -22,7 +22,7 @@ export function useYoutubePlayer(
         events: {
           onReady: () => {
             setPlayer(playerRef.current);
-            onReady && onReady();
+            if (onReady) onReady();
           },
         },
         playerVars: {
