@@ -1,35 +1,25 @@
 .container {
   width: 100%;
   position: relative;
-  overflow-x: auto;
+  overflow-x: scroll;
   white-space: nowrap;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
+  padding: 0.5rem 0; 
 }
 
 .content {
-  min-width: max-content;
   display: inline-flex;
-  gap: 1.5rem;
-  scroll-snap-align: start;
+  gap: 0.5rem;
 }
 
 .movieCard {
-  transition: transform 0.2s;
-  scroll-margin: 1rem;
+  scroll-margin: 2rem;
+  overflow: hidden;
+  margin: 0.25rem 0;
 }
 
-.movieCard:focus {
-  outline: none;
-  border: 2px solid rgb(59, 130, 246);
+.movieCard:focus-visible {
+  outline: 0.25rem solid rgb(77, 144, 254);
   border-radius: 0.5rem;
-}
-
-@media (hover: hover) {
-  .movieCard {
-    transform: scale(1.05);
-  }
 }
 
 .timecode {
