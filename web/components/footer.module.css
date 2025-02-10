@@ -1,0 +1,14 @@
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  margin-top: auto;
+  color: hsl(0, 0%, 100%, 0.4);
+  font-size: 0.8rem;
+}
+
+.footer a:hover {
+  color: var(--konbini-yellow);
+  text-decoration: underline;
+}

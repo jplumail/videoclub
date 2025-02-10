@@ -26,6 +26,9 @@ body {
   width: 100%;
   margin-inline: auto;
   padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 * {
