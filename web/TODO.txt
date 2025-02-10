@@ -1,5 +1,4 @@
 - [x] faire la page /video/id
 - [x] faire la page /film/id
 - [x] faire la page /personne/id
-
-- [ ] /video/id: ajouter lien vers /personne/id
+- [x] /video/id: ajouter lien vers /personne/id

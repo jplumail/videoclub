@@ -28,6 +28,7 @@ export default async function Page({
 }) {
   const videoId = (await params).id;
   const moviesData = await BucketManager.getMovies(videoId);
+  const videoData = await BucketManager.getVideos({videoId: videoId});
   if (moviesData == null) {
     return <div>Pas de données disponibles</div>;
   }
@@ -61,5 +62,5 @@ export default async function Page({
     })),
   );
 
-  return <VideoPlayer videoId={videoId} movies={movies} />;
+  return <VideoPlayer video={videoData} movies={movies} />;
 }

@@ -19,3 +19,20 @@
   min-height: 360px;
   flex-shrink: 0;
 }
+
+.personnalites {
+  align-self: center;
+  margin-block: 1rem;
+  font-size: 1.6rem;
+}
+
+.personnaliteLink {
+  color: var(--konbini-red);
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.personnaliteLink:hover {
+  color: var(--konbini-yellow);
+}
