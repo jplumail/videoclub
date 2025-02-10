@@ -3,3 +3,7 @@
   flex-wrap: wrap;
   justify-content: center;
 }
+
+.videoContainer > div {
+  margin: 1rem;
+}
