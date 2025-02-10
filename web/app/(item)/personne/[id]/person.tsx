@@ -27,8 +27,8 @@ export async function PersonComponent({
   const person = personData.personnalite.person;
   return (
     <>
+      <h1>{person.name} </h1>
       <section>
-        <h1>{person.name} </h1>
         <div>
           <div>
             <h2

@@ -50,8 +50,11 @@ export async function MovieDetails({
   const release = date ? new Date(date) : null;
   return (
     <>
+      <h1>
+        {movie.movie.title || movie.movie.name}
+        {release && <span> ({release.getFullYear().toString()})</span>}
+      </h1>
       <section>
-        <h1>{movie.movie.title || movie.movie.name}{release && <span> ({release.getFullYear().toString()})</span>}</h1>
         <div>
           <div>
             <div style={{ marginBottom: "1rem" }}>
@@ -64,7 +67,6 @@ export async function MovieDetails({
               <h2>Résumé</h2>
               <p>{movie.movie.overview}</p>
             </section>
-
           </div>
         </div>
       </section>
