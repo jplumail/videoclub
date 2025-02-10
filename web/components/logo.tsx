@@ -13,11 +13,8 @@ export default function Logo() {
       <div className={`${styles.red} ${styles.gauche}`}>
         <span>CLUB</span>
       </div>
-      <div className={`${styles.black} ${styles.droite}`}>
-        <span>Hall&nbsp;of</span>
-      </div>
-      <div className={`${styles.black} ${styles.droite}`}>
-        <span>Fame</span>
+      <div className={`${styles.black} ${styles.droite} ${styles.fullHeight}`}>
+        <span>TOP</span>
       </div>
     </Link>
   );

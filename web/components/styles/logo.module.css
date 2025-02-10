@@ -20,6 +20,7 @@
 .red {
   background-color: var(--konbini-red);
   color: var(--konbini-yellow);
+  border-left: 1px solid #ededed;
 }
 .black {
   background-color: black;
@@ -34,4 +35,12 @@
   line-height: 0.9em;
   letter-spacing: -2px;
   padding-inline: 0.1em;
+}
+
+.fullHeight {
+  grid-row: span 2;
+}
+
+.fullHeight > span {
+  line-height: 0.9em;
 }

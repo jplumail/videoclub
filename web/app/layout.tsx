@@ -5,7 +5,7 @@ import Navbar from "./navbar";
 import Footer from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Video Club Hall of Fame",
+  title: "Video Club Top",
 };
 
 export default function RootLayout({
