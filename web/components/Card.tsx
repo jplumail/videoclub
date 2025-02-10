@@ -43,6 +43,7 @@ export function Card({
           className={styles.toggleButton}
           onClick={() => setIsActive(!isActive)}
           aria-label="Afficher les détails"
+          aria-expanded={isActive}
         >
           <svg
             width="16"
