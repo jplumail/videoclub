@@ -19,8 +19,10 @@
   transition: transform 0.2s;
 }
 
-.content > *:hover {
-  transform: scale(1.05);
+@media (hover: hover) {
+  .content > *:hover {
+    transform: scale(1.05);
+  }
 }
 
 .timecode {
