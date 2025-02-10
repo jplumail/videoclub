@@ -7,11 +7,12 @@
 }
 
 .playerIframe {
-  width: 100%;
-  max-width: 1280px;
-  height: calc(100vw * 9 / 16);
-  max-height: 720px;
+  max-width: 100%;
+  width: unset;
+  height: unset;
   margin: 0 auto;
+  flex: 1;
+  aspect-ratio: 16 / 9;
 }
 
 .timelineWrapper {
