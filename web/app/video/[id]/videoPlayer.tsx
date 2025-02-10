@@ -29,7 +29,6 @@ function YoutubeIframePlayer({
     if (youtubePlayer.isAPIReady && youtubePlayer.player && timecode.seconds) {
       youtubePlayer.player.seekTo(timecode.seconds, true);
       if (window.location.hash) {
-        console.log("YoutubeIframePlayer useEffect: mute & playVideo()");
         youtubePlayer.player.mute();
         youtubePlayer.player.playVideo();
       }
@@ -70,9 +69,23 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
   const videoId = video.playlist_item.snippet.resourceId.videoId;
   const personnalites = video.personnalites.filter(p => p !== null);
 
-  const movieSlug = window.location.hash.slice(1);
-  const movie = movies.find((m) => slugify(getTitle(m.item.details) || '') === movieSlug);
-  const [timecode, setTimecode] = useState<TimeOffset>({ seconds: movie?.item.timestamps[0].start_time.seconds });
+  // states pour gérer dynamiquement le hash et timecode
+  const [movieSlug, setMovieSlug] = useState<string>("");
+  const [timecode, setTimecode] = useState<TimeOffset>({ seconds: 0 });
+
+  // Récupérer le hash une fois le composant monté
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    setMovieSlug(hash);
+  }, []);
+
+  // Mettre à jour le timecode dès que le movieSlug ou movies changent
+  useEffect(() => {
+    const foundMovie = movies.find((m) => slugify(getTitle(m.item.details) || "") === movieSlug);
+    if (foundMovie && foundMovie.item.timestamps && foundMovie.item.timestamps[0]?.start_time) {
+      setTimecode({ seconds: foundMovie.item.timestamps[0].start_time.seconds });
+    }
+  }, [movieSlug, movies]);
 
   return (
     <div className={styles.videoPlayer}>
