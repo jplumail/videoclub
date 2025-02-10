@@ -12,6 +12,7 @@ export function useYoutubePlayer(
   containerId: string = "player",
 ) {
   const playerRef = useRef<YT.Player | null>(null);
+  const [player, setPlayer] = useState<YT.Player | null>(null);
   const [isAPIReady, setIsAPIReady] = useState(false);
 
   useEffect(() => {
@@ -19,7 +20,10 @@ export function useYoutubePlayer(
       playerRef.current = new window.YT.Player(containerId, {
         videoId,
         events: {
-          onReady: onReady,
+          onReady: () => {
+            setPlayer(playerRef.current);
+            onReady && onReady();
+          },
         },
         playerVars: {
           controls: 2,
@@ -55,5 +59,5 @@ export function useYoutubePlayer(
     };
   }, [videoId, containerId]);
 
-  return { player: playerRef.current, isAPIReady };
+  return { player, isAPIReady };
 }

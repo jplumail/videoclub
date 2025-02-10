@@ -6,6 +6,7 @@ import { MovieDataTimestamps, Timeline } from "./Timeline";
 import { useYoutubePlayer } from "@/lib/hooks/useYoutubePlayer";
 import styles from "./videoPlayer.module.css";
 import Link from "next/link";
+import { getTitle, slugify } from "@/lib/utils";
 
 function YoutubeIframePlayer({
   videoId,
@@ -27,6 +28,11 @@ function YoutubeIframePlayer({
   useEffect(() => {
     if (youtubePlayer.isAPIReady && youtubePlayer.player && timecode.seconds) {
       youtubePlayer.player.seekTo(timecode.seconds, true);
+      if (window.location.hash) {
+        console.log("YoutubeIframePlayer useEffect: mute & playVideo()");
+        youtubePlayer.player.mute();
+        youtubePlayer.player.playVideo();
+      }
     }
   }, [timecode.seconds, youtubePlayer.isAPIReady, youtubePlayer.player]);
 
@@ -61,9 +67,12 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
-  const [timecode, setTimecode] = useState<TimeOffset>({ seconds: 0 });
   const videoId = video.playlist_item.snippet.resourceId.videoId;
   const personnalites = video.personnalites.filter(p => p !== null);
+
+  const movieSlug = window.location.hash.slice(1);
+  const movie = movies.find((m) => slugify(getTitle(m.item.details) || '') === movieSlug);
+  const [timecode, setTimecode] = useState<TimeOffset>({ seconds: movie?.item.timestamps[0].start_time.seconds });
 
   return (
     <div className={styles.videoPlayer}>
