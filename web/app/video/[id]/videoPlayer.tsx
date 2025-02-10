@@ -33,28 +33,24 @@ function YoutubeIframePlayer({
   return <div id="player" className={styles.playerIframe}></div>;
 }
 
+const PersonLink = ({ person }: { person: Person }) => (
+  <Link className={styles.personnaliteLink} href={`/personne/${person.id}`}>
+    {person.name}
+  </Link>
+);
+
 function formatPersonnalites(personnalites: Person[]) {
-  if (!personnalites || personnalites.length === 0) return '';
-  
-  if (personnalites.length === 1) {
-    return (
-      <>
-        avec <Link className={styles.personnaliteLink} href={`/personne/${personnalites[0].id}`}>{personnalites[0].name}</Link>
-      </>
-    );
-  }
-  
-  const lastPersonnalite = personnalites[personnalites.length - 1];
-  const otherPersonnalites = personnalites.slice(0, -1);
+  if (!personnalites?.length) return '';
   
   return (
     <>
-      avec {otherPersonnalites.map((p, index) => (
-        <>
-          <Link className={styles.personnaliteLink} key={p.id} href={`/personne/${p.id}`}>{p.name}</Link>
-          {index < otherPersonnalites.length - 1 ? ', ' : ''}
-        </>
-      ))} et <Link className={styles.personnaliteLink} href={`/personne/${lastPersonnalite.id}`}>{lastPersonnalite.name}</Link>
+      avec{' '}
+      {personnalites.map((person, index) => (
+        <span key={person.id}>
+          <PersonLink person={person} />
+          {index === personnalites.length - 2 ? ' et ' : index < personnalites.length - 1 ? ', ' : ''}
+        </span>
+      ))}
     </>
   );
 }
