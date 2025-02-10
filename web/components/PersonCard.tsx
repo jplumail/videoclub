@@ -45,15 +45,9 @@ export async function PersonCard({
   hasDetails = true,
 }: PersonCardProps) {
   const defaultProfile = <Profile person={person} />;
-  const name = person.name || "";
-  const id = person.id || 0;
-  const href = `/personne/${id}`;
-
   return (
     <Card
       item={person}
-      href={href}
-      title={name}
       media={profile || defaultProfile}
       hasDetails={hasDetails}
     >

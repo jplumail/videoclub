@@ -3,27 +3,36 @@
 import Link from "next/link";
 import styles from "./Card.module.css";
 import { useState } from "react";
+import { PartialMedia, Person } from "@/lib/backend/types";
 
-export interface CardBaseProps<T> {
-  item: T;
-  href: string;
-  title: string;
+export interface CardBaseProps {
+  item: Person | PartialMedia;
   media?: React.ReactElement;
   children?: React.ReactNode;
   hasDetails?: boolean;
-  year?: number;
 }
 
-export function Card<T>({
+export function Card({
   item,
-  href,
-  title,
   media,
   children,
   hasDetails = true,
-  year,
-}: CardBaseProps<T>) {
+}: CardBaseProps) {
   const [isActive, setIsActive] = useState(false);
+  const id = item.id || 0;
+  let href = "";
+  let title = "";
+  let year: number | null = null;
+  if (item.media_type == "movie" || item.media_type == "tv") {
+    href = item.media_type === "movie" ? `/film/${id}` : `/serie/${id}`;
+    title = (item.title as string) || (item.name as string) || "";
+    const commonDate = item.release_date as string || item.first_air_date as string;
+    const date = commonDate ? new Date(commonDate) : null;
+    year = date ? date.getFullYear() : null;
+  } else {
+    href = `/personne/${id}`;
+    title = item.name || "";
+  }
 
   return (
     <div className={`${styles.container} ${isActive ? styles.active : ""}`}>
