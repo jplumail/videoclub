@@ -18,7 +18,7 @@ export async function Poster({ media }: PosterProps) {
   const mediaType = media.media_type == "movie" ? "movie" : "tv";
   const href = mediaType === "movie" ? `/film/${id}` : `/serie/${id}`;
   return (
-    <Link href={href} className={styles.link}>
+    <div className={styles.link}>
       {poster && (
         <Image
           src={poster.url}
@@ -27,7 +27,7 @@ export async function Poster({ media }: PosterProps) {
           height={poster.height}
         />
       )}
-    </Link>
+    </div>
   );
 }
 
