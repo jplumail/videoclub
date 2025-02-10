@@ -11,6 +11,7 @@
   opacity: 0;
   pointer-events: none;
   box-sizing: border-box; /* Pour que le padding soit inclus dans la largeur */
+  padding-right: 3rem;
 }
 
 .container {
@@ -42,7 +43,11 @@
   pointer-events: auto;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
+  .children {
+    padding-right: 0;
+  }
+
   .toggleButton {
     display: none;
   }
@@ -51,12 +56,6 @@
     top: 0;
     opacity: 1;
     pointer-events: auto;
-  }
-}
-
-@media (hover: none) {
-  .children {
-    padding-right: 3rem;
   }
 }
 
