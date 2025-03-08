@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Union
+from themoviedb import Person
 from ..youtube.models import PlaylistItem
-from ..annotate.models import Person
 
 
 class PlaylistItemPersonnalites(BaseModel):
