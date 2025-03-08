@@ -1,0 +1,107 @@
+{
+    "status": "",
+    "processed_time": "2025-01-27T14:19:34.733+00:00",
+    "request": {
+      "contents": [
+        {
+          "parts": [
+            {
+              "fileData": {
+                "file_uri": "gs://videoclub-test/videos/HLUe85q1hNM/video.mp4",
+                "mime_type": "video/*"
+              },
+              "text": null
+            },
+            { "fileData": null, "text": "Annote" }
+          ],
+          "role": "user"
+        }
+      ],
+      "generationConfig": {
+        "responseMimeType": "application/json",
+        "responseSchema": {
+          "properties": {
+            "items": {
+              "items": {
+                "properties": {
+                  "authors": {
+                    "default": [],
+                    "items": { "type": "string" },
+                    "title": "Authors",
+                    "type": "array"
+                  },
+                  "timecode": {
+                    "properties": {
+                      "end_time": { "title": "End Time", "type": "string" },
+                      "start_time": { "title": "Start Time", "type": "string" }
+                    },
+                    "required": ["start_time", "end_time"],
+                    "title": "TimeSegment",
+                    "type": "object"
+                  },
+                  "title": { "title": "Title", "type": "string" },
+                  "years": {
+                    "default": [],
+                    "items": { "type": "integer" },
+                    "title": "Years",
+                    "type": "array"
+                  }
+                },
+                "required": ["title", "timecode"],
+                "title": "MediaItem",
+                "type": "object"
+              },
+              "title": "Items",
+              "type": "array"
+            }
+          },
+          "required": ["items"],
+          "title": "AnnotationResponse",
+          "type": "object"
+        },
+        "temperature": 0,
+        "topP": 0.95
+      },
+      "safetySettings": [
+        { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "OFF" },
+        { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "OFF" },
+        { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "OFF" },
+        { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "OFF" }
+      ],
+      "systemInstruction": {
+        "parts": [
+          {
+            "text": "Tu es un agent ContentID. Tu travailles pour une entreprise dans le domaine de la gestion des droits d'auteur.\nTon rôle est de recenser les films qui passent dans les vidéos de la série Video Club de Konbini pour remplir une base de donnée.\nA chaque début d'annotation, il t'est donné une vidéo.\n\n## Description de la tâche\n1. Récupère les titres des films (MediaItem) des extraits vidéos de films dans la vidéo.\n\n2. Pour chaque MediaItem, tu récupères les intervalles de début et de fin de l'extrait vidéo du film, sous la forme MM:SS.\nL'intervalle va du début à la fin de l'extrait vidéo.\nIl ne contient que l'extrait vidéo du film, pas le reste de la vidéo.\nSi un film est montré plusieurs fois, tu ajoutes un nouveau MediaItem avec un nouvel extrait.\n\n3. OPTIONNEL: Donne le(s) auteur(s) et l'année de sortie de chaque MediaItem mentionné(e), cela servira à identifier le film en question.\nMais si elles ne sont pas disponibles, tu n'a pas besoin de les mentionner.\nCes informations sont disponibles à l'écran, généralement en haut à gauche ou en bas à gauche.\n\n4. Tu ne dois pas mentionner Vidéo Club dans les MediaItem: il s'agit du nom de l'émission, pas d'un film.\n\nTa réponse sera au format JSON suivant:\n{'properties': {'items': {'items': {'properties': {'title': {'title': 'Title', 'type': 'string'}, 'timecode': {'properties': {'start_time': {'title': 'Start Time', 'type': 'string'}, 'end_time': {'title': 'End Time', 'type': 'string'}}, 'required': ['start_time', 'end_time'], 'title': 'TimeSegment', 'type': 'object'}, 'authors': {'default': [], 'items': {'type': 'string'}, 'title': 'Authors', 'type': 'array'}, 'years': {'default': [], 'items': {'type': 'integer'}, 'title': 'Years', 'type': 'array'}}, 'required': ['title', 'timecode'], 'title': 'MediaItem', 'type': 'object'}, 'title': 'Items', 'type': 'array'}}, 'required': ['items'], 'title': 'AnnotationResponse', 'type': 'object'}"
+          }
+        ],
+        "role": "user"
+      }
+    },
+    "response": {
+      "candidates": [
+        {
+          "avgLogprobs": -0.009345990625914789,
+          "content": {
+            "parts": [
+              {
+                "text": "{\"items\": [{\"timecode\": {\"end_time\": \"00:02\", \"start_time\": \"00:01\"}, \"title\": \"American Psycho\", \"authors\": [\"Mary Harron\"], \"years\": [2000]}, {\"timecode\": {\"end_time\": \"00:04\", \"start_time\": \"00:03\"}, \"title\": \"Inception\", \"authors\": [\"Christopher Nolan\"], \"years\": [2010]}, {\"timecode\": {\"end_time\": \"00:05\", \"start_time\": \"00:05\"}, \"title\": \"La Haine\", \"authors\": [\"Mathieu Kassovitz\"], \"years\": [1995]}, {\"timecode\": {\"end_time\": \"00:09\", \"start_time\": \"00:08\"}, \"title\": \"There Will Be Blood\", \"authors\": [\"Paul Thomas Anderson\"], \"years\": [2008]}, {\"timecode\": {\"end_time\": \"00:13\", \"start_time\": \"00:10\"}, \"title\": \"Heat\", \"authors\": [\"Michael Mann\"], \"years\": [1996]}, {\"timecode\": {\"end_time\": \"00:16\", \"start_time\": \"00:13\"}, \"title\": \"Dunkirk\", \"authors\": [\"Christopher Nolan\"], \"years\": [2017]}, {\"timecode\": {\"end_time\": \"00:26\", \"start_time\": \"00:25\"}, \"title\": \"Inception\", \"authors\": [\"Christopher Nolan\"], \"years\": [2010]}, {\"timecode\": {\"end_time\": \"00:27\", \"start_time\": \"00:26\"}, \"title\": \"Interstellar\", \"authors\": [\"Christopher Nolan\"], \"years\": [2014]}, {\"timecode\": {\"end_time\": \"00:28\", \"start_time\": \"00:27\"}, \"title\": \"28 jours plus tard\", \"authors\": [\"Danny Boyle\"], \"years\": [2003]}, {\"timecode\": {\"end_time\": \"00:30\", \"start_time\": \"00:28\"}, \"title\": \"Dunkirk\", \"authors\": [\"Christopher Nolan\"], \"years\": [2017]}, {\"timecode\": {\"end_time\": \"00:31\", \"start_time\": \"00:29\"}, \"title\": \"Sans un bruit 2\", \"authors\": [\"John Krasinski\"], \"years\": [2021]}, {\"timecode\": {\"end_time\": \"00:32\", \"start_time\": \"00:30\"}, \"title\": \"Batman Begins\", \"authors\": [\"Christopher Nolan\"], \"years\": [2005]}, {\"timecode\": {\"end_time\": \"00:33\", \"start_time\": \"00:31\"}, \"title\": \"Memento\", \"authors\": [\"Christopher Nolan\"], \"years\": [2000]}, {\"timecode\": {\"end_time\": \"00:35\", \"start_time\": \"00:32\"}, \"title\": \"The Dark Knight Rises\", \"authors\": [\"Christopher Nolan\"], \"years\": [2012]}, {\"timecode\": {\"end_time\": \"00:36\", \"start_time\": \"00:33\"}, \"title\": \"Insomnia\", \"authors\": [\"Christopher Nolan\"], \"years\": [2002]}, {\"timecode\": {\"end_time\": \"00:37\", \"start_time\": \"00:35\"}, \"title\": \"The Dark Knight\", \"authors\": [\"Christopher Nolan\"], \"years\": [2008]}, {\"timecode\": {\"end_time\": \"00:39\", \"start_time\": \"00:36\"}, \"title\": \"Following\", \"authors\": [\"Christopher Nolan\"], \"years\": [1999]}, {\"timecode\": {\"end_time\": \"00:40\", \"start_time\": \"00:37\"}, \"title\": \"Oppenheimer\", \"authors\": [\"Christopher Nolan\"], \"years\": [2023]}, {\"timecode\": {\"end_time\": \"01:34\", \"start_time\": \"01:32\"}, \"title\": \"There Will Be Blood\", \"authors\": [\"Paul Thomas Anderson\"], \"years\": [2008]}, {\"timecode\": {\"end_time\": \"01:40\", \"start_time\": \"01:38\"}, \"title\": \"Punch-drunk love\", \"authors\": [\"Paul Thomas Anderson\"], \"years\": [2003]}, {\"timecode\": {\"end_time\": \"02:06\", \"start_time\": \"01:57\"}, \"title\": \"Amadeus\", \"authors\": [\"Milos Forman\"], \"years\": [1984]}, {\"timecode\": {\"end_time\": \"02:15\", \"start_time\": \"02:14\"}, \"title\": \"Oppenheimer\", \"authors\": [\"Christopher Nolan\"], \"years\": [2023]}, {\"timecode\": {\"end_time\": \"02:33\", \"start_time\": \"02:31\"}, \"title\": \"Amadeus\", \"authors\": [\"Milos Forman\"], \"years\": [1984]}, {\"timecode\": {\"end_time\": \"02:38\", \"start_time\": \"02:36\"}, \"title\": \"The White Lotus\", \"authors\": [\"Mike White\"], \"years\": [2021]}, {\"timecode\": {\"end_time\": \"02:41\", \"start_time\": \"02:40\"}, \"title\": \"Amadeus\", \"authors\": [\"Milos Forman\"], \"years\": [1984]}, {\"timecode\": {\"end_time\": \"02:53\", \"start_time\": \"02:51\"}, \"title\": \"American Psycho\", \"authors\": [\"Mary Harron\"], \"years\": [2000]}, {\"timecode\": {\"end_time\": \"02:58\", \"start_time\": \"02:55\"}, \"title\": \"Docteur Folamour\", \"authors\": [\"Stanley Kubrick\"], \"years\": [1964]}, {\"timecode\": {\"end_time\": \"03:11\", \"start_time\": \"03:08\"}, \"title\": \"Docteur Folamour\", \"authors\": [\"Stanley Kubrick\"], \"years\": [1964]}, {\"timecode\": {\"end_time\": \"03:40\", \"start_time\": \"03:37\"}, \"title\": \"Les Chariots de feu\", \"authors\": [\"Hugh Hudson\"], \"years\": [1982]}, {\"timecode\": {\"end_time\": \"03:55\", \"start_time\": \"03:54\"}, \"title\": \"Les Chariots de feu\", \"authors\": [\"Hugh Hudson\"], \"years\": [1982]}, {\"timecode\": {\"end_time\": \"04:13\", \"start_time\": \"04:09\"}, \"title\": \"La Colline des hommes perdus\", \"authors\": [\"Sidney Lumet\"], \"years\": [1965]}, {\"timecode\": {\"end_time\": \"04:25\", \"start_time\": \"04:23\"}, \"title\": \"La Colline des hommes perdus\", \"authors\": [\"Sidney Lumet\"], \"years\": [1965]}, {\"timecode\": {\"end_time\": \"05:01\", \"start_time\": \"04:59\"}, \"title\": \"The Offence\", \"authors\": [\"Sidney Lumet\"], \"years\": [1972]}, {\"timecode\": {\"end_time\": \"05:09\", \"start_time\": \"05:07\"}, \"title\": \"The Offence\", \"authors\": [\"Sidney Lumet\"], \"years\": [1972]}, {\"timecode\": {\"end_time\": \"05:34\", \"start_time\": \"05:31\"}, \"title\": \"Heat\", \"authors\": [\"Michael Mann\"], \"years\": [1996]}, {\"timecode\": {\"end_time\": \"05:46\", \"start_time\": \"05:44\"}, \"title\": \"The Dark Knight\", \"authors\": [\"Christopher Nolan\"], \"years\": [2008]}, {\"timecode\": {\"end_time\": \"05:50\", \"start_time\": \"05:47\"}, \"title\": \"Heat\", \"authors\": [\"Michael Mann\"], \"years\": [1996]}, {\"timecode\": {\"end_time\": \"05:59\", \"start_time\": \"05:56\"}, \"title\": \"L'Epouvantail\", \"authors\": [\"Jerry Schatzberg\"], \"years\": [1973]}, {\"timecode\": {\"end_time\": \"06:03\", \"start_time\": \"06:01\"}, \"title\": \"Le Parrain\", \"authors\": [\"Francis Ford Coppola\"], \"years\": [1972]}, {\"timecode\": {\"end_time\": \"06:06\", \"start_time\": \"06:04\"}, \"title\": \"French Connection\", \"authors\": [\"William Friedkin\"], \"years\": [1972]}, {\"timecode\": {\"end_time\": \"06:13\", \"start_time\": \"06:11\"}, \"title\": \"L'Epouvantail\", \"authors\": [\"Jerry Schatzberg\"], \"years\": [1973]}, {\"timecode\": {\"end_time\": \"06:20\", \"start_time\": \"06:17\"}, \"title\": \"Amadeus\", \"authors\": [\"Milos Forman\"], \"years\": [1984]}, {\"timecode\": {\"end_time\": \"06:30\", \"start_time\": \"06:27\"}, \"title\": \"Oppenheimer\", \"authors\": [\"Christopher Nolan\"], \"years\": [2023]}, {\"timecode\": {\"end_time\": \"06:44\", \"start_time\": \"06:41\"}, \"title\": \"JFK\", \"authors\": [\"Oliver Stone\"], \"years\": [1992]}, {\"timecode\": {\"end_time\": \"06:55\", \"start_time\": \"06:51\"}, \"title\": \"JFK\", \"authors\": [\"Oliver Stone\"], \"years\": [1992]}, {\"timecode\": {\"end_time\": \"07:07\", \"start_time\": \"07:04\"}, \"title\": \"Docteur Folamour\", \"authors\": [\"Stanley Kubrick\"], \"years\": [1964]}, {\"timecode\": {\"end_time\": \"07:20\", \"start_time\": \"07:17\"}, \"title\": \"Moi, Daniel Blake\", \"authors\": [\"Ken Loach\"], \"years\": [2016]}, {\"timecode\": {\"end_time\": \"07:32\", \"start_time\": \"07:30\"}, \"title\": \"Le vent se lève\", \"authors\": [\"Ken Loach\"], \"years\": [2006]}, {\"timecode\": {\"end_time\": \"07:51\", \"start_time\": \"07:48\"}, \"title\": \"Le vent se lève\", \"authors\": [\"Ken Loach\"], \"years\": [2006]}, {\"timecode\": {\"end_time\": \"08:03\", \"start_time\": \"08:00\"}, \"title\": \"Amadeus\", \"authors\": [\"Milos Forman\"], \"years\": [1984]}, {\"timecode\": {\"end_time\": \"08:16\", \"start_time\": \"08:14\"}, \"title\": \"Oppenheimer\", \"authors\": [\"Christopher Nolan\"], \"years\": [2023]}, {\"timecode\": {\"end_time\": \"08:31\", \"start_time\": \"08:27\"}, \"title\": \"Au nom du père\", \"authors\": [\"Jim Sheridan\"], \"years\": [1994]}, {\"timecode\": {\"end_time\": \"08:40\", \"start_time\": \"08:39\"}, \"title\": \"My Left Foot\", \"authors\": [\"Jim Sheridan\"], \"years\": [1990]}, {\"timecode\": {\"end_time\": \"08:53\", \"start_time\": \"08:51\"}, \"title\": \"Au nom du père\", \"authors\": [\"Jim Sheridan\"], \"years\": [1994]}, {\"timecode\": {\"end_time\": \"09:20\", \"start_time\": \"09:15\"}, \"title\": \"La Ligne rouge\", \"authors\": [\"Terrence Malick\"], \"years\": [1999]}, {\"timecode\": {\"end_time\": \"09:36\", \"start_time\": \"09:34\"}, \"title\": \"La Ligne rouge\", \"authors\": [\"Terrence Malick\"], \"years\": [1999]}, {\"timecode\": {\"end_time\": \"10:30\", \"start_time\": \"10:24\"}, \"title\": \"La Haine\", \"authors\": [\"Mathieu Kassovitz\"], \"years\": [1995]}, {\"timecode\": {\"end_time\": \"10:37\", \"start_time\": \"10:35\"}, \"title\": \"La Haine\", \"authors\": [\"Mathieu Kassovitz\"], \"years\": [1995]}, {\"timecode\": {\"end_time\": \"10:47\", \"start_time\": \"10:45\"}, \"title\": \"La Haine\", \"authors\": [\"Mathieu Kassovitz\"], \"years\": [1995]}, {\"timecode\": {\"end_time\": \"11:20\", \"start_time\": \"11:16\"}, \"title\": \"Le Salaire de la peur\", \"authors\": [\"Henri-Georges Clouzot\"], \"years\": [1953]}, {\"timecode\": {\"end_time\": \"11:31\", \"start_time\": \"11:28\"}, \"title\": \"Dunkirk\", \"authors\": [\"Christopher Nolan\"], \"years\": [2017]}, {\"timecode\": {\"end_time\": \"11:41\", \"start_time\": \"11:37\"}, \"title\": \"Le Salaire de la peur\", \"authors\": [\"Henri-Georges Clouzot\"], \"years\": [1953]}, {\"timecode\": {\"end_time\": \"11:57\", \"start_time\": \"11:54\"}, \"title\": \"Le Salaire de la peur\", \"authors\": [\"Henri-Georges Clouzot\"], \"years\": [1953]}, {\"timecode\": {\"end_time\": \"12:20\", \"start_time\": \"12:15\"}, \"title\": \"Le Convoi de la peur\", \"authors\": [\"William Friedkin\"], \"years\": [1978]}, {\"timecode\": {\"end_time\": \"12:37\", \"start_time\": \"12:33\"}, \"title\": \"Le Convoi de la peur\", \"authors\": [\"William Friedkin\"], \"years\": [1978]}, {\"timecode\": {\"end_time\": \"12:45\", \"start_time\": \"12:42\"}, \"title\": \"Le Convoi de la peur\", \"authors\": [\"William Friedkin\"], \"years\": [1978]}, {\"timecode\": {\"end_time\": \"12:51\", \"start_time\": \"12:49\"}, \"title\": \"Le Convoi de la peur\", \"authors\": [\"William Friedkin\"], \"years\": [1978]}, {\"timecode\": {\"end_time\": \"13:21\", \"start_time\": \"13:15\"}, \"title\": \"Correspondant 17\", \"authors\": [\"Alfred Hitchcock\"], \"years\": [1948]}, {\"timecode\": {\"end_time\": \"13:34\", \"start_time\": \"13:31\"}, \"title\": \"Correspondant 17\", \"authors\": [\"Alfred Hitchcock\"], \"years\": [1948]}, {\"timecode\": {\"end_time\": \"13:40\", \"start_time\": \"13:37\"}, \"title\": \"Correspondant 17\", \"authors\": [\"Alfred Hitchcock\"], \"years\": [1948]}, {\"timecode\": {\"end_time\": \"13:55\", \"start_time\": \"13:52\"}, \"title\": \"Correspondant 17\", \"authors\": [\"Alfred Hitchcock\"], \"years\": [1948]}, {\"timecode\": {\"end_time\": \"14:20\", \"start_time\": \"14:14\"}, \"title\": \"Lawrence d'Arabie\", \"authors\": [\"David Lean\"], \"years\": [1963]}, {\"timecode\": {\"end_time\": \"14:35\", \"start_time\": \"14:33\"}, \"title\": \"Lawrence d'Arabie\", \"authors\": [\"David Lean\"], \"years\": [1963]}, {\"timecode\": {\"end_time\": \"15:03\", \"start_time\": \"15:00\"}, \"title\": \"L'Homme qui voulut être roi\", \"authors\": [\"John Huston\"], \"years\": [1976]}, {\"timecode\": {\"end_time\": \"15:10\", \"start_time\": \"15:05\"}, \"title\": \"L'Homme qui voulut être roi\", \"authors\": [\"John Huston\"], \"years\": [1976]}, {\"timecode\": {\"end_time\": \"15:22\", \"start_time\": \"15:19\"}, \"title\": \"Citizen Kane\", \"authors\": [\"Orson Welles\"], \"years\": [1946]}, {\"timecode\": {\"end_time\": \"15:38\", \"start_time\": \"15:35\"}, \"title\": \"Citizen Kane\", \"authors\": [\"Orson Welles\"], \"years\": [1946]}, {\"timecode\": {\"end_time\": \"15:56\", \"start_time\": \"15:53\"}, \"title\": \"Citizen Kane\", \"authors\": [\"Orson Welles\"], \"years\": [1946]}, {\"timecode\": {\"end_time\": \"16:09\", \"start_time\": \"16:06\"}, \"title\": \"Citizen Kane\", \"authors\": [\"Orson Welles\"], \"years\": [1946]}, {\"timecode\": {\"end_time\": \"16:18\", \"start_time\": \"16:15\"}, \"title\": \"Citizen Kane\", \"authors\": [\"Orson Welles\"], \"years\": [1946]}, {\"timecode\": {\"end_time\": \"16:29\", \"start_time\": \"16:26\"}, \"title\": \"Les Rapaces\", \"authors\": [\"Erich von Stroheim\"], \"years\": [1924]}, {\"timecode\": {\"end_time\": \"16:45\", \"start_time\": \"16:42\"}, \"title\": \"Les Rapaces\", \"authors\": [\"Erich von Stroheim\"], \"years\": [1924]}, {\"timecode\": {\"end_time\": \"16:47\", \"start_time\": \"16:46\"}, \"title\": \"Les Rapaces\", \"authors\": [\"Erich von Stroheim\"], \"years\": [1924]}, {\"timecode\": {\"end_time\": \"17:11\", \"start_time\": \"17:09\"}, \"title\": \"Westworld\", \"authors\": [\"Jonathan Nolan\", \"Lisa Joy\"], \"years\": [2016]}, {\"timecode\": {\"end_time\": \"17:24\", \"start_time\": \"17:21\"}, \"title\": \"Chernobyl\", \"authors\": [\"Craig Mazin\"], \"years\": [2019]}, {\"timecode\": {\"end_time\": \"17:36\", \"start_time\": \"17:33\"}, \"title\": \"Chernobyl\", \"authors\": [\"Craig Mazin\"], \"years\": [2019]}, {\"timecode\": {\"end_time\": \"17:44\", \"start_time\": \"17:41\"}, \"title\": \"Docteur Mabuse le joueur\", \"authors\": [\"Fritz Lang\"], \"years\": [1924]}, {\"timecode\": {\"end_time\": \"18:02\", \"start_time\": \"17:59\"}, \"title\": \"Docteur Mabuse le joueur\", \"authors\": [\"Fritz Lang\"], \"years\": [1924]}, {\"timecode\": {\"end_time\": \"18:07\", \"start_time\": \"18:05\"}, \"title\": \"The Dark Knight\", \"authors\": [\"Christopher Nolan\"], \"years\": [2008]}, {\"timecode\": {\"end_time\": \"18:31\", \"start_time\": \"18:29\"}, \"title\": \"Furyo\", \"authors\": [\"Nagisa Oshima\"], \"years\": [1983]}, {\"timecode\": {\"end_time\": \"18:38\", \"start_time\": \"18:36\"}, \"title\": \"Oppenheimer\", \"authors\": [\"Christopher Nolan\"], \"years\": [2023]}, {\"timecode\": {\"end_time\": \"18:49\", \"start_time\": \"18:47\"}, \"title\": \"Furyo\", \"authors\": [\"Nagisa Oshima\"], \"years\": [1983]}, {\"timecode\": {\"end_time\": \"18:56\", \"start_time\": \"18:54\"}, \"title\": \"Le Prestige\", \"authors\": [\"Christopher Nolan\"], \"years\": [2006]}]}"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP"
+        }
+      ],
+      "createTime": "2025-01-27T14:19:35.516664Z",
+      "modelVersion": "gemini-1.5-flash-002@default",
+      "responseId": "95WXZ7jEH4WO9NYPn5rvmA4",
+      "usageMetadata": {
+        "candidatesTokenCount": 4964,
+        "candidatesTokensDetails": [{ "modality": "TEXT", "tokenCount": 4964 }],
+        "promptTokenCount": 562,
+        "promptTokensDetails": [{ "modality": "TEXT", "tokenCount": 562 }],
+        "totalTokenCount": 5526
+      }
+    }
+  }
+  
