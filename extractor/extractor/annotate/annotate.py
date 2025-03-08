@@ -1,10 +1,8 @@
 from datetime import datetime
 import asyncio
 import json
-from typing import List
 from google.genai.models import _GenerateContentParameters_to_vertex, _common
 import googleapiclient.discovery
-from pydantic import BaseModel
 from google import genai
 from google.genai import types
 from google.cloud import storage
@@ -13,28 +11,14 @@ import json_stream
 from json_stream.base import PersistentStreamingJSONObject, PersistentStreamingJSONList
 from ..utils import safety_settings, to_vertexai_compatible_schema, upload_json_blob
 
+from .models import AnnotationResponse
+
 
 client = genai.Client(
     vertexai=True, project="videoclub-447210", location="europe-west9"
 )
 
 TEMP = 0
-
-
-class TimeSegment(BaseModel):
-    start_time: str
-    end_time: str
-
-
-class MediaItem(BaseModel):
-    title: str
-    timecode: TimeSegment
-    authors: List[str] = []
-    years: List[int] = []
-
-
-class AnnotationResponse(BaseModel):
-    items: List[MediaItem]
 
 
 def get_title(youtube_id: str):

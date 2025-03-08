@@ -1,17 +1,17 @@
 import re
 import warnings
 from extractor.utils import upload_json_blob, download_blob, year_pattern
-from extractor.annotate.models import (
+from .models import (
     MediaItem,
     MediaItemTimestamp,
     TimeOffset,
+    MediaItemsTimestamps,
 )
-from extractor.models import MediaItemsTimestamps
 import asyncio
 from itertools import zip_longest
 
 from themoviedb import aioTMDb, PartialMovie, PartialTV, Person, PartialMedia
-from extractor.annotate.annotate import AnnotationResponse, MediaItem as MediaItemLLM
+from extractor.annotate.models import MediaItem as MediaItemLLM, AnnotationResponse
 
 
 # filter warning PydanticSerializationUnexpectedValue
