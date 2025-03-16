@@ -4,7 +4,7 @@ from pydantic import TypeAdapter
 import requests
 
 VIDEO_CLUB_PLAYLIST_ID = "PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn"
-API_KEY = "AIzaSyC-8WuhND8YDjvzZLNf0Jw8MGTQ3E1qCXA"
+API_KEY = "AIzaSyB8iURfuYgKGusxLeeJRziG-fBmqorX5ko"
 
 videos_exclude = [
     "PYBNm843pmQ",
