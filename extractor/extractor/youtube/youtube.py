@@ -3,6 +3,7 @@ import googleapiclient.discovery
 from pydantic import TypeAdapter
 import requests
 
+VIDEO_CLUB_PLAYLIST_ID = "PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn"
 API_KEY = "AIzaSyC-8WuhND8YDjvzZLNf0Jw8MGTQ3E1qCXA"
 
 videos_exclude = [
@@ -31,11 +32,11 @@ def filter_video(item: PlaylistItem):
     )
 
 
-def get_videos_playlist(playlist_id: str):
+def get_videos_videoclub():
     youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=API_KEY)
 
     playlistItems = youtube.playlistItems()
-    request = playlistItems.list(part="id,status,snippet", playlistId=playlist_id)
+    request = playlistItems.list(part="id,status,snippet", playlistId=VIDEO_CLUB_PLAYLIST_ID)
 
     items: list[PlaylistItem] = []
     while request is not None:

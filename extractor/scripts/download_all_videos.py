@@ -1,4 +1,4 @@
-from extractor.youtube import get_videos_playlist
+from extractor.youtube import get_videos_videoclub
 from tqdm import tqdm
 
 import requests
@@ -6,7 +6,7 @@ import yt_dlp
 from extractor.youtube import download_video
 
 
-items = get_videos_playlist("PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn")
+items = get_videos_videoclub()
 
 for item in tqdm(items):
     id_ = item.snippet.resourceId.videoId

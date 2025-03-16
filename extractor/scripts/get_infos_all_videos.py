@@ -6,7 +6,7 @@ from tqdm import tqdm
 import google.genai.errors
 
 from extractor.utils import upload_json_blob, upload_blob
-from extractor.youtube import get_videos_playlist
+from extractor.youtube import get_videos_videoclub
 from extractor.video.get_infos_video import get_personnalites
 
 
@@ -28,7 +28,7 @@ def upload_thumbnail(item: PlaylistItem, bucket_name: str):
 
 
 async def get_infos(bucket_name: str):
-    items = get_videos_playlist("PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn")
+    items = get_videos_videoclub()
     pbar = tqdm(items)
     for item in pbar:
         id_ = item.snippet.resourceId.videoId

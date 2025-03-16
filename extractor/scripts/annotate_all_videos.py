@@ -2,11 +2,11 @@ import asyncio
 from google.cloud import storage
 
 from extractor.annotate import annotate_videos
-from extractor.youtube import get_videos_playlist
+from extractor.youtube import get_videos_videoclub
 
 
 async def annotate_all_videos(bucket_name):
-    items = get_videos_playlist("PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn")
+    items = get_videos_videoclub()
     print(f"Found {len(items)} videos in playlist")
     bucket = storage.Client().bucket(bucket_name)
     video_blobs: list[str] = []

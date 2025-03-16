@@ -1,11 +1,11 @@
 from extractor.movies import extract_media_items
-from extractor.youtube import get_videos_playlist
+from extractor.youtube import get_videos_videoclub
 import asyncio
 from tqdm import tqdm
 
 
 async def extract_all_videos(bucket_name: str):
-    items = get_videos_playlist("PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn")
+    items = get_videos_videoclub()
 
     pbar = tqdm(items)
     for item in pbar:
