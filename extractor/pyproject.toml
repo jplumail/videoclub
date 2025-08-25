@@ -25,6 +25,7 @@ dev = [
     "flask>=3.1.0",
     "functions-framework>=3.8.2",
     "google-api-python-client>=2.159.0",
+    "google-api-python-client-stubs>=1.29.0",
     "google-auth-httplib2>=0.2.0",
     "google-auth-oauthlib>=1.2.1",
     "ipykernel>=6.29.5",
