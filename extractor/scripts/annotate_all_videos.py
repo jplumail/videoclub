@@ -1,3 +1,16 @@
+"""Annotate all Videoclub videos stored in a GCS bucket.
+
+This script:
+- Lists YouTube playlist items via `extractor.youtube.get_videos_videoclub`.
+- For each video ID, locates the uploaded video file under
+  `videos/{video_id}/video.<ext>` in the given bucket.
+- Calls `extractor.annotate.annotate_videos` to generate annotations.
+- Writes annotations to `videos/{video_id}/annotations.json` in the bucket.
+
+Run directly to process all videos using the default test bucket, or import
+and call `annotate_all_videos(bucket_name)` from other modules.
+"""
+
 import asyncio
 from google.cloud import storage
 

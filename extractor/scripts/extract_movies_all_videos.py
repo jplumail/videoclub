@@ -1,3 +1,16 @@
+"""Extract movie/media items for all Videoclub videos.
+
+This script:
+- Lists YouTube playlist items via `extractor.youtube.get_videos_videoclub`.
+- For each video ID, reads annotations from
+  `videos/{video_id}/annotations.json` in the given bucket.
+- Calls `extractor.movies.extract_media_items` to compute movie/media items.
+- Writes results to `videos/{video_id}/movies.json` in the bucket.
+
+Run directly to process all videos using the default test bucket, or import
+and call `extract_all_videos(bucket_name)` from other modules.
+"""
+
 from extractor.movies import extract_media_items
 from extractor.youtube import get_videos_videoclub
 import asyncio
