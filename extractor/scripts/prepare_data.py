@@ -1,3 +1,26 @@
+"""Prepare data for the API from raw video data stored in GCS.
+
+This script needs video.json and movies.json files to be present in the bucket:
+videos/
+  {video_id}/
+    video.json
+    movies.json
+
+It generates files in the data/ prefix, which replicate the website structure:
+data/
+  video/
+    {video_id}.json
+  film/
+    {movie_id}.json
+  serie/
+    {serie_id}.json
+  personne/
+    {person_id}.json
+  meilleurs/
+    films.json
+    series.json
+  video.json
+"""
 from datetime import date
 from pathlib import Path
 from extractor.movies.models import MediaItemsTimestamps
