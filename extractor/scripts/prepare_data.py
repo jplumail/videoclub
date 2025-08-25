@@ -12,13 +12,12 @@ data/
     {video_id}.json
   film/
     {movie_id}.json
+    meilleurs.json
   serie/
     {serie_id}.json
+    meilleures.json
   personne/
     {person_id}.json
-  meilleurs/
-    films.json
-    series.json
   video.json
 """
 from datetime import date
@@ -304,7 +303,7 @@ for person_id in set([p.person_id for _, _, p in database]):
         person_data.model_dump_json(), content_type="application/json"
     )
 
-# /meilleurs/films
+# /film/meilleurs.json
 @dataclass
 class Citation2:
     videoId: str
@@ -346,11 +345,13 @@ for video_data, m, p in database:
                 )
 
 best_movies = BestMediaData(media=list(best_movie_data.values()))
-bucket.blob(str(data_prefix / "meilleurs" / "films.json")).upload_from_string(
+bucket.blob(
+    str(data_prefix / "film" / "meilleurs.json")
+).upload_from_string(
     best_movies.model_dump_json(), content_type="application/json"
 )
 
-# /meilleurs/series
+# /serie/meilleures.json
 best_serie_data: dict[int, CitationMedia2] = {}
 for video_data, m, p in database:
     if m.type == "tv":
@@ -377,7 +378,9 @@ for video_data, m, p in database:
                 )
 
 best_series = BestMediaData(media=list(best_serie_data.values()))
-bucket.blob(str(data_prefix / "meilleurs" / "series.json")).upload_from_string(
+bucket.blob(
+    str(data_prefix / "serie" / "meilleures.json")
+).upload_from_string(
     best_series.model_dump_json(), content_type="application/json"
 )
 
