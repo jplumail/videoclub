@@ -29,6 +29,7 @@ dev = [
     "google-auth-httplib2>=0.2.0",
     "google-auth-oauthlib>=1.2.1",
     "ipykernel>=6.29.5",
+    "ruff>=0.12.10",
     "tqdm>=4.67.1",
 ]
 
@@ -39,3 +40,18 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.google-cloud-function]
 path = "src/extractor/main.py"
 dest = "main.py"
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle (errors)
+    "F",   # pyflakes
+    "UP",  # pyupgrade (prefer f-strings, modern syntax)
+]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# Example: relax tests if needed
+# "tests/**/*" = ["E501"]

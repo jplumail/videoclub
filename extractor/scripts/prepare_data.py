@@ -21,7 +21,7 @@ import logging
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import List, Literal
+from typing import Literal
 
 import google.api_core.exceptions
 from extractor.movies.models import MediaItemsTimestamps
@@ -53,8 +53,8 @@ class MediaItemWithTime:
 class VideoDataFull(BaseModel):
     """videos/{video_id}/video.json"""
     video_id: str
-    personnalites: List[Personnalite]
-    media_data: List[MediaItemWithTime]
+    personnalites: list[Personnalite]
+    media_data: list[MediaItemWithTime]
 
 
 @dataclass
@@ -66,7 +66,7 @@ class VideoDataShort:
 
 class VideoFeedData(BaseModel):
     """data/video.json (feed)"""
-    feed: List[VideoDataShort]
+    feed: list[VideoDataShort]
 
 
 @dataclass
@@ -80,7 +80,7 @@ class MediaIdData(BaseModel):
     id: int | None
     title: str | None
     release_year: date | None
-    citations: List[CitationPersonnalite]
+    citations: list[CitationPersonnalite]
 
 
 @dataclass
@@ -101,14 +101,14 @@ class Citation:
 @dataclass
 class CitationMedia:
     media: MediaItem
-    citations: List[Citation]
+    citations: list[Citation]
 
 
 class PersonneIdData(BaseModel):
     """/personne/{id}.json"""
     name: str | None
-    videos: List[VideoDataShort]
-    citations: List[CitationMedia]
+    videos: list[VideoDataShort]
+    citations: list[CitationMedia]
 
 
 @dataclass
@@ -121,7 +121,7 @@ class CitationWithName:
 @dataclass
 class CitationMedia2:
     media: MediaItem
-    citations: List[CitationWithName]
+    citations: list[CitationWithName]
 
 class BestMediaData(BaseModel):
     """/film/meilleurs.json"""

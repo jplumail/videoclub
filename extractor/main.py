@@ -1,7 +1,6 @@
 import functions_framework
 import typing
 
-from extractor.download import download_video
 from extractor.annotate import annotate_video
 from extractor.process_annotations import process_annotations
 

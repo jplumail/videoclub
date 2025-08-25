@@ -1,4 +1,3 @@
-from typing import List, Union
 
 from pydantic import BaseModel, TypeAdapter
 from google import genai
@@ -16,7 +15,7 @@ class Personnalite(BaseModel):
 
 
 class PersonnalitesResponse(BaseModel):
-    personnalites: List[Personnalite]
+    personnalites: list[Personnalite]
 
 
 client = genai.Client(
@@ -72,6 +71,6 @@ async def get_personnalites(item: PlaylistItem, thumbnail_uri: str | None):
         res = [p[0] if p else None for p in potential_persons]
     else:
         res = [None]
-    person_list_adapter = TypeAdapter(List[Union[Person, None]])
+    person_list_adapter = TypeAdapter(list[Person | None])
     personnalites = person_list_adapter.validate_python(res)
     return PlaylistItemPersonnalites(playlist_item=item, personnalites=personnalites)

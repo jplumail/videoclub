@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from collections.abc import Sequence
-from typing import Mapping, Set, TypeAlias, Union
+from collections.abc import Mapping
 from .utils import flatten_video_annotations
 from ..videointelligence.models import VideoAnnotation
 from .filter import filter_annotations
@@ -10,13 +10,10 @@ from .organize import organize_annotations
 from extractor.utils import download_blob, upload_json_blob
 from pydantic import BaseModel
 
-IncEx: TypeAlias = Union[
-    Set[int],
-    Set[str],
-    Mapping[int, Union["IncEx", bool]],
-    Mapping[str, Union["IncEx", bool]],
-]
-SequenceBaseModel: TypeAlias = Union[Sequence["SequenceBaseModel"], BaseModel]
+type IncEx = (
+    set[int] | set[str] | Mapping[int, IncEx | bool] | Mapping[str, IncEx | bool]
+)
+type SequenceBaseModel = Sequence["SequenceBaseModel"] | BaseModel
 
 
 class DebugLogger:

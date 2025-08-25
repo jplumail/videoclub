@@ -1,4 +1,3 @@
-from typing import List
 from pydantic import BaseModel
 
 
@@ -10,9 +9,9 @@ class TimeSegment(BaseModel):
 class MediaItem(BaseModel):
     title: str
     timecode: TimeSegment
-    authors: List[str] = []
-    years: List[int] = []
+    authors: list[str] = []
+    years: list[int] = []
 
 
 class AnnotationResponse(BaseModel):
-    items: List[MediaItem]
+    items: list[MediaItem]
