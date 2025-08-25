@@ -1,3 +1,8 @@
+"""Download all Videoclub videos from YouTube and store them in a GCS bucket.
+
+Produces:
+- `videos/{video_id}/video.<ext>`
+"""
 from extractor.youtube import get_videos_videoclub
 from tqdm import tqdm
 

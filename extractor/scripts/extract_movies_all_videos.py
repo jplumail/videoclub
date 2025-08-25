@@ -1,5 +1,11 @@
 """Extract movie/media items for all Videoclub videos.
 
+Produces:
+- `videos/{video_id}/movies.json`
+
+Needs:
+- Annotations in `videos/{video_id}/annotations.json` in the given GCS bucket
+
 This script:
 - Lists YouTube playlist items via `extractor.youtube.get_videos_videoclub`.
 - For each video ID, reads annotations from

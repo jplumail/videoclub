@@ -1,5 +1,11 @@
 """Annotate all Videoclub videos stored in a GCS bucket.
 
+Produces:
+- `videos/{video_id}/annotations.json`
+
+Needs:
+- The video file stored under `videos/{video_id}/video.<ext>` in the given GCS bucket
+
 This script:
 - Lists YouTube playlist items via `extractor.youtube.get_videos_videoclub`.
 - For each video ID, locates the uploaded video file under

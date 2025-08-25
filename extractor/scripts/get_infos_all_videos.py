@@ -1,8 +1,13 @@
 """Extract and store metadata for all Videoclub videos.
 
+Produces:
+- `videos/{video_id}/thumbnail.jpg`
+- `videos/{video_id}/video.json`
+
 This script:
 - Lists YouTube playlist items via `extractor.youtube.get_videos_videoclub`.
-- Uploads each video's thumbnail to the provided GCS bucket.
+- Uploads each video's thumbnail to the provided GCS bucket
+  in `videos/{video_id}/thumbnail.jpg`.
 - Calls `get_personnalites` to extract people-related infos for the video.
 - Writes the resulting JSON to `videos/{video_id}/video.json` in the bucket.
 - Retries once on 429 rate limits with a 60s delay.
