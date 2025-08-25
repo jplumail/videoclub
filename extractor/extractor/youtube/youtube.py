@@ -41,10 +41,11 @@ def get_videos_videoclub():
     items: list[PlaylistItem] = []
     while request is not None:
         page = request.execute()
-        items_page = TypeAdapter(list[PlaylistItem]).validate_python(
-            page["items"], strict=False
-        )
-        items.extend([item for item in items_page if filter_video(item)])
+        if "items" in page:
+            items_page = TypeAdapter(list[PlaylistItem]).validate_python(
+                page["items"], strict=False
+            )
+            items.extend([item for item in items_page if filter_video(item)])
         request = playlistItems.list_next(request, page)
 
     return items
