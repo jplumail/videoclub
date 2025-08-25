@@ -10,3 +10,10 @@ uv run ./scripts/get_infos_all_videos.py  # create /videos/{id}/video.json and t
 uv run ./scripts/annotate_all_videos.py  # create /videos/{id}/annotations.json
 uv run ./scripts/extract_movies_all_videos.py  # create /videos/{id}/movies.json
 ```
+
+## Linting
+
+Ce repo utilise Ruff pour le lint (configuré dans `pyproject.toml`).
+
+- Vérifier le code: `uv run ruff check .`
+- Corriger automatiquement: `uv run ruff check . --fix`
