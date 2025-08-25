@@ -70,7 +70,12 @@ def test_annotate():
     )
     pred = AnnotationResponse.model_validate_json(
         json.loads(
-            (Path(__file__).parent / "predictions/HLUe85q1hNM/1737987455.json").read_text()
+            (
+                Path(__file__).parent
+                / "predictions"
+                / "HLUe85q1hNM"
+                / "1737987455.json"
+            ).read_text()
         )["response"]["candidates"][0]["content"]["parts"][0]["text"]
     )
 

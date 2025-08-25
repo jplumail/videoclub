@@ -50,7 +50,8 @@ async def extract_names(title: str, thumbnail_uri: str | None):
             ),
             safety_settings=safety_settings,
             system_instruction=(
-                "Tu récupère un titre et une description d'une interview. Tu dois donner la liste de la (ou les personnes) interviewés."
+                "Tu récupère un titre et une description d'une interview. "
+                "Tu dois donner la liste de la (ou les personnes) interviewés."
             ),
         ),
     )

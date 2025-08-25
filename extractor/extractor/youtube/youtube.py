@@ -15,9 +15,13 @@ logger = logging.getLogger(__name__)
 
 
 def is_video_a_short(video_id: str):
-    """One (unofficial) workaround right now is to construct a URL using 'shorts' and the video ID
-    (e.g. https://www.youtube.com/shorts/v=B-s71n0dHUk and then see if you get a 303 redirect (not a Short)
-    or a 200 HTTP status report (Short)."""
+    """Check if a YouTube video is a Short.
+
+    One (unofficial) workaround is to construct a Shorts URL using the
+    video ID (e.g. https://www.youtube.com/shorts/B-s71n0dHUk) and check
+    the response: a 303 redirect suggests it's not a Short; a 200 status
+    suggests it is a Short.
+    """
     url = f"https://www.youtube.com/shorts/{video_id}"
     logger.debug(f"Checking Shorts status for video {video_id}")
     try:
@@ -35,7 +39,8 @@ def is_video_public(item: PlaylistItem):
     public = item.status.privacyStatus == "public"
     if not public:
         logger.debug(
-            f"Excluding {item.snippet.resourceId.videoId}: privacy status is {item.status.privacyStatus}"
+            f"Excluding {item.snippet.resourceId.videoId}: "
+            f"privacy status is {item.status.privacyStatus}"
         )
     return public
 
@@ -59,7 +64,9 @@ def get_videos_videoclub():
 
     playlistItems = youtube.playlistItems()
     logger.info(f"Listing playlist items for {VIDEO_CLUB_PLAYLIST_ID}")
-    request = playlistItems.list(part="id,status,snippet", playlistId=VIDEO_CLUB_PLAYLIST_ID)
+    request = playlistItems.list(
+        part="id,status,snippet", playlistId=VIDEO_CLUB_PLAYLIST_ID
+    )
 
     items: list[PlaylistItem] = []
     page_index = 0
@@ -82,7 +89,8 @@ def get_videos_videoclub():
             logger.debug(f"Page {page_index} returned {len(items_page)} items")
             filtered = [item for item in items_page if filter_video(item)]
             logger.info(
-                f"Page {page_index}: kept {len(filtered)}/{len(items_page)} items after filtering"
+                f"Page {page_index}: kept {len(filtered)}/{len(items_page)} "
+                f"items after filtering"
             )
             items.extend(filtered)
         else:

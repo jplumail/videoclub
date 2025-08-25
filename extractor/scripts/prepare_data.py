@@ -140,7 +140,10 @@ def get_bucket(bucket_name: str) -> storage.Bucket:
 def load_playlist_item_personnalites(
     bucket: storage.Bucket, raw_prefix: Path, video_id: str
 ) -> PlaylistItemPersonnalites | None:
-    """Load playlist item/personnalites JSON for a video from GCS, or None if missing."""
+    """Load playlist item/personnalites JSON for a video from GCS.
+
+    Returns None if the expected blob is missing.
+    """
     blob_path = str(raw_prefix / video_id / "video.json")
     try:
         data = bucket.blob(blob_path).download_as_bytes()
@@ -153,7 +156,10 @@ def load_playlist_item_personnalites(
 def load_media_items_timestamps(
     bucket: storage.Bucket, raw_prefix: Path, video_id: str
 ) -> MediaItemsTimestamps | None:
-    """Load media items timestamps JSON for a video from GCS, or None if missing."""
+    """Load media items timestamps JSON for a video from GCS.
+
+    Returns None if the expected blob is missing.
+    """
     blob_path = str(raw_prefix / video_id / "movies.json")
     try:
         data = bucket.blob(blob_path).download_as_bytes()
@@ -194,8 +200,13 @@ def write_video_json(
 
 
 def collect_feed_and_database(
-    bucket: storage.Bucket, raw_prefix: Path, data_prefix: Path
-) -> tuple[list[VideoDataShort], list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]]]:
+    bucket: storage.Bucket,
+    raw_prefix: Path,
+    data_prefix: Path,
+) -> tuple[
+    list[VideoDataShort],
+    list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]],
+]:
     """Build the feed and the working database from available videos.
 
     Also writes ``data/video/{video_id}.json`` for each processed video.
@@ -222,7 +233,9 @@ def collect_feed_and_database(
         data = VideoDataFull(
             video_id=video_id,
             personnalites=[
-                Personnalite(name=p.name, person_id=p.id) for p in ppl.personnalites if p
+                Personnalite(name=p.name, person_id=p.id)
+                for p in ppl.personnalites
+                if p
             ],
             media_data=media_data,
         )
@@ -492,7 +505,11 @@ def prepare_data(
         f"Preparing data using bucket={bucket_name} "
         f"raw_prefix={video_raw_data_prefix} data_prefix={data_prefix}"
     )
-    feed, database = collect_feed_and_database(bucket, video_raw_data_prefix, data_prefix)
+    feed, database = collect_feed_and_database(
+        bucket,
+        video_raw_data_prefix,
+        data_prefix,
+    )
     export_media_by_id(bucket, data_prefix, database)
     export_person_by_id(bucket, data_prefix, database)
     export_best_media(bucket, data_prefix, database)

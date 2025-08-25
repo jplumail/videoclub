@@ -29,7 +29,11 @@ def annotate(request: "Request") -> "ResponseReturnValue":
         return {"error": f"Video {video_blob_name} from bucket {bucket_name} not found"}
 
     try:
-        annotation_blob_name = annotate_video(bucket_name, video_blob_name, annotation_blob_name)
+        annotation_blob_name = annotate_video(
+            bucket_name,
+            video_blob_name,
+            annotation_blob_name,
+        )
     except Exception as e:
         return {"error": str(e)}
     

@@ -32,26 +32,38 @@ def get_title(youtube_id: str):
 
 
 def create_request(video_blob_name: str, context: list[types.Content] | None = None):
-    annotation_instruction = f"""Tu es un agent ContentID. Tu travailles pour une entreprise dans le domaine de la gestion des droits d'auteur.
-Ton rôle est de recenser les films qui passent dans les vidéos de la série Video Club de Konbini pour remplir une base de donnée.
+    annotation_instruction = (
+        f"""
+Tu es un agent ContentID. Tu travailles pour une entreprise dans le domaine
+de la gestion des droits d'auteur.
+Ton rôle est de recenser les films qui passent dans les vidéos de la série
+Video Club de Konbini pour remplir une base de donnée.
 A chaque début d'annotation, il t'est donné une vidéo.
 
 ## Description de la tâche
-1. Récupère les titres des films (MediaItem) des extraits vidéos de films dans la vidéo.
+1. Récupère les titres des films (MediaItem) des extraits vidéos de films dans
+la vidéo.
 
-2. Pour chaque MediaItem, tu récupères les intervalles de début et de fin de l'extrait vidéo du film, sous la forme MM:SS.
+2. Pour chaque MediaItem, tu récupères les intervalles de début et de fin de
+l'extrait vidéo du film, sous la forme MM:SS.
 L'intervalle va du début à la fin de l'extrait vidéo.
 Il ne contient que l'extrait vidéo du film, pas le reste de la vidéo.
-Si un film est montré plusieurs fois, tu ajoutes un nouveau MediaItem avec un nouvel extrait.
+Si un film est montré plusieurs fois, tu ajoutes un nouveau MediaItem avec un
+nouvel extrait.
 
-3. OPTIONNEL: Donne le(s) auteur(s) et l'année de sortie de chaque MediaItem mentionné(e), cela servira à identifier le film en question.
+3. OPTIONNEL: Donne le(s) auteur(s) et l'année de sortie de chaque MediaItem
+mentionné(e), cela servira à identifier le film en question.
 Mais si elles ne sont pas disponibles, tu n'a pas besoin de les mentionner.
-Ces informations sont disponibles à l'écran, généralement en haut à gauche ou en bas à gauche.
+Ces informations sont disponibles à l'écran, généralement en haut à gauche ou
+en bas à gauche.
 
-4. Tu ne dois pas mentionner Vidéo Club dans les MediaItem: il s'agit du nom de l'émission, pas d'un film.
+4. Tu ne dois pas mentionner Vidéo Club dans les MediaItem: il s'agit du nom
+de l'émission, pas d'un film.
 
 Ta réponse sera au format JSON suivant:
-{to_vertexai_compatible_schema(AnnotationResponse.model_json_schema())}"""
+{to_vertexai_compatible_schema(AnnotationResponse.model_json_schema())}
+"""
+    )
 
     generation_config = types.GenerateContentConfig(
         max_output_tokens=None,
@@ -225,7 +237,10 @@ async def annotate_videos(
         f"{job_prefix}/annotations-request.jsonl",
         output_folder,
     )
-    # job_name = "projects/957184131556/locations/europe-west9/batchPredictionJobs/3944223086739456000"
+    # job_name = (
+    #     "projects/957184131556/locations/europe-west9/"
+    #     "batchPredictionJobs/3944223086739456000"
+    # )
     if job_name is None:
         raise Exception("Job creation failed")
     print(f"Job {job_name} created")
