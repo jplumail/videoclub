@@ -1,10 +1,10 @@
 from datetime import date
+from pathlib import Path
 from extractor.movies.models import MediaItemsTimestamps
 from extractor.video.models import PlaylistItemPersonnalites
 from extractor.youtube.youtube import get_videos_videoclub
 from google.cloud import storage
 import google.api_core.exceptions
-from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Literal
 
