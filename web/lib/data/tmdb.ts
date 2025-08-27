@@ -38,17 +38,8 @@ export class ConfigurationManager {
 
   private static async getTheMovieDBConfig(): Promise<ConfigurationDetails> {
     try {
-      const res = await fetch(`${this.baseUrl}/configuration`, {
-        method: "GET",
-        headers: this.authHeaders(),
-        cache: "force-cache",
-      });
-      if (!res.ok) {
-        const body = await res.text();
-        console.warn("TMDB config fetch failed", res.status, body.slice(0, 160));
-        throw new Error(`TMDB config failed: ${res.status}`);
-      }
-      return (await res.json()) as ConfigurationDetails;
+      const data = await this.fetchTMDB(`/configuration`, { throwOnError: true });
+      return data as ConfigurationDetails;
     } catch (err) {
       console.error("TMDB configuration retrieval error", err);
       throw err;
@@ -111,27 +102,78 @@ export class ConfigurationManager {
     };
   }
   
-  private static async fetchTMDB(path: string) {
-    try {
-      const res = await fetch(`${this.baseUrl}${path}`, {
-        method: "GET",
-        headers: this.authHeaders(),
-        cache: "force-cache",
-      });
-      if (!res.ok) {
-        const body = await res.text();
-        console.warn("TMDB fetch failed", path, res.status, body.slice(0, 160));
-        return null;
-      }
+  private static async fetchTMDB(
+    path: string,
+    opts?: { throwOnError?: boolean },
+  ) {
+    const url = `${this.baseUrl}${path}`;
+    const maxRetries = 4;
+    let attempt = 0;
+    while (attempt <= maxRetries) {
       try {
-        return await res.json();
-      } catch {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: this.authHeaders(),
+          cache: "force-cache",
+        });
+        if (res.ok) {
+          try {
+            return await res.json();
+          } catch {
+            return null;
+          }
+        }
+
+        // Log a compact error body preview
+        let bodyText = "";
+        try {
+          bodyText = (await res.text()).slice(0, 160);
+        } catch {}
+        console.warn("TMDB fetch failed", path, res.status, bodyText);
+
+        // Handle retry-able statuses
+        if (res.status === 429 || (res.status >= 500 && res.status < 600)) {
+          const retryAfter = res.headers.get("retry-after");
+          let delayMs = 0;
+          if (retryAfter) {
+            const secs = Number(retryAfter);
+            if (!Number.isNaN(secs)) {
+              delayMs = Math.max(0, secs) * 1000;
+            } else {
+              const date = new Date(retryAfter).getTime();
+              delayMs = Math.max(0, date - Date.now());
+            }
+          }
+          if (!delayMs) {
+            // Exponential backoff with jitter
+            const base = 500; // ms
+            delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
+          }
+          if (attempt < maxRetries) {
+            await new Promise((r) => setTimeout(r, delayMs));
+            attempt += 1;
+            continue;
+          }
+        }
+
+        // Non-retryable or exhausted retries
+        if (opts?.throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
+        return null;
+      } catch (e) {
+        console.warn("TMDB fetch error", path, e);
+        if (attempt < maxRetries) {
+          const base = 500;
+          const delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
+          await new Promise((r) => setTimeout(r, delayMs));
+          attempt += 1;
+          continue;
+        }
+        if (opts?.throwOnError) throw e;
         return null;
       }
-    } catch (e) {
-      console.warn("TMDB fetch error", path, e);
-      return null;
     }
+    if (opts?.throwOnError) throw new Error("TMDB fetch exhausted retries");
+    return null;
   }
 
   public static async getPosterUrlById(
