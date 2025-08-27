@@ -22,7 +22,7 @@ export class ConfigurationManager {
   private static configurationDetails: ConfigurationDetails | null = null;
   private static readonly baseUrl = "https://api.themoviedb.org/3";
   private static posterPathCache = new Map<string, string | null>();
-  private static profilePathCache = new Map<number, string | null>();
+  private static profilePathCache = new Map<string, string | null>();
   private static overviewCache = new Map<string, string | null>();
   private static readonly MAX_CONCURRENT_REQUESTS = 4;
   private static limiter = createLimiter(this.MAX_CONCURRENT_REQUESTS);
@@ -151,11 +151,13 @@ export class ConfigurationManager {
   public static async getPosterUrlById(
     type: "movie" | "tv",
     id: number | null,
+    language: string = "fr-FR",
   ) {
     if (!id) return undefined;
-    const key = `${type}:${id}`;
+    const key = `${type}:${id}:${language}`;
     if (!this.posterPathCache.has(key)) {
-      const data = await this.tmdbJson<{ poster_path: string | null }>(`/${type}/${id}`);
+      const query = new URLSearchParams({ language });
+      const data = await this.tmdbJson<{ poster_path: string | null }>(`/${type}/${id}?${query.toString()}`);
       const val: string | null = data?.poster_path ?? null;
       this.posterPathCache.set(key, val);
     }
@@ -164,14 +166,16 @@ export class ConfigurationManager {
     return this.getPosterUrl(posterPath);
   }
 
-  public static async getProfileUrlById(personId: number | null) {
+  public static async getProfileUrlById(personId: number | null, language: string = "fr-FR") {
     if (!personId) return undefined;
-    if (!this.profilePathCache.has(personId)) {
-      const data = await this.tmdbJson<{ profile_path: string | null }>(`/person/${personId}`);
+    const key = `${personId}:${language}`;
+    if (!this.profilePathCache.has(key)) {
+      const query = new URLSearchParams({ language });
+      const data = await this.tmdbJson<{ profile_path: string | null }>(`/person/${personId}?${query.toString()}`);
       const val: string | null = data?.profile_path ?? null;
-      this.profilePathCache.set(personId, val);
+      this.profilePathCache.set(key, val);
     }
-    const profilePath = this.profilePathCache.get(personId) ?? null; // string | null
+    const profilePath = this.profilePathCache.get(key) ?? null; // string | null
     if (!profilePath) return undefined;
     return this.getProfileUrl(profilePath);
   }
