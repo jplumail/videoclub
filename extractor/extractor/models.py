@@ -28,7 +28,7 @@ class VideoDataFull(BaseModel):
 
 
 class Index(BaseModel):
-    """/data/video/index.json"""
+    """Présence d'un index des IDs dans /data/{type}/index.json"""
     ids: list[str]
 
 
