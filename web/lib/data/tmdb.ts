@@ -109,6 +109,7 @@ export class ConfigurationManager {
     const url = `${this.baseUrl}${path}`;
     const maxRetries = 4;
     let attempt = 0;
+    const start = Date.now();
     let lastStatus: number | null = null;
     let lastBodyText: string | undefined;
     let lastError: unknown;
@@ -159,8 +160,10 @@ export class ConfigurationManager {
 
         // Non-retryable or exhausted retries
         if (isRetryable) {
-          // Exhausted retries
-          console.warn("TMDB fetch failed", path, lastStatus, lastBodyText);
+          // Exhausted retries: log once with retry count and duration
+          const durationMs = Date.now() - start;
+          const retries = attempt; // number of retries performed
+          console.warn("TMDB fetch failed", path, lastStatus, lastBodyText, { retries, durationMs });
         }
         if (opts?.throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
         return null;
@@ -173,7 +176,9 @@ export class ConfigurationManager {
           attempt += 1;
           continue;
         }
-        console.warn("TMDB fetch failed", path, lastStatus, lastBodyText || lastError);
+        const durationMs = Date.now() - start;
+        const retries = attempt; // number of retries performed
+        console.warn("TMDB fetch failed", path, lastStatus, lastBodyText || lastError, { retries, durationMs });
         if (opts?.throwOnError) throw e;
         return null;
       }
