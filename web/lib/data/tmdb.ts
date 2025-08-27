@@ -109,6 +109,9 @@ export class ConfigurationManager {
     const url = `${this.baseUrl}${path}`;
     const maxRetries = 4;
     let attempt = 0;
+    let lastStatus: number | null = null;
+    let lastBodyText: string | undefined;
+    let lastError: unknown;
     while (attempt <= maxRetries) {
       try {
         const res = await fetch(url, {
@@ -124,12 +127,11 @@ export class ConfigurationManager {
           }
         }
 
-        // Log a compact error body preview
-        let bodyText = "";
+        // Capture a compact error body preview (only log after retries)
+        lastStatus = res.status;
         try {
-          bodyText = (await res.text()).slice(0, 160);
+          lastBodyText = (await res.text()).slice(0, 160);
         } catch {}
-        console.warn("TMDB fetch failed", path, res.status, bodyText);
 
         // Handle retry-able statuses
         if (res.status === 429 || (res.status >= 500 && res.status < 600)) {
@@ -157,10 +159,11 @@ export class ConfigurationManager {
         }
 
         // Non-retryable or exhausted retries
+        console.warn("TMDB fetch failed", path, lastStatus, lastBodyText);
         if (opts?.throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
         return null;
       } catch (e) {
-        console.warn("TMDB fetch error", path, e);
+        lastError = e;
         if (attempt < maxRetries) {
           const base = 500;
           const delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
@@ -168,6 +171,7 @@ export class ConfigurationManager {
           attempt += 1;
           continue;
         }
+        console.warn("TMDB fetch failed", path, lastStatus, lastBodyText || lastError);
         if (opts?.throwOnError) throw e;
         return null;
       }
