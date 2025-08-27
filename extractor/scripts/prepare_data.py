@@ -1,131 +1,50 @@
 """Prepare and publish structured data to GCS for the API.
 
 Inputs expected in the bucket under the raw prefix (default: ``videos/``):
-- videos/{video_id}/video.json
-- videos/{video_id}/movies.json
+- /videos/{video_id}/video.json (PlaylistItemPersonnalites)
+- /videos/{video_id}/movies.json (MediaItemsTimestamps)
 
 Outputs produced under the data prefix (default: ``data/``), mirroring
 the website structure:
-- data/video/{video_id}.json (VideoDataFull)
-- data/film/{movie_id}.json (MediaIdData)
-- data/film/meilleurs.json (BestMediaData)
-- data/serie/{serie_id}.json (MediaIdData)
-- data/serie/meilleures.json (BestMediaData)
-- data/personne/{person_id}.json (PersonneIdData)
-- data/video.json (feed) (VideoFeedData)
+- /data/video/{video_id}.json (VideoDataFull)
+- /data/film/{movie_id}.json (MediaIdData)
+- /data/film/meilleurs.json (BestMediaData)
+- /data/serie/{serie_id}.json (MediaIdData)
+- /data/serie/meilleures.json (BestMediaData)
+- /data/personne/{person_id}.json (PersonneIdData)
+- /data/video.json (feed) (VideoFeedData)
 """
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
-from datetime import date
 from pathlib import Path
-from typing import Literal
 
-import google.api_core.exceptions
+from extractor.models import (
+    VideoDataFull,
+    Personnalite,
+    MediaItemWithTime,
+    VideoDataShort,
+    VideoFeedData,
+    CitationPersonnalite,
+    MediaIdData,
+    MediaItem,
+    Citation,
+    CitationMedia,
+    PersonneIdData,
+    CitationWithName,
+    CitationMediaWithName,
+    BestMediaData,
+)
 from extractor.movies.models import MediaItemsTimestamps
 from extractor.video.models import PlaylistItemPersonnalites
 from extractor.youtube.youtube import get_videos_videoclub
+
+import google.api_core.exceptions
 from google.cloud import storage
-from pydantic import BaseModel
 
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class Personnalite:
-    name: str | None
-    person_id: int | None
-
-
-@dataclass
-class MediaItemWithTime:
-    id: int | None
-    type: Literal["movie", "tv"]
-    title: str | None
-    release_year: date | None
-    start_time: int
-    end_time: int
-
-
-class VideoDataFull(BaseModel):
-    """videos/{video_id}/video.json"""
-    video_id: str
-    personnalites: list[Personnalite]
-    media_data: list[MediaItemWithTime]
-
-
-@dataclass
-class VideoDataShort:
-    video_id: str
-    name: str
-    release_date: date
-
-
-class VideoFeedData(BaseModel):
-    """data/video.json (feed)"""
-    feed: list[VideoDataShort]
-
-
-@dataclass
-class CitationPersonnalite:
-    personnalite: Personnalite
-    videoIds: list[str]
-
-
-class MediaIdData(BaseModel):
-    """/film/{id}.json and /serie/{id}.json"""
-    id: int | None
-    title: str | None
-    release_year: date | None
-    citations: list[CitationPersonnalite]
-
-
-@dataclass
-class MediaItem:
-    id: int | None
-    type: Literal["movie", "tv"]
-    title: str | None
-    release_year: date | None
-
-
-@dataclass
-class Citation:
-    videoId: str
-    start_time: int
-    end_time: int
-
-
-@dataclass
-class CitationMedia:
-    media: MediaItem
-    citations: list[Citation]
-
-
-class PersonneIdData(BaseModel):
-    """/personne/{id}.json"""
-    name: str | None
-    videos: list[VideoDataShort]
-    citations: list[CitationMedia]
-
-
-@dataclass
-class CitationWithName:
-    videoId: str
-    start_time: int
-    end_time: int
-    name: str | None
-
-@dataclass
-class CitationMedia2:
-    media: MediaItem
-    citations: list[CitationWithName]
-
-class BestMediaData(BaseModel):
-    """/film/meilleurs.json"""
-    media: list[CitationMedia2]
 
 
 def get_bucket(bucket_name: str) -> storage.Bucket:
@@ -191,7 +110,7 @@ def build_media_data(media_items: MediaItemsTimestamps) -> list[MediaItemWithTim
 def write_video_json(
     bucket: storage.Bucket, data_prefix: Path, video_id: str, data: VideoDataFull
 ) -> None:
-    """Write the per-video JSON document under ``data/video/{video_id}.json``."""
+    """Write the per-video JSON document under ``/data/video/{video_id}.json``."""
     blob_name = str(data_prefix / "video" / f"{video_id}.json")
     bucket.blob(blob_name).upload_from_string(
         data.model_dump_json(), content_type="application/json"
@@ -209,7 +128,7 @@ def collect_feed_and_database(
 ]:
     """Build the feed and the working database from available videos.
 
-    Also writes ``data/video/{video_id}.json`` for each processed video.
+    Also writes ``/data/video/{video_id}.json`` for each processed video.
     """
     items = get_videos_videoclub()
     feed: list[VideoDataShort] = []
@@ -266,8 +185,8 @@ def export_media_by_id(
     data_prefix: Path,
     database: list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]],
 ) -> None:
-    """Export per-media JSON by ID for movies and series 
-    under /(serie|film)/{id}.json."""
+    """Export per-media JSON by ID for movies and series
+    under /data/(serie|film)/{id}.json."""
     # Movies
     for movie_id in set([m.id for _, m, _ in database if m.type == "movie"]):
         movie_data = [
@@ -304,7 +223,6 @@ def export_media_by_id(
             film_data.model_dump_json(), content_type="application/json"
         )
         logger.info(f"Wrote {blob}")
-
 
     # Series
     for serie_id in set([m.id for _, m, _ in database if m.type == "tv"]):
@@ -349,7 +267,7 @@ def export_person_by_id(
     data_prefix: Path,
     database: list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]],
 ) -> None:
-    """Export per-person JSON documents under ``data/personne/{id}.json``."""
+    """Export per-person JSON documents under ``/data/personne/{id}.json``."""
     for person_id in set([p.person_id for _, _, p in database]):
         person_rows = [
             (video_id, m, p) for video_id, m, p in database if p.person_id == person_id
@@ -408,14 +326,15 @@ def export_best_media(
     data_prefix: Path,
     database: list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]],
 ) -> None:
-    """Export best-of lists for movies and series under /(serie|film)/meilleurs.json."""
+    """Export best-of lists for movies and series
+    under /data/(serie|film)/meilleurs.json."""
     # Movies best-of
-    best_movie_data: dict[int, CitationMedia2] = {}
+    best_movie_data: dict[int, CitationMediaWithName] = {}
     for video_data, m, p in database:
         if m.type == "movie":
             key = m.id
             if key and key not in best_movie_data:
-                best_movie_data[key] = CitationMedia2(
+                best_movie_data[key] = CitationMediaWithName(
                     media=MediaItem(
                         id=m.id,
                         type=m.type,
@@ -445,12 +364,12 @@ def export_best_media(
     logger.info(f"Wrote {blob}")
 
     # Series best-of
-    best_serie_data: dict[int, CitationMedia2] = {}
+    best_serie_data: dict[int, CitationMediaWithName] = {}
     for video_data, m, p in database:
         if m.type == "tv":
             key = m.id
             if key and key not in best_serie_data:
-                best_serie_data[key] = CitationMedia2(
+                best_serie_data[key] = CitationMediaWithName(
                     media=MediaItem(
                         id=m.id,
                         type=m.type,
@@ -483,7 +402,7 @@ def export_best_media(
 def export_feed(
     bucket: storage.Bucket, data_prefix: Path, feed: list[VideoDataShort]
 ) -> None:
-    """Export the global feed under ``/video.json``."""
+    """Export the global feed under ``/data/video.json``."""
     blob = str(data_prefix / "video.json")
     bucket.blob(blob).upload_from_string(
         VideoFeedData(feed=feed).model_dump_json(), content_type="application/json"

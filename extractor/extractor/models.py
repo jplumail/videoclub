@@ -1,4 +1,109 @@
-from extractor.movies.models import MediaItemsTimestamps
-from extractor.video.models import PlaylistItemPersonnalites
+from dataclasses import dataclass
+from datetime import date
+from typing import Literal
+from pydantic import BaseModel
 
-__all__ = ["MediaItemsTimestamps", "PlaylistItemPersonnalites"]
+
+@dataclass
+class Personnalite:
+    name: str | None
+    person_id: int | None
+
+
+@dataclass
+class MediaItemWithTime:
+    id: int | None
+    type: Literal["movie", "tv"]
+    title: str | None
+    release_year: date | None
+    start_time: int
+    end_time: int
+
+
+class VideoDataFull(BaseModel):
+    """/videos/{video_id}/video.json"""
+    video_id: str
+    personnalites: list[Personnalite]
+    media_data: list[MediaItemWithTime]
+
+
+@dataclass
+class VideoDataShort:
+    video_id: str
+    name: str
+    release_date: date
+
+
+class VideoFeedData(BaseModel):
+    """/data/video.json (feed)"""
+    feed: list[VideoDataShort]
+
+
+@dataclass
+class CitationPersonnalite:
+    personnalite: Personnalite
+    videoIds: list[str]
+
+
+class MediaIdData(BaseModel):
+    """/film/{id}.json and /serie/{id}.json"""
+    id: int | None
+    title: str | None
+    release_year: date | None
+    citations: list[CitationPersonnalite]
+
+
+@dataclass
+class MediaItem:
+    id: int | None
+    type: Literal["movie", "tv"]
+    title: str | None
+    release_year: date | None
+
+
+@dataclass
+class Citation:
+    videoId: str
+    start_time: int
+    end_time: int
+
+
+@dataclass
+class CitationMedia:
+    media: MediaItem
+    citations: list[Citation]
+
+
+class PersonneIdData(BaseModel):
+    """/personne/{id}.json"""
+    name: str | None
+    videos: list[VideoDataShort]
+    citations: list[CitationMedia]
+
+
+@dataclass
+class CitationWithName:
+    videoId: str
+    start_time: int
+    end_time: int
+    name: str | None
+
+
+@dataclass
+class CitationMediaWithName:
+    media: MediaItem
+    citations: list[CitationWithName]
+
+
+class BestMediaData(BaseModel):
+    """/film/meilleurs.json"""
+    media: list[CitationMediaWithName]
+
+
+__all__ = [
+    "VideoDataFull",
+    "MediaIdData",
+    "BestMediaData",
+    "PersonneIdData",
+    "VideoFeedData",
+]
