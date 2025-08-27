@@ -46,8 +46,8 @@ export interface FetchMeta {
   at: string;
 }
 
-export type FetchWithRetryResult =
-  | { ok: true; data: any; meta: FetchMeta }
+export type FetchWithRetryResult<T = unknown> =
+  | { ok: true; data: T; meta: FetchMeta }
   | {
       ok: false;
       status: number | null;
@@ -56,13 +56,13 @@ export type FetchWithRetryResult =
       meta: FetchMeta;
     };
 
-export async function fetchWithRetry(
+export async function fetchWithRetry<T = unknown>(
   url: string,
   init: RequestInit,
   options: RetryOptions,
   withLimit?: Limiter,
-): Promise<FetchWithRetryResult> {
-  const run = async (): Promise<FetchWithRetryResult> => {
+): Promise<FetchWithRetryResult<T>> {
+  const run = async (): Promise<FetchWithRetryResult<T>> => {
     const start = Date.now();
     let status: number | null = null;
     let bodyPreview: string | undefined;
@@ -74,7 +74,7 @@ export async function fetchWithRetry(
         status = res.status;
         if (res.ok) {
           try {
-            const data = await res.json();
+            const data = (await res.json()) as T;
             return {
               ok: true,
               data,
@@ -152,4 +152,3 @@ function backoff(attemptIndex: number, options: RetryOptions, retryAfter?: strin
   const jitter = Math.floor(Math.random() * options.jitterMs);
   return exp + jitter;
 }
-

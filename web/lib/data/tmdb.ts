@@ -66,8 +66,8 @@ export class ConfigurationManager {
 
   private static async getTheMovieDBConfig(): Promise<ConfigurationDetails> {
     try {
-      const data = await this.tmdbJson(`/configuration`, true);
-      return data as ConfigurationDetails;
+      const data = await this.tmdbJson<ConfigurationDetails>(`/configuration`, true);
+      return data;
     } catch (err) {
       console.error("TMDB configuration retrieval error", err);
       throw err;
@@ -130,14 +130,16 @@ export class ConfigurationManager {
     };
   }
 
-  private static async tmdbJson(path: string, throwOnError = false) {
-    const res = await fetchWithRetry(
+  private static async tmdbJson<T>(path: string, throwOnError: true): Promise<T>;
+  private static async tmdbJson<T>(path: string, throwOnError?: false): Promise<T | null>;
+  private static async tmdbJson<T>(path: string, throwOnError = false) {
+    const res = await fetchWithRetry<T>(
       `${this.baseUrl}${path}`,
       { method: "GET", headers: this.authHeaders(), cache: "force-cache" },
       this.RETRY,
       this.limiter,
     );
-    if (res.ok) return res.data;
+    if (res.ok) return res.data as T;
     if (res.status !== null && this.RETRY.retryable(res.status)) {
       // Log only after retries exhausted
       console.warn("TMDB fetch failed", path, res.status, res.bodyPreview ?? res.error, res.meta);
@@ -153,7 +155,7 @@ export class ConfigurationManager {
     if (!id) return undefined;
     const key = `${type}:${id}`;
     if (!this.posterPathCache.has(key)) {
-      const data = await this.tmdbJson(`/${type}/${id}`);
+      const data = await this.tmdbJson<{ poster_path: string | null }>(`/${type}/${id}`);
       const val: string | null = data?.poster_path ?? null;
       this.posterPathCache.set(key, val);
     }
@@ -165,7 +167,7 @@ export class ConfigurationManager {
   public static async getProfileUrlById(personId: number | null) {
     if (!personId) return undefined;
     if (!this.profilePathCache.has(personId)) {
-      const data = await this.tmdbJson(`/person/${personId}`);
+      const data = await this.tmdbJson<{ profile_path: string | null }>(`/person/${personId}`);
       const val: string | null = data?.profile_path ?? null;
       this.profilePathCache.set(personId, val);
     }
@@ -183,10 +185,10 @@ export class ConfigurationManager {
     const key = `${type}:${id}:${language}`;
     if (this.overviewCache.has(key)) return this.overviewCache.get(key) ?? null;
     const query = new URLSearchParams({ language });
-    const data = await this.tmdbJson(`/${type}/${id}?${query.toString()}`);
+    const data = await this.tmdbJson<{ overview?: string | null }>(`/${type}/${id}?${query.toString()}`);
     let overview: string | null = data?.overview ?? null;
     if (!overview || overview.trim() === "") {
-      const dataEn = await this.tmdbJson(`/${type}/${id}?language=en-US`);
+      const dataEn = await this.tmdbJson<{ overview?: string | null }>(`/${type}/${id}?language=en-US`);
       overview = dataEn?.overview ?? null;
     }
     const normalized = overview && overview.trim() !== "" ? overview : null;
