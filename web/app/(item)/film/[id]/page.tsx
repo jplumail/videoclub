@@ -1,12 +1,8 @@
 import { MovieDetails } from "../../movieDetails";
 import { BucketManager } from "@/lib/data/bucket";
 export async function generateStaticParams() {
-  const allMovies = await BucketManager.getMediaByPersonnalites({
-    media_type: "movie",
-  });
-  return allMovies.map((movie) => ({
-    id: movie.movie.id?.toString(),
-  }));
+  const index = await BucketManager.getIndex("film");
+  return index.ids.map((id) => ({ id }));
 }
 
 export default async function Page({
@@ -15,9 +11,6 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const movieId = (await params).id;
-  const movie = await BucketManager.getMediaByPersonnalites({
-    id: movieId,
-    media_type: "movie",
-  });
-  return movie && <MovieDetails movie={movie}></MovieDetails>;
+  const movie = await BucketManager.getMediaById("film", movieId);
+  return movie && <MovieDetails movie={movie} kind="film" />;
 }

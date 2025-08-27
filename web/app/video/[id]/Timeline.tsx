@@ -1,4 +1,4 @@
-import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
+import { MediaItem } from "@/lib/backend/types";
 import styles from "./Timeline.module.css";
 import { slugify } from "@/lib/utils";
 import { MovieCardSync, PosterProps } from "@/components/MovieCard";
@@ -13,13 +13,7 @@ function getSeconds(seconds: number) {
   return (seconds % 60).toString().padStart(2, "0");
 }
 
-export function Timecode({
-  time_offset,
-  setTimecode,
-}: {
-  time_offset: TimeOffset;
-  setTimecode: (timecode: TimeOffset) => void;
-}) {
+export function Timecode({ time_offset, setTimecode }: { time_offset: number; setTimecode: (timecode: number) => void; }) {
   return (
     <a
       href={"#"}
@@ -27,25 +21,22 @@ export function Timecode({
       className={styles.timecode}
     >
       <p>
-        {getMinutes(time_offset.seconds || 0)}:
-        {getSeconds(time_offset.seconds || 0)}
+        {getMinutes(time_offset || 0)}:{getSeconds(time_offset || 0)}
       </p>
     </a>
   );
 }
 
 export interface Timestamp {
-  start_time: TimeOffset;
-  end_time: TimeOffset;
-  confidence: number;
+  start_time: number;
+  end_time: number;
 }
 
 export interface MovieDataTimestamps {
   item: {
     timestamps: Timestamp[];
-    details: PartialMedia;
+    details: MediaItem;
     type: "movie" | "tv";
-    crew: Person[] | null;
     release_year: string | null;
   };
   poster: React.ReactElement<PosterProps>;
@@ -56,21 +47,20 @@ export function Timeline({
   setTimecode,
 }: {
   movies: MovieDataTimestamps[];
-  setTimecode: (timecode: TimeOffset) => void;
+  setTimecode: (timecode: number) => void;
 }) {
   // sort movies
   movies.sort((a, b) => {
     return (
-      Math.min(...a.item.timestamps.map((t) => t.start_time.seconds || 3600)) -
-      Math.min(...b.item.timestamps.map((t) => t.start_time.seconds || 3600))
+      Math.min(...a.item.timestamps.map((t) => t.start_time || 3600)) -
+      Math.min(...b.item.timestamps.map((t) => t.start_time || 3600))
     );
   });
   return (
     <div className={styles.container}>
       <div className={styles.content}>
         {movies.map((movie, key) => {
-          const title =
-            movie.item.details.title || movie.item.details.name || "";
+          const title = movie.item.details.title || "";
           return (
             <div
               key={key}

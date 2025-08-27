@@ -1,6 +1,6 @@
 "use client";
 
-import type { Person, PlaylistItemPersonnalites, TimeOffset } from "@/lib/backend/types";
+import type { Personnalite, VideoDataFull } from "@/lib/backend/types";
 import { useState, useEffect } from "react";
 import { MovieDataTimestamps, Timeline } from "./Timeline";
 import { useYoutubePlayer } from "@/lib/hooks/useYoutubePlayer";
@@ -8,50 +8,44 @@ import styles from "./videoPlayer.module.css";
 import Link from "next/link";
 import { getTitle, slugify } from "@/lib/utils";
 
-function YoutubeIframePlayer({
-  videoId,
-  timecode,
-}: {
-  videoId: string;
-  timecode: TimeOffset;
-}) {
+function YoutubeIframePlayer({ videoId, timecode }: { videoId: string; timecode: number; }) {
   const youtubePlayer = useYoutubePlayer(
     videoId,
     () => {
-      if (timecode.seconds) {
-        youtubePlayer.player?.seekTo(timecode.seconds, true);
+      if (timecode) {
+        youtubePlayer.player?.seekTo(timecode, true);
       }
     },
     "player",
   );
 
   useEffect(() => {
-    if (youtubePlayer.isAPIReady && youtubePlayer.player && timecode.seconds) {
-      youtubePlayer.player.seekTo(timecode.seconds, true);
+    if (youtubePlayer.isAPIReady && youtubePlayer.player && timecode) {
+      youtubePlayer.player.seekTo(timecode, true);
       if (window.location.hash) {
         youtubePlayer.player.mute();
         youtubePlayer.player.playVideo();
       }
     }
-  }, [timecode.seconds, youtubePlayer.isAPIReady, youtubePlayer.player]);
+  }, [timecode, youtubePlayer.isAPIReady, youtubePlayer.player]);
 
   return <div id="player" className={styles.playerIframe}></div>;
 }
 
-const PersonLink = ({ person }: { person: Person }) => (
-  <Link className={styles.personnaliteLink} href={`/personne/${person.id}`}>
+const PersonLink = ({ person }: { person: Personnalite }) => (
+  <Link className={styles.personnaliteLink} href={`/personne/${person.person_id}`}>
     {person.name}
   </Link>
 );
 
-function formatPersonnalites(personnalites: Person[]) {
+function formatPersonnalites(personnalites: Personnalite[]) {
   if (!personnalites?.length) return '';
   
   return (
     <>
       avec{' '}
       {personnalites.map((person, index) => (
-        <span key={person.id}>
+        <span key={person.person_id ?? index}>
           <PersonLink person={person} />
           {index === personnalites.length - 2 ? ' et ' : index < personnalites.length - 1 ? ', ' : ''}
         </span>
@@ -61,17 +55,17 @@ function formatPersonnalites(personnalites: Person[]) {
 }
 
 interface VideoPlayerProps {
-  video: PlaylistItemPersonnalites;
+  video: VideoDataFull;
   movies: MovieDataTimestamps[];
 }
 
 export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
-  const videoId = video.playlist_item.snippet.resourceId.videoId;
-  const personnalites = video.personnalites.filter(p => p !== null);
+  const videoId = video.video_id;
+  const personnalites = video.personnalites || [];
 
   // states pour gérer dynamiquement le hash et timecode
   const [movieSlug, setMovieSlug] = useState<string>("");
-  const [timecode, setTimecode] = useState<TimeOffset>({ seconds: 0 });
+  const [timecode, setTimecode] = useState<number>(0);
 
   // Récupérer le hash une fois le composant monté
   useEffect(() => {
@@ -83,7 +77,7 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
   useEffect(() => {
     const foundMovie = movies.find((m) => slugify(getTitle(m.item.details) || "") === movieSlug);
     if (foundMovie && foundMovie.item.timestamps && foundMovie.item.timestamps[0]?.start_time) {
-      setTimecode({ seconds: foundMovie.item.timestamps[0].start_time.seconds });
+      setTimecode(foundMovie.item.timestamps[0].start_time);
     }
   }, [movieSlug, movies]);
 

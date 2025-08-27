@@ -3,7 +3,10 @@ import styles from "./page.module.css";
 import VideoThumbnail from "@/components/videoThumbnail";
 
 export default async function Home() {
-  const videos = await BucketManager.getVideosSorted();
+  const feed = await BucketManager.getVideoFeed();
+  const videos = [...feed.feed].sort(
+    (a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+  );
 
   return (
     <main className={styles.videoContainer}>

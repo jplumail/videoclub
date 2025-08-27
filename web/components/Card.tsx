@@ -3,10 +3,10 @@
 import Link from "next/link";
 import styles from "./styles/Card.module.css";
 import { useState } from "react";
-import { PartialMedia, Person } from "@/lib/backend/types";
+import { MediaItem, Personnalite } from "@/lib/backend/types";
 
 export interface CardBaseProps {
-  item: Person | PartialMedia;
+  item: Personnalite | MediaItem;
   media?: React.ReactElement;
   children?: React.ReactNode;
   hasDetails?: boolean;
@@ -19,20 +19,21 @@ export function Card({
   hasDetails = true,
 }: CardBaseProps) {
   const [isActive, setIsActive] = useState(false);
-  const id = item.id || 0;
   let href = "";
   let title = "";
   let year: number | null = null;
-  if (item.media_type == "movie" || item.media_type == "tv") {
-    href = item.media_type === "movie" ? `/film/${id}` : `/serie/${id}`;
-    title = (item.title as string) || (item.name as string) || "";
-    const commonDate =
-      (item.release_date as string) || (item.first_air_date as string);
-    const date = commonDate ? new Date(commonDate) : null;
+  if ((item as MediaItem).type === "movie" || (item as MediaItem).type === "tv") {
+    const media = item as MediaItem;
+    const id = media.id ?? 0;
+    href = media.type === "movie" ? `/film/${id}` : `/serie/${id}`;
+    title = media.title || "";
+    const date = media.release_year ? new Date(media.release_year) : null;
     year = date ? date.getFullYear() : null;
   } else {
+    const person = item as Personnalite;
+    const id = person.person_id ?? 0;
     href = `/personne/${id}`;
-    title = item.name || "";
+    title = person.name || "";
   }
 
   return (

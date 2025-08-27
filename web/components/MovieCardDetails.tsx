@@ -1,4 +1,3 @@
-import { TimeOffset } from "@/lib/backend/types";
 import styles from "./styles/MovieCardDetails.module.css";
 import ytIconStyle from "./styles/yt-icon.module.css";
 import Link from "next/link";
@@ -12,7 +11,7 @@ interface MovieCardDetailsProps {
     };
     youtubeUrls: {
       videoId: string;
-      timestamp: TimeOffset;
+      timestamp: number;
     }[];
   }[];
 }
@@ -31,9 +30,9 @@ export default function MovieCardDetails({ items }: MovieCardDetailsProps) {
                 return (
                   <Link
                     key={video.videoId}
-                    href={getYoutubeUrl(
+                  href={getYoutubeUrl(
                       video.videoId,
-                      video.timestamp.seconds || null,
+                      video.timestamp ?? null,
                     )}
                     className={`${styles.link} ${ytIconStyle.ytIcon}`}
                     target="_blank"

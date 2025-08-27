@@ -1,44 +1,22 @@
-import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
+import { BestMediaData } from "@/lib/backend/types";
 import { getTitle, slugify } from "@/lib/utils";
 import styles from "./meilleurs.module.css";
 import utilsStyles from "@/components/styles/utils.module.css";
 import { MovieCard } from "@/components/MovieCard";
 import MovieCardDetails from "@/components/MovieCardDetails";
 
-async function LeaderBoardItem({
-  item,
-  rank,
-}: {
-  item: {
-    movie: PartialMedia;
-    personnalites: {
-      person: Person;
-      videos: {
-        videoId: string;
-        timestamps: {
-          start_time: TimeOffset;
-          end_time: TimeOffset;
-          confidence: number;
-        }[];
-      }[];
-    }[];
-  };
-  rank: number | null;
-}) {
+async function LeaderBoardItem({ item, rank }: { item: BestMediaData["media"][number]; rank: number | null; }) {
   return (
     <div className={styles.itemContainer}>
       <div className={styles.imageContainer}>
-        <MovieCard media={item.movie}>
+        <MovieCard media={item.media}>
           <ul className={styles.citeList}>
-            <MovieCardDetails items={Array.from(item.personnalites).map(p => ({
+            <MovieCardDetails items={item.citations.map(c => ({
               main: {
-                title: p.person.name || "",
-                href: `/video/${p.videos[0].videoId}#${slugify(getTitle(item.movie) || "")}`
+                title: c.name || "",
+                href: `/video/${c.videoId}#${slugify(getTitle(item.media) || "")}`
               },
-              youtubeUrls: p.videos.map(v => ({
-                videoId: v.videoId,
-                timestamp: v.timestamps[0]?.start_time || { seconds: 0 }
-              }))
+              youtubeUrls: [{ videoId: c.videoId, timestamp: c.start_time }]
             }))}/>
           </ul>
         </MovieCard>
@@ -48,7 +26,7 @@ async function LeaderBoardItem({
         <span
           className={`${styles.citationCount} ${styles.bottom} ${utilsStyles.textShadow}`}
         >
-          Cité {item.personnalites.length} fois
+          Cité {item.citations.length} fois
         </span>
       </div>
     </div>
@@ -58,24 +36,15 @@ async function LeaderBoardItem({
 export default async function Meilleurs({
   medias,
 }: {
-  medias: {
-    movie: PartialMedia;
-    personnalites: {
-      person: Person;
-      videos: {
-        videoId: string;
-        timestamps: {
-          start_time: TimeOffset;
-          end_time: TimeOffset;
-          confidence: number;
-        }[];
-      }[];
-    }[];
-  }[];
+  medias: BestMediaData;
 }) {
+  // Sort by number of citations (desc) without mutating the input
+  const sorted = [...medias.media].sort(
+    (a, b) => b.citations.length - a.citations.length
+  );
   return (
     <ol className={styles.liste}>
-      {medias.map((item, key) => {
+      {sorted.map((item, key) => {
         return (
           <li key={key}>
             <LeaderBoardItem item={item} rank={key < 9 ? key + 1 : null} />

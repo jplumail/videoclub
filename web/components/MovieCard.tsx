@@ -1,18 +1,19 @@
-import { PartialMedia } from "@/lib/backend/types";
+import { MediaItem } from "@/lib/backend/types";
 import { ConfigurationManager } from "@/lib/data/tmdb";
-import Image from "next/image";
 import styles from "./styles/Card.module.css";
 import { Card } from "./Card";
+import Image from "next/image";
 
 export interface PosterProps {
-  media: PartialMedia;
+  media: MediaItem;
 }
 
 export async function Poster({ media }: PosterProps) {
-  const poster = media.poster_path
-    ? await ConfigurationManager.getPosterUrl(media.poster_path)
-    : undefined;
-  const title = media.title || media.name || "";
+  const poster = await ConfigurationManager.getPosterUrlById(
+    media.type,
+    media.id ?? null,
+  );
+  const title = media.title || "";
   return (
     <div className={styles.link}>
       {poster && (
@@ -29,7 +30,7 @@ export async function Poster({ media }: PosterProps) {
 
 
 interface MovieCardProps {
-  media: PartialMedia;
+  media: MediaItem;
   poster?: React.ReactElement<PosterProps>;
   children?: React.ReactNode;
   hasDetails?: boolean;
@@ -53,13 +54,6 @@ export function MovieCardSync({
   );
 }
 
-
-interface MovieCardProps {
-  media: PartialMedia;
-  poster?: React.ReactElement<PosterProps>;
-  children?: React.ReactNode;
-  hasDetails?: boolean;
-}
 
 export async function MovieCard({
   media,

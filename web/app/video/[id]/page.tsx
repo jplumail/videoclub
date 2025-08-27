@@ -1,24 +1,22 @@
-import { MediaItemTimestamp } from "@/lib/backend/types";
+import { MediaItemWithTime } from "@/lib/backend/types";
 import { BucketManager } from "@/lib/data/bucket";
 import VideoPlayer from "./videoPlayer";
 import { Poster } from "@/components/MovieCard";
 
-function getUniqueMoviesData(moviesData: MediaItemTimestamp[]) {
+function getUniqueMoviesData(moviesData: MediaItemWithTime[]) {
   const moviesSet = new Set();
   return moviesData.filter((item) => {
-    if (moviesSet.has(item.media_item.details.id)) {
+    if (moviesSet.has(item.id)) {
       return false;
     }
-    moviesSet.add(item.media_item.details.id);
+    moviesSet.add(item.id);
     return true;
   });
 }
 
 export async function generateStaticParams() {
-  const allVideos = await BucketManager.getVideos();
-  return allVideos.map((video) => ({
-    id: video.playlist_item.snippet.resourceId.videoId,
-  }));
+  const feed = await BucketManager.getVideoFeed();
+  return feed.feed.map((v) => ({ id: v.video_id }));
 }
 
 export default async function Page({
@@ -27,9 +25,9 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const videoId = (await params).id;
-  const moviesData = await BucketManager.getMovies(videoId);
-  const videoData = await BucketManager.getVideos({videoId: videoId});
-  if (moviesData == null) {
+  const videoData = await BucketManager.getVideo(videoId);
+  const moviesData = videoData.media_data;
+  if (!moviesData?.length) {
     return <div>Pas de données disponibles</div>;
   }
 
@@ -40,25 +38,31 @@ export default async function Page({
   const aggregatedMoviesData = uniqueMoviesData.map((item) => {
     const timestamps = moviesData
       .filter(
-        (timestamp) =>
-          timestamp.media_item.details.id === item.media_item.details.id,
+        (timestamp) => timestamp.id === item.id,
       )
       .map((timestamp) => ({
         start_time: timestamp.start_time,
         end_time: timestamp.end_time,
-        confidence: timestamp.confidence,
-      }))
-      .filter((timestamp) => timestamp.confidence > 0.5);
+      }));
     return {
-      ...item.media_item,
-      timestamps,
+      item: {
+        timestamps,
+        details: {
+          id: item.id,
+          type: item.type,
+          title: item.title,
+          release_year: item.release_year,
+        },
+        type: item.type,
+        release_year: item.release_year,
+      },
     };
   });
 
   const movies = await Promise.all(
     aggregatedMoviesData.map(async (item) => ({
-      item: item,
-      poster: <Poster media={item.details} />,
+      item: item.item,
+      poster: <Poster media={item.item.details} />,
     })),
   );
 

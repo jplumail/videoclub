@@ -1,22 +1,19 @@
-import { Person } from "@/lib/backend/types";
+import { Personnalite } from "@/lib/backend/types";
 import { ConfigurationManager } from "@/lib/data/tmdb";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import styles from "./styles/Card.module.css";
 import { Card } from "./Card";
 
 export interface ProfileProps {
-  person: Person;
+  person: Personnalite;
 }
 
 export async function Profile({ person }: ProfileProps) {
-  const profile = person.profile_path
-    ? await ConfigurationManager.getProfileUrl(person.profile_path)
-    : undefined;
   const name = person.name || "";
-  const id = person.id || 0;
+  const id = person.person_id || 0;
   const href = `/personne/${id}`;
-
+  const profile = await ConfigurationManager.getProfileUrlById(person.person_id ?? null);
   return (
     <Link href={href} className={styles.link}>
       {profile && (
@@ -32,7 +29,7 @@ export async function Profile({ person }: ProfileProps) {
 }
 
 interface PersonCardProps {
-  person: Person;
+  person: Personnalite;
   profile?: React.ReactElement<ProfileProps>;
   children?: React.ReactNode;
   hasDetails?: boolean;

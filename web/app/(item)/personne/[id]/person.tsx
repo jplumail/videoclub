@@ -1,30 +1,17 @@
-import { PartialMedia, Person, TimeOffset } from "@/lib/backend/types";
-import { BucketManager } from "@/lib/data/bucket";
+import { PersonneIdData } from "@/lib/backend/types";
 import { MovieCard } from "@/components/MovieCard";
-import VideoThumbnail from "@/components/videoThumbnail";
 import MovieCardDetails from "@/components/MovieCardDetails";
 import Gallery from "@/components/Gallery";
 import { slugify } from "@/lib/utils";
 import ytIconStyle from "@/components/styles/yt-icon.module.css";
+import VideoThumbnail from "@/components/videoThumbnail";
 
 export async function PersonComponent({
   personData,
 }: {
-  personData: {
-    personnalite: {
-      person: Person;
-      videos: Set<string>;
-    };
-    movies: {
-      movie: PartialMedia;
-      timestamps: {
-        videoId: string;
-        timestamp: TimeOffset;
-      }[];
-    }[];
-  };
+  personData: PersonneIdData;
 }) {
-  const person = personData.personnalite.person;
+  const person = { name: personData.name };
   return (
     <>
       <h1>{person.name} </h1>
@@ -40,56 +27,39 @@ export async function PersonComponent({
             >
               Vidéos <div className={ytIconStyle.ytIcon} />
             </h2>
-            <ul>
-              {Array.from(personData.personnalite.videos).map(
-                async (videoId, key) => {
-                  const videoItem = await BucketManager.getVideos({
-                    videoId,
-                  });
-                  return (
-                    <VideoThumbnail
-                      key={key}
-                      video={videoItem}
-                      details={false}
-                    />
-                  );
-                },
-              )}
-            </ul>
+            <Gallery>
+              {personData.videos.map((v, key) => (
+                <li key={key}>
+                  <VideoThumbnail video={v} />
+                </li>
+              ))}
+            </Gallery>
           </div>
         </div>
       </section>
       <section>
         <h2>Films cités</h2>
         <Gallery>
-          {await Promise.all(
-            Array.from(personData.movies.values()).map(async (movie) => {
-              return (
-                <li key={movie.movie.id}>
-                  <MovieCard media={movie.movie}>
-                    <MovieCardDetails
-                      items={await Promise.all(
-                        movie.timestamps.map(async (t) => ({
-                          main: {
-                            title: await BucketManager.getVideos({
-                              videoId: t.videoId,
-                            }).then((v) => v.playlist_item.snippet.title),
-                            href: `/video/${t.videoId}#${slugify(movie.movie.title || movie.movie.name || "")}`,
-                          },
-                          youtubeUrls: [
-                            {
-                              videoId: t.videoId,
-                              timestamp: t.timestamp,
-                            },
-                          ],
-                        })),
-                      )}
-                    />
-                  </MovieCard>
-                </li>
-              );
-            }),
-          )}
+          {personData.citations.map((c, idx) => (
+            <li key={idx}>
+              <MovieCard media={c.media}>
+                <MovieCardDetails
+                  items={c.citations.map((t) => ({
+                    main: {
+                      title: personData.name || "",
+                      href: `/video/${t.videoId}#${slugify(c.media.title || "")}`,
+                    },
+                    youtubeUrls: [
+                      {
+                        videoId: t.videoId,
+                        timestamp: t.start_time,
+                      },
+                    ],
+                  }))}
+                />
+              </MovieCard>
+            </li>
+          ))}
         </Gallery>
       </section>
     </>

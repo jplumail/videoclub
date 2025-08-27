@@ -1,4 +1,4 @@
-import { PartialMedia } from "./backend/types";
+import { MediaItem } from "./backend/types";
 
 export function slugify(s: string): string {
   return s
@@ -16,6 +16,6 @@ export function getYoutubeUrl(videoId: string, timecode: number | null) {
   return `https://www.youtube.com/watch?v=${videoId}&t=${timecode}s`;
 }
 
-export function getTitle(media: PartialMedia) {
-  return media.title || media.name || null;
+export function getTitle(media: MediaItem) {
+  return media.title || null;
 }
