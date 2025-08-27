@@ -7,11 +7,15 @@ Inputs expected in the bucket under the raw prefix (default: ``videos/``):
 Outputs produced under the data prefix (default: ``data/``), mirroring
 the website structure:
 - /data/video/{video_id}.json (VideoDataFull)
+- /data/video/index.json (Index)
 - /data/film/{movie_id}.json (MediaIdData)
 - /data/film/meilleurs.json (BestMediaData)
+- /data/film/index.json (Index)
 - /data/serie/{serie_id}.json (MediaIdData)
 - /data/serie/meilleures.json (BestMediaData)
+- /data/serie/index.json (Index)
 - /data/personne/{person_id}.json (PersonneIdData)
+- /data/personne/index.json (Index)
 - /data/video.json (feed) (VideoFeedData)
 """
 
@@ -19,9 +23,11 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+import json
 
 from extractor.models import (
     VideoDataFull,
+    Index,
     Personnalite,
     MediaItemWithTime,
     VideoDataShort,
@@ -410,6 +416,56 @@ def export_feed(
     logger.info(f"Wrote {blob}")
 
 
+def export_indices(
+    bucket: storage.Bucket,
+    data_prefix: Path,
+    feed: list[VideoDataShort],
+    database: list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]],
+) -> None:
+    """Export index.json files for video, film, serie and personne."""
+    # /data/video/index.json
+    video_ids = [v.video_id for v in feed]
+    blob = str(data_prefix / "video" / "index.json")
+    bucket.blob(blob).upload_from_string(
+        Index(ids=video_ids).model_dump_json(),
+        content_type="application/json",
+    )
+    logger.info(f"Wrote {blob}")
+
+    # /data/film/index.json
+    movie_ids = sorted(
+        {m.id for _, m, _ in database if m.type == "movie" and m.id is not None}
+    )
+    blob = str(data_prefix / "film" / "index.json")
+    bucket.blob(blob).upload_from_string(
+        json.dumps({"ids": movie_ids}),
+        content_type="application/json",
+    )
+    logger.info(f"Wrote {blob}")
+
+    # /data/serie/index.json
+    serie_ids = sorted(
+        {m.id for _, m, _ in database if m.type == "tv" and m.id is not None}
+    )
+    blob = str(data_prefix / "serie" / "index.json")
+    bucket.blob(blob).upload_from_string(
+        json.dumps({"ids": serie_ids}),
+        content_type="application/json",
+    )
+    logger.info(f"Wrote {blob}")
+
+    # /data/personne/index.json
+    person_ids = sorted(
+        {p.person_id for _, _, p in database if p.person_id is not None}
+    )
+    blob = str(data_prefix / "personne" / "index.json")
+    bucket.blob(blob).upload_from_string(
+        json.dumps({"ids": person_ids}),
+        content_type="application/json",
+    )
+    logger.info(f"Wrote {blob}")
+
+
 def prepare_data(
     bucket_name: str = "videoclub-test",
     video_raw_data_prefix: Path = Path("videos"),
@@ -434,6 +490,7 @@ def prepare_data(
     export_person_by_id(bucket, data_prefix, database)
     export_best_media(bucket, data_prefix, database)
     export_feed(bucket, data_prefix, feed)
+    export_indices(bucket, data_prefix, feed, database)
 
 
 if __name__ == "__main__":

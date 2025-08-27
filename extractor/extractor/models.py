@@ -27,6 +27,11 @@ class VideoDataFull(BaseModel):
     media_data: list[MediaItemWithTime]
 
 
+class Index(BaseModel):
+    """/data/video/index.json"""
+    ids: list[str]
+
+
 @dataclass
 class VideoDataShort:
     video_id: str
@@ -102,6 +107,7 @@ class BestMediaData(BaseModel):
 
 __all__ = [
     "VideoDataFull",
+    "Index",
     "MediaIdData",
     "BestMediaData",
     "PersonneIdData",
