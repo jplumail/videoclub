@@ -17,6 +17,9 @@ export class ConfigurationManager {
   private static posterPathCache = new Map<string, string | null>();
   private static profilePathCache = new Map<number, string | null>();
   private static overviewCache = new Map<string, string | null>();
+  private static maxConcurrent = 4;
+  private static activeCount = 0;
+  private static waitQueue: Array<() => void> = [];
 
   private constructor() {}
 
@@ -101,11 +104,23 @@ export class ConfigurationManager {
       url: `${secureBaseUrl}${profileSize}${profilePath}`,
     };
   }
-  
+
   private static async fetchTMDB(
     path: string,
     opts?: { throwOnError?: boolean },
   ) {
+    // Simple in-process concurrency limiter
+    await new Promise<void>((resolve) => {
+      if (this.activeCount < this.maxConcurrent) {
+        this.activeCount += 1;
+        resolve();
+      } else {
+        this.waitQueue.push(() => {
+          this.activeCount += 1;
+          resolve();
+        });
+      }
+    });
     const url = `${this.baseUrl}${path}`;
     const maxRetries = 4;
     let attempt = 0;
@@ -113,78 +128,87 @@ export class ConfigurationManager {
     let lastStatus: number | null = null;
     let lastBodyText: string | undefined;
     let lastError: unknown;
-    while (attempt <= maxRetries) {
-      try {
-        const res = await fetch(url, {
-          method: "GET",
-          headers: this.authHeaders(),
-          cache: "force-cache",
-        });
-        if (res.ok) {
-          try {
-            return await res.json();
-          } catch {
-            return null;
-          }
-        }
-
-        // Capture a compact error body preview (only log after retries)
-        lastStatus = res.status;
+    try {
+      while (attempt <= maxRetries) {
         try {
-          lastBodyText = (await res.text()).slice(0, 160);
-        } catch {}
-
-        // Handle retry-able statuses
-        const isRetryable = res.status === 429 || (res.status >= 500 && res.status < 600);
-        if (isRetryable && attempt < maxRetries) {
-          const retryAfter = res.headers.get("retry-after");
-          let delayMs = 0;
-          if (retryAfter) {
-            const secs = Number(retryAfter);
-            if (!Number.isNaN(secs)) {
-              delayMs = Math.max(0, secs) * 1000;
-            } else {
-              const date = new Date(retryAfter).getTime();
-              delayMs = Math.max(0, date - Date.now());
+          const res = await fetch(url, {
+            method: "GET",
+            headers: this.authHeaders(),
+            cache: "force-cache",
+          });
+          if (res.ok) {
+            try {
+              return await res.json();
+            } catch {
+              return null;
             }
           }
-          if (!delayMs) {
-            // Exponential backoff with jitter
-            const base = 500; // ms
-            delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
-          }
-          await new Promise((r) => setTimeout(r, delayMs));
-          attempt += 1;
-          continue;
-        }
 
-        // Non-retryable or exhausted retries
-        if (isRetryable) {
-          // Exhausted retries: log once with retry count and duration
+          // Capture a compact error body preview (only log after retries)
+          lastStatus = res.status;
+          try {
+            lastBodyText = (await res.text()).slice(0, 160);
+          } catch {}
+
+          // Handle retry-able statuses
+          const isRetryable = res.status === 429 || (res.status >= 500 && res.status < 600);
+          if (isRetryable && attempt < maxRetries) {
+            const retryAfter = res.headers.get("retry-after");
+            let delayMs = 0;
+            if (retryAfter) {
+              const secs = Number(retryAfter);
+              if (!Number.isNaN(secs)) {
+                delayMs = Math.max(0, secs) * 1000;
+              } else {
+                const date = new Date(retryAfter).getTime();
+                delayMs = Math.max(0, date - Date.now());
+              }
+            }
+            if (!delayMs) {
+              // Exponential backoff with jitter
+              const base = 500; // ms
+              delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
+            }
+            await new Promise((r) => setTimeout(r, delayMs));
+            attempt += 1;
+            continue;
+          }
+
+          // Non-retryable or exhausted retries
+          if (isRetryable) {
+            // Exhausted retries: log once with retry count and duration
+            const durationMs = Date.now() - start;
+            const retries = attempt; // number of retries performed
+            const at = new Date().toISOString();
+            console.warn("TMDB fetch failed", path, lastStatus, lastBodyText, { retries, durationMs, at });
+          }
+          if (opts?.throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
+          return null;
+        } catch (e) {
+          lastError = e;
+          if (attempt < maxRetries) {
+            const base = 500;
+            const delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
+            await new Promise((r) => setTimeout(r, delayMs));
+            attempt += 1;
+            continue;
+          }
           const durationMs = Date.now() - start;
           const retries = attempt; // number of retries performed
-          console.warn("TMDB fetch failed", path, lastStatus, lastBodyText, { retries, durationMs });
+          const at = new Date().toISOString();
+          console.warn("TMDB fetch failed", path, lastStatus, lastBodyText || lastError, { retries, durationMs, at });
+          if (opts?.throwOnError) throw e;
+          return null;
         }
-        if (opts?.throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
-        return null;
-      } catch (e) {
-        lastError = e;
-        if (attempt < maxRetries) {
-          const base = 500;
-          const delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
-          await new Promise((r) => setTimeout(r, delayMs));
-          attempt += 1;
-          continue;
-        }
-        const durationMs = Date.now() - start;
-        const retries = attempt; // number of retries performed
-        console.warn("TMDB fetch failed", path, lastStatus, lastBodyText || lastError, { retries, durationMs });
-        if (opts?.throwOnError) throw e;
-        return null;
       }
+      if (opts?.throwOnError) throw new Error("TMDB fetch exhausted retries");
+      return null;
+    } finally {
+      // Release concurrency slot
+      this.activeCount -= 1;
+      const next = this.waitQueue.shift();
+      if (next) next();
     }
-    if (opts?.throwOnError) throw new Error("TMDB fetch exhausted retries");
-    return null;
   }
 
   public static async getPosterUrlById(
