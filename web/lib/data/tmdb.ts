@@ -10,6 +10,13 @@ export interface ConfigurationDetails {
   };
   change_keys: string[];
 }
+export interface ImageUrl {
+  url: string;
+  width: number;
+  height: number;
+}
+
+import { createLimiter, fetchWithRetry, type RetryOptions } from "../utils/http";
 
 export class ConfigurationManager {
   private static configurationDetails: ConfigurationDetails | null = null;
@@ -17,18 +24,36 @@ export class ConfigurationManager {
   private static posterPathCache = new Map<string, string | null>();
   private static profilePathCache = new Map<number, string | null>();
   private static overviewCache = new Map<string, string | null>();
-  private static maxConcurrent = 4;
-  private static activeCount = 0;
-  private static waitQueue: Array<() => void> = [];
+  private static readonly MAX_CONCURRENT_REQUESTS = 4;
+  private static limiter = createLimiter(this.MAX_CONCURRENT_REQUESTS);
+  private static configPromise: Promise<ConfigurationDetails> | null = null;
+
+  // Retry/backoff constants
+  private static readonly RETRY: RetryOptions = {
+    maxAttempts: 5,
+    baseBackoffMs: 500,
+    maxBackoffMs: 8000,
+    jitterMs: 250,
+    honorRetryAfter: true,
+    retryable: (status: number) => status === 429 || (status >= 500 && status < 600),
+  };
 
   private constructor() {}
 
   private static async getConfigurationDetails(): Promise<ConfigurationDetails> {
-    if (this.configurationDetails) {
-      return this.configurationDetails;
-    }
-    this.configurationDetails = await this.getTheMovieDBConfig();
-    return this.configurationDetails;
+    if (this.configurationDetails) return this.configurationDetails;
+    if (this.configPromise) return this.configPromise;
+    this.configPromise = this.getTheMovieDBConfig()
+      .then((cfg) => {
+        this.configurationDetails = cfg;
+        this.configPromise = null;
+        return cfg;
+      })
+      .catch((e) => {
+        this.configPromise = null;
+        throw e;
+      });
+    return this.configPromise;
   }
 
   private static authHeaders() {
@@ -41,7 +66,7 @@ export class ConfigurationManager {
 
   private static async getTheMovieDBConfig(): Promise<ConfigurationDetails> {
     try {
-      const data = await this.fetchTMDB(`/configuration`, { throwOnError: true });
+      const data = await this.tmdbJson(`/configuration`, true);
       return data as ConfigurationDetails;
     } catch (err) {
       console.error("TMDB configuration retrieval error", err);
@@ -105,110 +130,20 @@ export class ConfigurationManager {
     };
   }
 
-  private static async fetchTMDB(
-    path: string,
-    opts?: { throwOnError?: boolean },
-  ) {
-    // Simple in-process concurrency limiter
-    await new Promise<void>((resolve) => {
-      if (this.activeCount < this.maxConcurrent) {
-        this.activeCount += 1;
-        resolve();
-      } else {
-        this.waitQueue.push(() => {
-          this.activeCount += 1;
-          resolve();
-        });
-      }
-    });
-    const url = `${this.baseUrl}${path}`;
-    const maxRetries = 4;
-    let attempt = 0;
-    const start = Date.now();
-    let lastStatus: number | null = null;
-    let lastBodyText: string | undefined;
-    let lastError: unknown;
-    try {
-      while (attempt <= maxRetries) {
-        try {
-          const res = await fetch(url, {
-            method: "GET",
-            headers: this.authHeaders(),
-            cache: "force-cache",
-          });
-          if (res.ok) {
-            try {
-              return await res.json();
-            } catch {
-              return null;
-            }
-          }
-
-          // Capture a compact error body preview (only log after retries)
-          lastStatus = res.status;
-          try {
-            lastBodyText = (await res.text()).slice(0, 160);
-          } catch {}
-
-          // Handle retry-able statuses
-          const isRetryable = res.status === 429 || (res.status >= 500 && res.status < 600);
-          if (isRetryable && attempt < maxRetries) {
-            const retryAfter = res.headers.get("retry-after");
-            let delayMs = 0;
-            if (retryAfter) {
-              const secs = Number(retryAfter);
-              if (!Number.isNaN(secs)) {
-                delayMs = Math.max(0, secs) * 1000;
-              } else {
-                const date = new Date(retryAfter).getTime();
-                delayMs = Math.max(0, date - Date.now());
-              }
-            }
-            if (!delayMs) {
-              // Exponential backoff with jitter
-              const base = 500; // ms
-              delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
-            }
-            await new Promise((r) => setTimeout(r, delayMs));
-            attempt += 1;
-            continue;
-          }
-
-          // Non-retryable or exhausted retries
-          if (isRetryable) {
-            // Exhausted retries: log once with retry count and duration
-            const durationMs = Date.now() - start;
-            const retries = attempt; // number of retries performed
-            const at = new Date().toISOString();
-            console.warn("TMDB fetch failed", path, lastStatus, lastBodyText, { retries, durationMs, at });
-          }
-          if (opts?.throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
-          return null;
-        } catch (e) {
-          lastError = e;
-          if (attempt < maxRetries) {
-            const base = 500;
-            const delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
-            await new Promise((r) => setTimeout(r, delayMs));
-            attempt += 1;
-            continue;
-          }
-          const durationMs = Date.now() - start;
-          const retries = attempt; // number of retries performed
-          const at = new Date().toISOString();
-          console.warn("TMDB fetch failed", path, lastStatus, lastBodyText || lastError, { retries, durationMs, at });
-          if (opts?.throwOnError) throw e;
-          return null;
-        }
-      }
-      if (opts?.throwOnError) throw new Error("TMDB fetch exhausted retries");
-      return null;
-    } finally {
-      // Release concurrency slot
-      this.activeCount -= 1;
-      const next = this.waitQueue.shift();
-      if (next) next();
+  private static async tmdbJson(path: string, throwOnError = false) {
+    const res = await fetchWithRetry(
+      `${this.baseUrl}${path}`,
+      { method: "GET", headers: this.authHeaders(), cache: "force-cache" },
+      this.RETRY,
+      this.limiter,
+    );
+    if (res.ok) return res.data;
+    if (res.status !== null && this.RETRY.retryable(res.status)) {
+      // Log only after retries exhausted
+      console.warn("TMDB fetch failed", path, res.status, res.bodyPreview ?? res.error, res.meta);
     }
+    if (throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
+    return null;
   }
 
   public static async getPosterUrlById(
@@ -218,7 +153,7 @@ export class ConfigurationManager {
     if (!id) return undefined;
     const key = `${type}:${id}`;
     if (!this.posterPathCache.has(key)) {
-      const data = await this.fetchTMDB(`/${type}/${id}`);
+      const data = await this.tmdbJson(`/${type}/${id}`);
       const val: string | null = data?.poster_path ?? null;
       this.posterPathCache.set(key, val);
     }
@@ -230,7 +165,7 @@ export class ConfigurationManager {
   public static async getProfileUrlById(personId: number | null) {
     if (!personId) return undefined;
     if (!this.profilePathCache.has(personId)) {
-      const data = await this.fetchTMDB(`/person/${personId}`);
+      const data = await this.tmdbJson(`/person/${personId}`);
       const val: string | null = data?.profile_path ?? null;
       this.profilePathCache.set(personId, val);
     }
@@ -248,10 +183,10 @@ export class ConfigurationManager {
     const key = `${type}:${id}:${language}`;
     if (this.overviewCache.has(key)) return this.overviewCache.get(key) ?? null;
     const query = new URLSearchParams({ language });
-    const data = await this.fetchTMDB(`/${type}/${id}?${query.toString()}`);
+    const data = await this.tmdbJson(`/${type}/${id}?${query.toString()}`);
     let overview: string | null = data?.overview ?? null;
     if (!overview || overview.trim() === "") {
-      const dataEn = await this.fetchTMDB(`/${type}/${id}?language=en-US`);
+      const dataEn = await this.tmdbJson(`/${type}/${id}?language=en-US`);
       overview = dataEn?.overview ?? null;
     }
     const normalized = overview && overview.trim() !== "" ? overview : null;
