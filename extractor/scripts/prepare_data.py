@@ -266,7 +266,8 @@ def export_media_by_id(
     data_prefix: Path,
     database: list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]],
 ) -> None:
-    """Export per-media JSON by ID for movies and series."""
+    """Export per-media JSON by ID for movies and series 
+    under /(serie|film)/{id}.json."""
     # Movies
     for movie_id in set([m.id for _, m, _ in database if m.type == "movie"]):
         movie_data = [
@@ -407,7 +408,7 @@ def export_best_media(
     data_prefix: Path,
     database: list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]],
 ) -> None:
-    """Export best-of lists for movies and series."""
+    """Export best-of lists for movies and series under /(serie|film)/meilleurs.json."""
     # Movies best-of
     best_movie_data: dict[int, CitationMedia2] = {}
     for video_data, m, p in database:
@@ -482,7 +483,7 @@ def export_best_media(
 def export_feed(
     bucket: storage.Bucket, data_prefix: Path, feed: list[VideoDataShort]
 ) -> None:
-    """Export the global feed under ``data/video.json``."""
+    """Export the global feed under ``/video.json``."""
     blob = str(data_prefix / "video.json")
     bucket.blob(blob).upload_from_string(
         VideoFeedData(feed=feed).model_dump_json(), content_type="application/json"
