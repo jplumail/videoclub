@@ -14,6 +14,9 @@ export interface ConfigurationDetails {
 export class ConfigurationManager {
   private static configurationDetails: ConfigurationDetails | null = null;
   private static readonly baseUrl = "https://api.themoviedb.org/3";
+  private static posterPathCache = new Map<string, string | null>();
+  private static profilePathCache = new Map<number, string | null>();
+  private static overviewCache = new Map<string, string | null>();
 
   private constructor() {}
 
@@ -34,27 +37,44 @@ export class ConfigurationManager {
   }
 
   private static async getTheMovieDBConfig(): Promise<ConfigurationDetails> {
-    return fetch(`${this.baseUrl}/configuration`, {
-      method: "GET",
-      headers: this.authHeaders(),
-      cache: "force-cache",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        return data;
+    try {
+      const res = await fetch(`${this.baseUrl}/configuration`, {
+        method: "GET",
+        headers: this.authHeaders(),
+        cache: "force-cache",
       });
+      if (!res.ok) {
+        const body = await res.text();
+        console.warn("TMDB config fetch failed", res.status, body.slice(0, 160));
+        throw new Error(`TMDB config failed: ${res.status}`);
+      }
+      return (await res.json()) as ConfigurationDetails;
+    } catch (err) {
+      console.error("TMDB configuration retrieval error", err);
+      throw err;
+    }
   }
 
   private static async getSecureBaseUrl() {
-    return (await this.getConfigurationDetails()).images.secure_base_url;
+    const cfg = await this.getConfigurationDetails();
+    const url = cfg?.images?.secure_base_url;
+    if (!url) {
+      const msg = "TMDB secure_base_url missing in configuration";
+      console.error(msg);
+      throw new Error(msg);
+    }
+    return url;
   }
 
   private static async getPosterSize(width: number) {
-    return (await this.getConfigurationDetails()).images.poster_sizes.filter(
-      (size) => {
-        return parseInt(size.substring(1)) == width;
-      },
-    )[0];
+    const sizes = (await this.getConfigurationDetails()).images.poster_sizes;
+    const match = sizes.find((size) => parseInt(size.substring(1)) === width);
+    if (!match) {
+      const msg = `TMDB poster size for width ${width} not found`;
+      console.error(msg, sizes);
+      throw new Error(msg);
+    }
+    return match;
   }
 
   public static async getPosterUrl(posterPath: string) {
@@ -70,11 +90,14 @@ export class ConfigurationManager {
   }
 
   private static async getProfileSize(height: number) {
-    return (await this.getConfigurationDetails()).images.profile_sizes.filter(
-      (size) => {
-        return parseInt(size.substring(1)) == height;
-      },
-    )[0];
+    const sizes = (await this.getConfigurationDetails()).images.profile_sizes;
+    const match = sizes.find((size) => parseInt(size.substring(1)) === height);
+    if (!match) {
+      const msg = `TMDB profile size for height ${height} not found`;
+      console.error(msg, sizes);
+      throw new Error(msg);
+    }
+    return match;
   }
   public static async getProfileUrl(profilePath: string) {
     const height = 632;
@@ -95,7 +118,11 @@ export class ConfigurationManager {
         headers: this.authHeaders(),
         cache: "force-cache",
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        const body = await res.text();
+        console.warn("TMDB fetch failed", path, res.status, body.slice(0, 160));
+        return null;
+      }
       try {
         return await res.json();
       } catch {
@@ -112,16 +139,25 @@ export class ConfigurationManager {
     id: number | null,
   ) {
     if (!id) return undefined;
-    const data = await this.fetchTMDB(`/${type}/${id}`);
-    const posterPath: string | undefined = data?.poster_path;
+    const key = `${type}:${id}`;
+    if (!this.posterPathCache.has(key)) {
+      const data = await this.fetchTMDB(`/${type}/${id}`);
+      const val: string | null = data?.poster_path ?? null;
+      this.posterPathCache.set(key, val);
+    }
+    const posterPath = this.posterPathCache.get(key) ?? null; // string | null
     if (!posterPath) return undefined;
     return this.getPosterUrl(posterPath);
   }
 
   public static async getProfileUrlById(personId: number | null) {
     if (!personId) return undefined;
-    const data = await this.fetchTMDB(`/person/${personId}`);
-    const profilePath: string | undefined = data?.profile_path;
+    if (!this.profilePathCache.has(personId)) {
+      const data = await this.fetchTMDB(`/person/${personId}`);
+      const val: string | null = data?.profile_path ?? null;
+      this.profilePathCache.set(personId, val);
+    }
+    const profilePath = this.profilePathCache.get(personId) ?? null; // string | null
     if (!profilePath) return undefined;
     return this.getProfileUrl(profilePath);
   }
@@ -132,14 +168,17 @@ export class ConfigurationManager {
     language: string = "fr-FR",
   ): Promise<string | null> {
     if (!id) return null;
+    const key = `${type}:${id}:${language}`;
+    if (this.overviewCache.has(key)) return this.overviewCache.get(key) ?? null;
     const query = new URLSearchParams({ language });
     const data = await this.fetchTMDB(`/${type}/${id}?${query.toString()}`);
-    let overview: string | undefined = data?.overview;
+    let overview: string | null = data?.overview ?? null;
     if (!overview || overview.trim() === "") {
-      // Fallback to English if no localized overview
       const dataEn = await this.fetchTMDB(`/${type}/${id}?language=en-US`);
-      overview = dataEn?.overview;
+      overview = dataEn?.overview ?? null;
     }
-    return overview && overview.trim() !== "" ? overview : null;
+    const normalized = overview && overview.trim() !== "" ? overview : null;
+    this.overviewCache.set(key, normalized);
+    return normalized;
   }
 }
