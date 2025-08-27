@@ -21,7 +21,7 @@ class MediaItemWithTime:
 
 
 class VideoDataFull(BaseModel):
-    """/videos/{video_id}/video.json"""
+    """/data/videos/{video_id}/video.json"""
     video_id: str
     personnalites: list[Personnalite]
     media_data: list[MediaItemWithTime]
@@ -46,7 +46,7 @@ class CitationPersonnalite:
 
 
 class MediaIdData(BaseModel):
-    """/film/{id}.json and /serie/{id}.json"""
+    """/data/film/{id}.json and /data/serie/{id}.json"""
     id: int | None
     title: str | None
     release_year: date | None
@@ -75,7 +75,7 @@ class CitationMedia:
 
 
 class PersonneIdData(BaseModel):
-    """/personne/{id}.json"""
+    """/data/personne/{id}.json"""
     name: str | None
     videos: list[VideoDataShort]
     citations: list[CitationMedia]
@@ -96,7 +96,7 @@ class CitationMediaWithName:
 
 
 class BestMediaData(BaseModel):
-    """/film/meilleurs.json"""
+    """/data/film/meilleurs.json"""
     media: list[CitationMediaWithName]
 
 
