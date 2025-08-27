@@ -134,7 +134,8 @@ export class ConfigurationManager {
         } catch {}
 
         // Handle retry-able statuses
-        if (res.status === 429 || (res.status >= 500 && res.status < 600)) {
+        const isRetryable = res.status === 429 || (res.status >= 500 && res.status < 600);
+        if (isRetryable && attempt < maxRetries) {
           const retryAfter = res.headers.get("retry-after");
           let delayMs = 0;
           if (retryAfter) {
@@ -151,15 +152,16 @@ export class ConfigurationManager {
             const base = 500; // ms
             delayMs = Math.min(base * Math.pow(2, attempt), 8000) + Math.floor(Math.random() * 250);
           }
-          if (attempt < maxRetries) {
-            await new Promise((r) => setTimeout(r, delayMs));
-            attempt += 1;
-            continue;
-          }
+          await new Promise((r) => setTimeout(r, delayMs));
+          attempt += 1;
+          continue;
         }
 
         // Non-retryable or exhausted retries
-        console.warn("TMDB fetch failed", path, lastStatus, lastBodyText);
+        if (isRetryable) {
+          // Exhausted retries
+          console.warn("TMDB fetch failed", path, lastStatus, lastBodyText);
+        }
         if (opts?.throwOnError) throw new Error(`TMDB fetch failed: ${res.status}`);
         return null;
       } catch (e) {
