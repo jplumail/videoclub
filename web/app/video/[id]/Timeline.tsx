@@ -1,7 +1,7 @@
 import { MediaItem } from "@/lib/backend/types";
 import styles from "./Timeline.module.css";
 import { slugify } from "@/lib/utils";
-import { MovieCardSync, PosterProps } from "@/components/MovieCard";
+import { Card } from "@/components/Card";
 
 function getMinutes(seconds: number) {
   return Math.floor(seconds / 60)
@@ -39,7 +39,7 @@ export interface MovieDataTimestamps {
     type: "movie" | "tv";
     release_year: string | null;
   };
-  poster: React.ReactElement<PosterProps>;
+  poster: React.ReactElement;
 }
 
 export function Timeline({
@@ -68,7 +68,7 @@ export function Timeline({
               className={styles.movieCard}
               tabIndex={-1}
             >
-              <MovieCardSync media={movie.item.details} poster={movie.poster}>
+              <Card item={movie.item.details} media={movie.poster}>
                 <div className={styles.timecodesContainer}>
                   {movie.item.timestamps.map((timestamp, i) => {
                     return (
@@ -80,7 +80,7 @@ export function Timeline({
                     );
                   })}
                 </div>
-              </MovieCardSync>
+              </Card>
             </div>
           );
         })}

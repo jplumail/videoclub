@@ -36,25 +36,6 @@ interface MovieCardProps {
   hasDetails?: boolean;
 }
 
-export function MovieCardSync({
-  media,
-  children,
-  poster,
-  hasDetails = true,
-}: MovieCardProps) {
-  const defaultPoster = <Poster media={media} />;
-  return (
-    <Card
-      item={media}
-      media={poster || defaultPoster}
-      hasDetails={hasDetails}
-    >
-      {children}
-    </Card>
-  );
-}
-
-
 export async function MovieCard({
   media,
   children,
