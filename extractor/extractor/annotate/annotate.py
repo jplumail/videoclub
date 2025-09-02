@@ -32,8 +32,7 @@ def get_title(youtube_id: str):
 
 
 def create_request(video_blob_name: str, context: list[types.Content] | None = None):
-    annotation_instruction = (
-        f"""
+    annotation_instruction = f"""
 Tu es un agent ContentID. Tu travailles pour une entreprise dans le domaine
 de la gestion des droits d'auteur.
 Ton rôle est de recenser les films qui passent dans les vidéos de la série
@@ -63,7 +62,6 @@ de l'émission, pas d'un film.
 Ta réponse sera au format JSON suivant:
 {to_vertexai_compatible_schema(AnnotationResponse.model_json_schema())}
 """
-    )
 
     generation_config = types.GenerateContentConfig(
         max_output_tokens=None,
@@ -224,9 +222,7 @@ def get_items(json_payload: str):
     return done_items
 
 
-async def annotate_videos(
-    bucket_name: str, video_blob_list: list[str], annotation_output_blob_list: list[str]
-):
+async def _annotate_videos(bucket_name: str, video_blob_list: list[str]):
     job_id = int(datetime.now().timestamp())
     # job_id = 1737716944
     job_prefix = f"work/{job_id}"
@@ -269,7 +265,7 @@ async def annotate_videos(
         iter([blob for blob in blobs if blob.name.endswith("predictions.jsonl")])
     )
     print(f"Downloading {prediction_blob.name}")
-    annotations_done = []
+    annotations_done: dict[str, AnnotationResponse] = {}
     with prediction_blob.open("r") as f:
         for line in f:
             try:
@@ -278,29 +274,34 @@ async def annotate_videos(
                     "file_uri"
                 ]
                 video_id = video_uri.split("/")[-2]
-                annotation_output_blob = next(
-                    iter(
-                        [
-                            blob
-                            for blob in annotation_output_blob_list
-                            if video_id in blob
-                        ]
-                    )
-                )
                 candidate = response["response"]["candidates"][0]
                 if candidate["finishReason"] == "MAX_TOKENS":
-                    print(f"MAX_TOKENS reached for {annotation_output_blob}")
+                    print(f"MAX_TOKENS reached for {video_id}, skipping")
                     continue
                 json_payload = candidate["content"]["parts"][0]["text"]
-                AnnotationResponse.model_validate_json(json_payload)
-                annotations_done.append(
-                    upload_json_blob(bucket_name, json_payload, annotation_output_blob)
+                annotations_done[video_id] = AnnotationResponse.model_validate_json(
+                    json_payload
                 )
             except Exception as e:
-                print(f"Error for {annotation_output_blob}: {e}")
+                print(f"Error for {video_id}: {e}")
 
     print(f"Annotated {len(annotations_done)} videos over {len(video_blob_list)}")
     return annotations_done
+
+
+async def annotate_videos(
+    bucket_name: str, video_blob_list: list[str], annotation_output_blob_list: list[str]
+):
+    annotation_responses = await _annotate_videos(bucket_name, video_blob_list)
+    annotations_uploaded = []
+    for video_id, annotation_response in annotation_responses.items():
+        annotation_output_blob = next(
+            iter([blob for blob in annotation_output_blob_list if video_id in blob])
+        )
+        json_payload = annotation_response.model_dump_json()
+        blob_name = upload_json_blob(bucket_name, json_payload, annotation_output_blob)
+        annotations_uploaded.append(blob_name)
+    return annotations_uploaded
 
 
 if __name__ == "__main__":
