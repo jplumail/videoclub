@@ -18,6 +18,7 @@ client = genai.Client(
     vertexai=True, project="videoclub-447210", location="europe-north1"
 )
 
+MODEL = "gemini-2.5-flash"
 TEMP = 0
 
 
@@ -145,7 +146,7 @@ def create_batch_prediction_job(
         bucket_name, video_blobs, request_blob_name
     )
     job = client.batches.create(
-        model="gemini-1.5-flash-002",
+        model=MODEL,
         src=f"gs://{bucket_name}/{request_blob_name}",
         config=types.CreateBatchJobConfig(
             dest=f"gs://{bucket_name}/{destination_prefix}"
@@ -164,7 +165,7 @@ def create_batch_prediction_job_continue(
         bucket_name, requests_to_continue, request_blob_name
     )
     job = client.batches.create(
-        model="gemini-1.5-flash-002",
+        model=MODEL,
         src=f"gs://{bucket_name}/{request_blob_name}",
         config=types.CreateBatchJobConfig(
             dest=f"gs://{bucket_name}/{destination_prefix}"
