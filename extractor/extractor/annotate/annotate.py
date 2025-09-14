@@ -29,7 +29,7 @@ def get_title(youtube_id: str):
     youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=API_KEY)
     request = youtube.videos().list(part="snippet", id=youtube_id)
     response = request.execute()
-    return response["items"][0]["snippet"]["title"]
+    return response["items"][0]["snippet"]["title"] # pyright: ignore[reportTypedDictNotRequiredAccess]
 
 
 def create_request(youtube_video_id: str, context: list[types.Content] | None = None):
