@@ -16,6 +16,9 @@ uv run ./scripts/extract_movies_videos.py --all
 uv run ./scripts/get_infos_videos.py --bucket videoclub-prod --all
 uv run ./scripts/annotate_videos.py --bucket videoclub-prod dQw4w9WgXcQ
 uv run ./scripts/extract_movies_videos.py --bucket videoclub-prod abc123
+
+# Vérifier si un ID est traité (sortie 0 si OK, 1 sinon)
+uv run ./scripts/check_processed_video.py HLUe85q1hNM --bucket videoclub-test
 ```
 
 ```bash
