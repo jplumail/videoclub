@@ -46,7 +46,7 @@ steps:
       set -eu
       DISCOVER_URL=$(gcloud functions describe discover --gen2 --region=${_REGION} --format='value(serviceConfig.uri)')
       gcloud scheduler jobs create http ${_SCHEDULER_JOB} \
-        --location=${_REGION} \
+        --location=${_SCHEDULER_LOCATION} \
         --schedule="${_SCHEDULE}" \
         --uri="${DISCOVER_URL}?bucket=${_BUCKET}" \
         --http-method=GET
@@ -59,6 +59,7 @@ substitutions:
   _BUCKET: videoclub-test
   _SCHEDULE: "0 */2 * * *"
   _SCHEDULER_JOB: videoclub-discover
+  _SCHEDULER_LOCATION: europe-west1
 
 options:
   automapSubstitutions: true
