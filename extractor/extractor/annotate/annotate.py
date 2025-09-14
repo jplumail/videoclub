@@ -76,7 +76,7 @@ Ta réponse sera au format JSON suivant:
     )
     if context:
         context = context + [
-            types.Content(role="user", parts=[types.Part.from_text("Continue")])
+            types.Content(role="user", parts=[types.Part.from_text(text="Continue")])
         ]
     else:
         context = []
@@ -85,8 +85,8 @@ Ta réponse sera au format JSON suivant:
             types.Content(
                 role="user",
                 parts=[
-                    types.Part.from_uri(video_blob_name, mime_type="video/*"),
-                    types.Part.from_text("Annote"),
+                    types.Part.from_uri(file_uri=video_blob_name, mime_type="video/*"),
+                    types.Part.from_text(text="Annote"),
                 ],
             ),
             *context,
@@ -132,7 +132,7 @@ def create_batch_prediction_request_file_continue(
             types.Content(
                 role="model",
                 parts=[
-                    types.Part.from_text(ai_answer),
+                    types.Part.from_text(text=ai_answer),
                 ],
             )
         ]
