@@ -3,13 +3,8 @@
 Produces:
 - `videos/{video_id}/annotations.json`
 
-Needs:
-- The video file stored under `videos/{video_id}/video.<ext>` in the given GCS bucket
-
 This script:
-- Lists YouTube playlist items via `extractor.youtube.get_videos_videoclub`.
-- For each video ID, locates the uploaded video file under
-  `videos/{video_id}/video.<ext>` in the given bucket.
+- Lists YouTube playlist videos via `extractor.youtube.get_videos_videoclub`.
 - Calls `extractor.annotate.annotate_videos` to generate annotations.
 - Writes annotations to `videos/{video_id}/annotations.json` in the bucket.
 
