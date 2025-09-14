@@ -197,20 +197,6 @@
       ]
     },
     {
-      "title": "Oppenheimer",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "01:43",
-        "end_time": "01:45"
-      },
-      "authors": [
-        "Christopher Nolan"
-      ],
-      "years": [
-        2023
-      ]
-    },
-    {
       "title": "There Will Be Blood",
       "title_position": "top-left",
       "timecode": {
@@ -225,10 +211,24 @@
       ]
     },
     {
+      "title": "There Will Be Blood",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "01:54",
+        "end_time": "01:55"
+      },
+      "authors": [
+        "Paul Thomas Anderson"
+      ],
+      "years": [
+        2008
+      ]
+    },
+    {
       "title": "Amadeus",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "01:57",
+        "start_time": "01:56",
         "end_time": "01:59"
       },
       "authors": [
@@ -257,7 +257,21 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "02:14",
-        "end_time": "02:16"
+        "end_time": "02:15"
+      },
+      "authors": [
+        "Christopher Nolan"
+      ],
+      "years": [
+        2023
+      ]
+    },
+    {
+      "title": "Oppenheimer",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "02:21",
+        "end_time": "02:26"
       },
       "authors": [
         "Christopher Nolan"
@@ -284,7 +298,7 @@
       "title": "The White Lotus",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "02:36",
+        "start_time": "02:35",
         "end_time": "02:37"
       },
       "authors": [
@@ -326,7 +340,7 @@
       "title": "Docteur Folamour",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "02:55",
+        "start_time": "02:54",
         "end_time": "02:58"
       },
       "authors": [
@@ -340,7 +354,7 @@
       "title": "Docteur Folamour",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "03:08",
+        "start_time": "03:07",
         "end_time": "03:10"
       },
       "authors": [
@@ -354,7 +368,7 @@
       "title": "Docteur Folamour",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "03:20",
+        "start_time": "03:19",
         "end_time": "03:22"
       },
       "authors": [
@@ -382,8 +396,22 @@
       "title": "Les Chariots de feu",
       "title_position": "top-left",
       "timecode": {
+        "start_time": "03:50",
+        "end_time": "03:55"
+      },
+      "authors": [
+        "Hugh Hudson"
+      ],
+      "years": [
+        1982
+      ]
+    },
+    {
+      "title": "Les Chariots de feu",
+      "title_position": "top-left",
+      "timecode": {
         "start_time": "04:00",
-        "end_time": "04:02"
+        "end_time": "04:03"
       },
       "authors": [
         "Hugh Hudson"
@@ -404,20 +432,6 @@
       ],
       "years": [
         1965
-      ]
-    },
-    {
-      "title": "Oppenheimer",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "04:17",
-        "end_time": "04:18"
-      },
-      "authors": [
-        "Christopher Nolan"
-      ],
-      "years": [
-        2023
       ]
     },
     {
@@ -480,7 +494,7 @@
       "title": "Heat",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "05:31",
+        "start_time": "05:30",
         "end_time": "05:39"
       },
       "authors": [
@@ -494,7 +508,7 @@
       "title": "The Dark Knight : Le Chevalier noir",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "05:44",
+        "start_time": "05:43",
         "end_time": "05:45"
       },
       "authors": [
@@ -523,7 +537,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "05:56",
-        "end_time": "06:00"
+        "end_time": "05:59"
       },
       "authors": [
         "Jerry Schatzberg"
@@ -537,7 +551,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "06:01",
-        "end_time": "06:03"
+        "end_time": "06:02"
       },
       "authors": [
         "Francis Ford Coppola"
@@ -550,8 +564,8 @@
       "title": "French Connection",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "06:04",
-        "end_time": "06:05"
+        "start_time": "06:03",
+        "end_time": "06:04"
       },
       "authors": [
         "William Friedkin"
@@ -659,6 +673,62 @@
       ]
     },
     {
+      "title": "Au nom du père",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "08:27",
+        "end_time": "08:31"
+      },
+      "authors": [
+        "Jim Sheridan"
+      ],
+      "years": [
+        1994
+      ]
+    },
+    {
+      "title": "Au nom du père",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "08:33",
+        "end_time": "08:35"
+      },
+      "authors": [
+        "Jim Sheridan"
+      ],
+      "years": [
+        1994
+      ]
+    },
+    {
+      "title": "My Left Foot",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "08:39",
+        "end_time": "08:40"
+      },
+      "authors": [
+        "Jim Sheridan"
+      ],
+      "years": [
+        1990
+      ]
+    },
+    {
+      "title": "Au nom du père",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "08:51",
+        "end_time": "08:54"
+      },
+      "authors": [
+        "Jim Sheridan"
+      ],
+      "years": [
+        1994
+      ]
+    },
+    {
       "title": "Bronson",
       "title_position": "top-left",
       "timecode": {
@@ -669,7 +739,7 @@
         "Nicolas Winding Refn"
       ],
       "years": [
-        2008
+        2009
       ]
     },
     {
@@ -706,6 +776,20 @@
       "timecode": {
         "start_time": "09:34",
         "end_time": "09:36"
+      },
+      "authors": [
+        "Terrence Malick"
+      ],
+      "years": [
+        1999
+      ]
+    },
+    {
+      "title": "La Ligne rouge",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "10:00",
+        "end_time": "10:02"
       },
       "authors": [
         "Terrence Malick"
@@ -762,20 +846,6 @@
       "timecode": {
         "start_time": "11:03",
         "end_time": "11:07"
-      },
-      "authors": [
-        "Mathieu Kassovitz"
-      ],
-      "years": [
-        1995
-      ]
-    },
-    {
-      "title": "La Haine",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "11:12",
-        "end_time": "11:13"
       },
       "authors": [
         "Mathieu Kassovitz"
@@ -844,20 +914,6 @@
       "title": "Le Salaire de la peur",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "11:56",
-        "end_time": "11:57"
-      },
-      "authors": [
-        "Henri-Georges Clouzot"
-      ],
-      "years": [
-        1953
-      ]
-    },
-    {
-      "title": "Le Salaire de la peur",
-      "title_position": "top-left",
-      "timecode": {
         "start_time": "12:05",
         "end_time": "12:07"
       },
@@ -873,7 +929,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "12:15",
-        "end_time": "12:19"
+        "end_time": "12:17"
       },
       "authors": [
         "William Friedkin"
@@ -886,8 +942,8 @@
       "title": "Le Convoi de la peur",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "12:29",
-        "end_time": "12:35"
+        "start_time": "12:18",
+        "end_time": "12:20"
       },
       "authors": [
         "William Friedkin"
@@ -900,7 +956,21 @@
       "title": "Le Convoi de la peur",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "12:42",
+        "start_time": "12:33",
+        "end_time": "12:36"
+      },
+      "authors": [
+        "William Friedkin"
+      ],
+      "years": [
+        1978
+      ]
+    },
+    {
+      "title": "Le Convoi de la peur",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "12:41",
         "end_time": "12:45"
       },
       "authors": [
@@ -971,7 +1041,21 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "13:38",
-        "end_time": "13:39"
+        "end_time": "13:40"
+      },
+      "authors": [
+        "Alfred Hitchcock"
+      ],
+      "years": [
+        1948
+      ]
+    },
+    {
+      "title": "Correspondant 17",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "13:49",
+        "end_time": "13:52"
       },
       "authors": [
         "Alfred Hitchcock"
@@ -999,6 +1083,20 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "14:14",
+        "end_time": "14:15"
+      },
+      "authors": [
+        "David Lean"
+      ],
+      "years": [
+        1963
+      ]
+    },
+    {
+      "title": "Lawrence d'Arabie",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "14:16",
         "end_time": "14:19"
       },
       "authors": [
@@ -1054,7 +1152,7 @@
       "title": "L'Homme qui voulut être roi",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "15:01",
+        "start_time": "15:00",
         "end_time": "15:02"
       },
       "authors": [
@@ -1069,27 +1167,13 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "15:05",
-        "end_time": "15:07"
+        "end_time": "15:08"
       },
       "authors": [
         "John Huston"
       ],
       "years": [
         1976
-      ]
-    },
-    {
-      "title": "Zoulou",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "15:17",
-        "end_time": "15:18"
-      },
-      "authors": [
-        "Cyril R. Endfield"
-      ],
-      "years": [
-        1964
       ]
     },
     {
@@ -1110,7 +1194,21 @@
       "title": "Citizen Kane",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "15:50",
+        "start_time": "15:49",
+        "end_time": "15:51"
+      },
+      "authors": [
+        "Orson Welles"
+      ],
+      "years": [
+        1946
+      ]
+    },
+    {
+      "title": "Citizen Kane",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "15:54",
         "end_time": "15:55"
       },
       "authors": [
@@ -1153,7 +1251,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "16:26",
-        "end_time": "16:27"
+        "end_time": "16:29"
       },
       "authors": [
         "Erich von Stroheim"
@@ -1174,20 +1272,6 @@
       ],
       "years": [
         1924
-      ]
-    },
-    {
-      "title": "Boulevard du crépuscule",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "17:06",
-        "end_time": "17:08"
-      },
-      "authors": [
-        "Billy Wilder"
-      ],
-      "years": [
-        1950
       ]
     },
     {
@@ -1253,7 +1337,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "17:53",
-        "end_time": "17:54"
+        "end_time": "17:55"
       },
       "authors": [
         "Fritz Lang"
@@ -1281,7 +1365,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "18:29",
-        "end_time": "18:31"
+        "end_time": "18:32"
       },
       "authors": [
         "Nagisa Ōshima"
@@ -1305,25 +1389,11 @@
       ]
     },
     {
-      "title": "Oppenheimer",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "18:38",
-        "end_time": "18:39"
-      },
-      "authors": [
-        "Christopher Nolan"
-      ],
-      "years": [
-        2023
-      ]
-    },
-    {
       "title": "Furyo",
       "title_position": "top-left",
       "timecode": {
         "start_time": "18:47",
-        "end_time": "18:48"
+        "end_time": "18:49"
       },
       "authors": [
         "Nagisa Ōshima"

@@ -260,15 +260,15 @@ def test_annotate():
     gt = AnnotationResponse.model_validate_json(gt_path.read_text())
 
     bucket_name = "videoclub-test"
-    video_blob_list = ["videos/HLUe85q1hNM/video.mp4"]
-    job_id = 1757449294
-    job_name = "projects/videoclub-447210/locations/europe-west9/batchPredictionJobs/953934089235202048"
-    job_id = None
-    job_name = None
+    video_ids = ["HLUe85q1hNM"]
+    job_id = 1757860849
+    job_name = "projects/957184131556/locations/europe-north1/batchPredictionJobs/5233162975795216384"
+    # job_id = None
+    # job_name = None
     annotations = asyncio.run(
         _annotate_videos(
             bucket_name,
-            video_blob_list,
+            video_ids,
             job_id,
             job_name,
         )

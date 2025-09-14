@@ -32,7 +32,7 @@ def get_title(youtube_id: str):
     return response["items"][0]["snippet"]["title"]
 
 
-def create_request(video_blob_name: str, context: list[types.Content] | None = None):
+def create_request(youtube_video_id: str, context: list[types.Content] | None = None):
     annotation_instruction = """Tu es un agent ContentID. 
 Ta tâche : extraire uniquement les films et les séries dont un extrait vidéo apparaît dans l’émission "Vidéo Club" de Konbini. 
 ⚠️ Ignore les titres seulement cités oralement ou écrits sans extrait.
@@ -68,7 +68,10 @@ La sortie au format JSON doit être minifiée.
             types.Content(
                 role="user",
                 parts=[
-                    types.Part.from_uri(file_uri=video_blob_name, mime_type="video/*"),
+                    types.Part.from_uri(
+                        file_uri=f"https://www.youtube.com/watch?v={youtube_video_id}",
+                        mime_type="video/*",
+                    ),
                     types.Part.from_text(text="Annote"),
                 ],
             ),
@@ -83,12 +86,12 @@ La sortie au format JSON doit être minifiée.
 
 
 def create_batch_prediction_request_file(
-    bucket_name: str, video_blobs: list[str], request_blob_name: str
+    bucket_name: str, video_ids: list[str], request_blob_name: str
 ) -> str:
     assert request_blob_name.endswith(".jsonl")
     requests = [
-        json.dumps(create_request(f"gs://{bucket_name}/{blob}"), ensure_ascii=False)
-        for blob in video_blobs
+        json.dumps(create_request(video_id), ensure_ascii=False)
+        for video_id in video_ids
     ]
 
     storage_client = storage.Client()
@@ -138,12 +141,12 @@ def create_batch_prediction_request_file_continue(
 
 def create_batch_prediction_job(
     bucket_name: str,
-    video_blobs: list[str],
+    video_ids: list[str],
     request_blob_name: str,
     destination_prefix: str,
 ):
     request_blob_name = create_batch_prediction_request_file(
-        bucket_name, video_blobs, request_blob_name
+        bucket_name, video_ids, request_blob_name
     )
     job = client.batches.create(
         model=MODEL,
@@ -207,7 +210,7 @@ def get_items(json_payload: str):
 
 async def _annotate_videos(
     bucket_name: str,
-    video_blob_list: list[str],
+    video_ids: list[str],
     job_id: int | None = None,
     job_name: str | None = None,
 ):
@@ -215,12 +218,16 @@ async def _annotate_videos(
     # job_id = 1756792772
     job_prefix = f"work/{job_id}"
     output_folder = f"{job_prefix}/output"
-    job_name = create_batch_prediction_job(
-        bucket_name,
-        video_blob_list,
-        f"{job_prefix}/annotations-request.jsonl",
-        output_folder,
-    ) if job_name is None else job_name
+    job_name = (
+        create_batch_prediction_job(
+            bucket_name,
+            video_ids,
+            f"{job_prefix}/annotations-request.jsonl",
+            output_folder,
+        )
+        if job_name is None
+        else job_name
+    )
     # job_name = "projects/957184131556/locations/europe-west9/batchPredictionJobs/8362329087980601344"
     if job_name is None:
         raise Exception("Job creation failed")
@@ -258,7 +265,7 @@ async def _annotate_videos(
                 video_uri = response["request"]["contents"][0]["parts"][0]["fileData"][
                     "fileUri"
                 ]
-                video_id = video_uri.split("/")[-2]
+                video_id = video_uri.split("?v=")[-1]
                 candidate = response["response"]["candidates"][0]
                 if candidate["finishReason"] == "MAX_TOKENS":
                     print(f"MAX_TOKENS reached for {video_id}, skipping")
@@ -270,14 +277,14 @@ async def _annotate_videos(
             except Exception as e:
                 print(f"Error for {video_id}: {e}")
 
-    print(f"Annotated {len(annotations_done)} videos over {len(video_blob_list)}")
+    print(f"Annotated {len(annotations_done)} videos over {len(video_ids)}")
     return annotations_done
 
 
 async def annotate_videos(
-    bucket_name: str, video_blob_list: list[str], annotation_output_blob_list: list[str]
+    bucket_name: str, video_ids: list[str], annotation_output_blob_list: list[str]
 ):
-    annotation_responses = await _annotate_videos(bucket_name, video_blob_list)
+    annotation_responses = await _annotate_videos(bucket_name, video_ids)
     annotations_uploaded = []
     for video_id, annotation_response in annotation_responses.items():
         annotation_output_blob = next(
@@ -298,7 +305,7 @@ if __name__ == "__main__":
     asyncio.run(
         annotate_videos(
             "videoclub-test",
-            [f"videos/{id_}/video.{ext}" for id_, ext in zip(ids, exts)],
+            ids,
             [f"videos/{id_}/annotations.json" for id_ in ids],
         )
     )
