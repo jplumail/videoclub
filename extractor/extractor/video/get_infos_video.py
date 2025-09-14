@@ -6,7 +6,7 @@ from themoviedb.schemas.people import Person
 
 from .models import PlaylistItemPersonnalites
 from ..youtube.models import PlaylistItem
-from ..utils import safety_settings, to_vertexai_compatible_schema
+from ..utils import safety_settings
 from ..movies.extract import search_persons
 
 
@@ -44,9 +44,7 @@ async def extract_names(title: str, thumbnail_uri: str | None):
             temperature=0,
             top_p=0.95,
             response_mime_type="application/json",
-            response_schema=to_vertexai_compatible_schema(
-                PersonnalitesResponse.model_json_schema()
-            ),
+            response_schema=PersonnalitesResponse,
             safety_settings=safety_settings,
             system_instruction=(
                 "Tu récupère un titre et une description d'une interview. "

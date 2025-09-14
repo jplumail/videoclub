@@ -9,7 +9,7 @@ from google.cloud import storage
 import io
 import json_stream
 from json_stream.base import PersistentStreamingJSONObject, PersistentStreamingJSONList
-from ..utils import safety_settings, to_vertexai_compatible_schema, upload_json_blob
+from ..utils import safety_settings, upload_json_blob
 
 from .models import AnnotationResponse
 
@@ -51,9 +51,7 @@ La sortie au format JSON doit être minifiée.
         temperature=TEMP,
         top_p=0.95,
         response_mime_type="application/json",
-        response_schema=to_vertexai_compatible_schema(
-            AnnotationResponse.model_json_schema()
-        ),
+        response_schema=AnnotationResponse,
         system_instruction=annotation_instruction,
         safety_settings=safety_settings,
     )

@@ -3,19 +3,9 @@ import re
 from typing import Any
 from google.genai import types
 from google.cloud import storage
-import jsonref
 
 
 year_pattern = re.compile(r"\b\d{4}\b")
-
-
-def to_vertexai_compatible_schema(schema: dict[str, Any]):
-    d: dict[str, Any] = json.loads(
-        jsonref.dumps(jsonref.replace_refs(schema, proxies=False))
-    )
-    if "$defs" in d:
-        del d["$defs"]
-    return d
 
 
 safety_settings = [
