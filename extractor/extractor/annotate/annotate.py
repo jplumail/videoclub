@@ -15,7 +15,7 @@ from .models import AnnotationResponse
 
 
 client = genai.Client(
-    vertexai=True, project="videoclub-447210", location="europe-west9"
+    vertexai=True, project="videoclub-447210", location="europe-north1"
 )
 
 TEMP = 0
