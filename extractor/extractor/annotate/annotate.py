@@ -253,7 +253,7 @@ async def _annotate_videos(bucket_name: str, video_blob_list: list[str]):
             try:
                 response = json.loads(line)
                 video_uri = response["request"]["contents"][0]["parts"][0]["fileData"][
-                    "file_uri"
+                    "fileUri"
                 ]
                 video_id = video_uri.split("/")[-2]
                 candidate = response["response"]["candidates"][0]
