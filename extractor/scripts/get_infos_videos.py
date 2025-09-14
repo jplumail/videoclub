@@ -17,6 +17,7 @@ and call `get_infos(bucket_name)` from other modules.
 """
 
 import asyncio
+import argparse
 import tempfile
 from extractor.youtube.models import PlaylistItem
 import requests
@@ -45,8 +46,12 @@ def upload_thumbnail(item: PlaylistItem, bucket_name: str):
     return thumbnail_uri
 
 
-async def get_infos(bucket_name: str):
+async def get_infos(bucket_name: str, ids: list[str] | None = None):
+    # List the playlist and optionally filter to the requested IDs
     items = get_videos_videoclub()
+    if ids:
+        wanted = set(ids)
+        items = [it for it in items if it.snippet.resourceId.videoId in wanted]
     pbar = tqdm(items)
     for item in pbar:
         id_ = item.snippet.resourceId.videoId
@@ -72,4 +77,24 @@ async def get_infos(bucket_name: str):
 
 
 if __name__ == "__main__":
-    asyncio.run(get_infos("videoclub-test"))
+    parser = argparse.ArgumentParser(
+        description="Extract and store metadata for Videoclub videos."
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Process all videos (default behavior).",
+    )
+    parser.add_argument(
+        "ids",
+        nargs="*",
+        help="Specific YouTube video IDs to process.",
+    )
+    args = parser.parse_args()
+
+    # Require either --all or at least one ID
+    if not args.all and not args.ids:
+        parser.error("Provide --all or one or more video IDs.")
+
+    selected_ids = args.ids if args.ids else None
+    asyncio.run(get_infos("videoclub-test", selected_ids))
