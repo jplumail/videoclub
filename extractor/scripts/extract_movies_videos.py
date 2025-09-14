@@ -52,6 +52,11 @@ if __name__ == "__main__":
         description="Extract movie/media items for Videoclub videos."
     )
     parser.add_argument(
+        "--bucket",
+        default="videoclub-test",
+        help="GCS bucket name (default: videoclub-test)",
+    )
+    parser.add_argument(
         "--all",
         action="store_true",
         help="Process all videos (default behavior).",
@@ -68,4 +73,4 @@ if __name__ == "__main__":
         parser.error("Provide --all or one or more video IDs.")
 
     selected_ids = args.ids if args.ids else None
-    asyncio.run(extract_all_videos("videoclub-test", selected_ids))
+    asyncio.run(extract_all_videos(args.bucket, selected_ids))

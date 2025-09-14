@@ -40,6 +40,11 @@ if __name__ == "__main__":
         description="Annotate Videoclub videos stored in GCS."
     )
     parser.add_argument(
+        "--bucket",
+        default="videoclub-test",
+        help="GCS bucket name (default: videoclub-test)",
+    )
+    parser.add_argument(
         "--all",
         action="store_true",
         help="Process all videos (default behavior).",
@@ -57,4 +62,4 @@ if __name__ == "__main__":
 
     # If IDs are provided, restrict to those; otherwise, process all
     selected_ids = args.ids if args.ids else None
-    asyncio.run(annotate_all_videos("videoclub-test", selected_ids))
+    asyncio.run(annotate_all_videos(args.bucket, selected_ids))
