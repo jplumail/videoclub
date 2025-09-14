@@ -14,28 +14,33 @@ and call `annotate_all_videos(bucket_name)` from other modules.
 
 import asyncio
 import argparse
+import logging
 
 from extractor.annotate import annotate_videos
 from extractor.youtube import get_videos_videoclub
+
+
+logger = logging.getLogger(__name__)
 
 
 async def annotate_all_videos(bucket_name: str, ids: list[str] | None = None):
     # Prepare the list of IDs without unnecessary playlist fetch
     if ids:
         video_ids = list(ids)
-        print(f"Annotating {len(video_ids)} requested videos")
+        logger.info("Annotating %d requested videos", len(video_ids))
     else:
         items = get_videos_videoclub()
-        print(f"Found {len(items)} videos in playlist to annotate")
+        logger.info("Found %d videos in playlist to annotate", len(items))
         video_ids = [item.snippet.resourceId.videoId for item in items]
 
     annotation_blobs = [f"videos/{id_}/annotations.json" for id_ in video_ids]
 
     annotations_done = await annotate_videos(bucket_name, video_ids, annotation_blobs)
-    print(f"Annotated {len(annotations_done)} videos over {len(video_ids)}")
+    logger.info("Annotated %d videos over %d", len(annotations_done), len(video_ids))
     return annotations_done
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Annotate Videoclub videos stored in GCS."
     )

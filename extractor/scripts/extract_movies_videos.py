@@ -21,7 +21,11 @@ from extractor.movies import extract_media_items
 from extractor.youtube import get_videos_videoclub
 import asyncio
 import argparse
+import logging
 from tqdm import tqdm
+
+
+logger = logging.getLogger(__name__)
 
 
 async def extract_all_videos(bucket_name: str, ids: list[str] | None = None):
@@ -31,10 +35,12 @@ async def extract_all_videos(bucket_name: str, ids: list[str] | None = None):
     else:
         items = get_videos_videoclub()
         ids_to_process = [it.snippet.resourceId.videoId for it in items]
+    logger.info("Extracting movies for %d videos", len(ids_to_process))
 
     pbar = tqdm(ids_to_process)
     for id_ in pbar:
         pbar.set_description(f"Processing video {id_}")
+        logger.info("Processing video %s", id_)
         try:
             await asyncio.sleep(1)
             await extract_media_items(
@@ -42,12 +48,16 @@ async def extract_all_videos(bucket_name: str, ids: list[str] | None = None):
                 "videos/" + id_ + "/annotations.json",
                 "videos/" + id_ + "/movies.json",
             )
+            logger.info(
+                "Stored movies JSON: gs://%s/videos/%s/movies.json", bucket_name, id_
+            )
         except Exception as e:
-            print(e)
+            logger.exception("Failed to extract movies for %s: %s", id_, e)
             continue
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Extract movie/media items for Videoclub videos."
     )

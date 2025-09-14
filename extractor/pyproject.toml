@@ -9,10 +9,15 @@ dependencies = [
     "google-cloud-storage>=2.19.0",
     "google-cloud-videointelligence>=2.15.0",
     "google-genai>=1.32.0",
+    "google-api-python-client>=2.159.0",
+    "google-cloud-pubsub>=2.26.1",
     "jiwer>=3.1.0",
     "json-stream>=2.3.3",
     "numpy>=2.2.1",
     "pydantic>=2.10.4",
+    "requests>=2.32.3",
+    "tqdm>=4.67.1",
+    "functions-framework>=3.8.2",
     "themoviedb[async]>=1.0.2",
     "yt-dlp>=2025.1.15",
 ]
@@ -23,14 +28,11 @@ hello = "extractor:main"
 [dependency-groups]
 dev = [
     "flask>=3.1.0",
-    "functions-framework>=3.8.2",
-    "google-api-python-client>=2.159.0",
     "google-api-python-client-stubs>=1.29.0",
     "google-auth-httplib2>=0.2.0",
     "google-auth-oauthlib>=1.2.1",
     "ipykernel>=6.29.5",
     "ruff>=0.12.10",
-    "tqdm>=4.67.1",
 ]
 
 [build-system]

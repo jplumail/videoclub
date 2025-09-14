@@ -44,3 +44,18 @@ Ce repo utilise Ruff pour le lint (configuré dans `pyproject.toml`).
 
 - Vérifier le code: `uv run ruff check .`
 - Corriger automatiquement: `uv run ruff check . --fix`
+
+## Déploiement (Cloud Build)
+
+Déployer les Cloud Functions via Cloud Build:
+
+```bash
+gcloud builds submit --config=cloudbuild.yaml
+```
+
+Optionnel: surcharger les substitutions (si nécessaire):
+
+```bash
+gcloud builds submit --config=cloudbuild.yaml \
+  --substitutions _REGION=europe-west9,_TOPIC=videoclub-new-video
+```

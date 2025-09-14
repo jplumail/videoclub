@@ -18,6 +18,7 @@ and call `get_infos(bucket_name)` from other modules.
 
 import asyncio
 import argparse
+import logging
 import tempfile
 from extractor.youtube.models import PlaylistItem
 import requests
@@ -28,6 +29,8 @@ from extractor.utils import upload_json_blob, upload_blob
 from extractor.youtube import get_videos_videoclub
 from extractor.video.get_infos_video import get_personnalites
 
+
+logger = logging.getLogger(__name__)
 
 def upload_thumbnail(item: PlaylistItem, bucket_name: str):
     id_ = item.snippet.resourceId.videoId
@@ -40,29 +43,35 @@ def upload_thumbnail(item: PlaylistItem, bucket_name: str):
             f.seek(0)
             thumbnail_name = f"videos/{id_}/thumbnail.jpg"
             upload_blob(bucket_name, f.name, thumbnail_name)
+            logger.info("Uploaded thumbnail: gs://%s/%s", bucket_name, thumbnail_name)
     else:
         thumbnail_name = None
+        logger.info("No thumbnail available for %s", id_)
     thumbnail_uri = f"gs://{bucket_name}/{thumbnail_name}" if thumbnail_name else None
     return thumbnail_uri
 
 
 async def get_infos(bucket_name: str, ids: list[str] | None = None):
     # List the playlist and optionally filter to the requested IDs
+    logger.info("Listing Videoclub playlist")
     items = get_videos_videoclub()
     if ids:
         wanted = set(ids)
+        before = len(items)
         items = [it for it in items if it.snippet.resourceId.videoId in wanted]
+        logger.info("Filtered to %d/%d requested videos", len(items), before)
     pbar = tqdm(items)
     for item in pbar:
         id_ = item.snippet.resourceId.videoId
         pbar.set_description(f"Processing video {id_}")
+        logger.info("Processing video %s", id_)
 
         thumbnail_uri = upload_thumbnail(item, bucket_name)
         try:
             item_personnalites = await get_personnalites(item, thumbnail_uri)
         except google.genai.errors.ClientError as e:
             if e.code == 429:
-                print("Rate limit exceeded, waiting 60s")
+                logger.warning("Rate limit exceeded (429), waiting 60s for %s", id_)
                 await asyncio.sleep(60)
                 item_personnalites = await get_personnalites(item, thumbnail_uri)
             else:
@@ -74,9 +83,11 @@ async def get_infos(bucket_name: str, ids: list[str] | None = None):
             json_payload,
             f"videos/{id_}/video.json",
         )
+        logger.info("Stored metadata JSON: gs://%s/videos/%s/video.json", bucket_name, id_)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Extract and store metadata for Videoclub videos."
     )

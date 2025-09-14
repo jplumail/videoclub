@@ -1,35 +1,64 @@
 steps:
   - name: "ghcr.io/astral-sh/uv:python3.12-alpine"
-    script: uv export --no-dev --no-emit-project -o requirements.txt
+    script: uv export --no-emit-project -o requirements.txt
     id: "export-requirements"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "ensure-topic"
     script: >
-      gcloud functions deploy
-      annotate-video --entry-point=annotate
-      --timeout=3600s
-      ${_FUNCTIONS_DEPLOY_BASE_ARGS}
+      gcloud pubsub topics describe ${_TOPIC} || gcloud pubsub topics create ${_TOPIC}
     waitFor:
       - "export-requirements"
-  
+
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-discover"
     script: >
-      gcloud functions deploy
-      process-video-annotations --entry-point=process_video_annotations
-      --memory=1GiB
-      --concurrency=1
-      ${_FUNCTIONS_DEPLOY_BASE_ARGS}
+      gcloud functions deploy discover
+      --gen2
+      --runtime=python312
+      --region=${_REGION}
+      --source=.
+      --entry-point=discover
+      --timeout=3600s
+      --trigger-http --allow-unauthenticated
     waitFor:
-      - "export-requirements"
+      - "ensure-topic"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-processor"
+    script: >
+      gcloud functions deploy processor
+      --gen2
+      --runtime=python312
+      --region=${_REGION}
+      --source=.
+      --entry-point=processor
+      --timeout=540s
+      --memory=512MiB
+      --trigger-topic=${_TOPIC}
+    waitFor:
+      - "ensure-topic"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "scheduler-create"
+    script: |
+      # Use POSIX-compatible flags under /bin/sh
+      set -eu
+      DISCOVER_URL=$(gcloud functions describe discover --gen2 --region=${_REGION} --format='value(serviceConfig.uri)')
+      gcloud scheduler jobs create http ${_SCHEDULER_JOB} \
+        --location=${_REGION} \
+        --schedule="${_SCHEDULE}" \
+        --uri="${DISCOVER_URL}?bucket=${_BUCKET}" \
+        --http-method=GET
+    waitFor:
+      - "deploy-discover"
+
+substitutions:
+  _REGION: europe-west9
+  _TOPIC: videoclub-new-video
+  _BUCKET: videoclub-test
+  _SCHEDULE: "0 */2 * * *"
+  _SCHEDULER_JOB: videoclub-discover
 
 options:
   automapSubstitutions: true
-
-substitutions:
-  _FUNCTIONS_DEPLOY_BASE_ARGS: >
-    --source=.
-    --runtime=python312
-    --gen2
-    --region=europe-west9
-    --trigger-http
-    --allow-unauthenticated
