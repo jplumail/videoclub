@@ -205,9 +205,14 @@ def get_items(json_payload: str):
     return done_items
 
 
-async def _annotate_videos(bucket_name: str, video_blob_list: list[str]):
-    job_id = int(datetime.now().timestamp())
-    # job_id = 1737716944
+async def _annotate_videos(
+    bucket_name: str,
+    video_blob_list: list[str],
+    job_id: int | None = None,
+    job_name: str | None = None,
+):
+    job_id = int(datetime.now().timestamp()) if job_id is None else job_id
+    # job_id = 1756792772
     job_prefix = f"work/{job_id}"
     output_folder = f"{job_prefix}/output"
     job_name = create_batch_prediction_job(
@@ -215,11 +220,8 @@ async def _annotate_videos(bucket_name: str, video_blob_list: list[str]):
         video_blob_list,
         f"{job_prefix}/annotations-request.jsonl",
         output_folder,
-    )
-    # job_name = (
-    #     "projects/957184131556/locations/europe-west9/"
-    #     "batchPredictionJobs/3944223086739456000"
-    # )
+    ) if job_name is None else job_name
+    # job_name = "projects/957184131556/locations/europe-west9/batchPredictionJobs/8362329087980601344"
     if job_name is None:
         raise Exception("Job creation failed")
     print(f"Job {job_name} created")
