@@ -59,3 +59,39 @@ Optionnel: surcharger les substitutions (si nécessaire):
 gcloud builds submit --config=cloudbuild.yaml \
   --substitutions _REGION=europe-west9,_TOPIC=videoclub-new-video
 ```
+
+## Orchestration Fan-Out/Fan-In
+
+- L'appel HTTP à `discover` crée un `batch_id` et publie un message Pub/Sub par vidéo manquante avec des attributs `batch_id`, `video_id`, `bucket`.
+- Chaque exécution `processor` traite un ID et incrémente de façon idempotente `completed` dans Firestore (`batches/{batch_id}`) via un document sentinelle `done/{video_id}`.
+- La fonction `aggregator` (déclencheur Firestore) observe `batches/{batch_id}` et, quand `completed + failed == total`, marque `status=done` et appelle la Cloud Function HTTP `prepare_data` pour générer `/data/*` dans le bucket.
+
+Appel manuel de la fonction `prepare_data` :
+
+```bash
+curl -H 'Content-Type: application/json' \
+     -d '{"bucket":"videoclub-test"}' \
+"$(gcloud functions describe prepare_data --gen2 --region ${REGION} --format='value(serviceConfig.uri)')"
+```
+
+### Blacklist de vidéos
+
+Pour ignorer des IDs qui échouent systématiquement, utilisez la collection Firestore `blacklist` (via la console Firebase/Firestore) avec des documents contenant le champ `video_id` (string).
+
+Alternatives en ligne de commande:
+- Script utilitaire (recommandé):
+
+```bash
+# Lister
+uv run ./scripts/manage_blacklist.py list
+
+# Ajouter
+uv run ./scripts/manage_blacklist.py add dQw4w9WgXcQ
+
+# Supprimer
+uv run ./scripts/manage_blacklist.py remove dQw4w9WgXcQ
+```
+
+- Variable d'env côté fonction `discover` (complémentaire): `BLACKLIST_IDS=dQw4w9WgXcQ,abc123`
+
+`discover` lit la collection (champ `video_id`) et la variable d'env pour exclure ces vidéos des publications.

@@ -37,6 +37,9 @@ async def annotate_all_videos(bucket_name: str, ids: list[str] | None = None):
 
     annotations_done = await annotate_videos(bucket_name, video_ids, annotation_blobs)
     logger.info("Annotated %d videos over %d", len(annotations_done), len(video_ids))
+    if len(annotations_done) < len(video_ids):
+        missing = set(video_ids) - set(annotations_done)
+        logger.warning("Missing annotations for videos: %s", ", ".join(missing))
     return annotations_done
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ steps:
       --timeout=3600s
       --trigger-http --allow-unauthenticated
     waitFor:
-      - "ensure-topic"
+      - "export-requirements"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: "deploy-processor"
@@ -40,16 +40,65 @@ steps:
       - "ensure-topic"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-prepare-data"
+    script: >
+      gcloud functions deploy prepare_data
+      --gen2
+      --runtime=python312
+      --region=${_REGION}
+      --source=.
+      --entry-point=prepare_data
+      --timeout=3600s
+      --memory=512MiB
+      --trigger-http --allow-unauthenticated
+    waitFor:
+      - "export-requirements"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "fetch-prepare-url"
+    script: >
+      gcloud functions describe prepare_data --gen2 --region=${_REGION} --format='value(serviceConfig.uri)' > /workspace/prepare_url.txt
+    waitFor:
+      - "deploy-prepare-data"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-aggregator"
+    script: |
+      set -eu
+      PREPARE_URL=$(cat /workspace/prepare_url.txt)
+      gcloud functions deploy aggregator \
+        --gen2 \
+        --runtime=python312 \
+        --region=${_FIRESTORE_REGION} \
+        --trigger-location=${_FIRESTORE_REGION} \
+        --source=. \
+        --entry-point=aggregator \
+        --set-env-vars=PREPARE_DATA_URL=${PREPARE_URL} \
+        --trigger-event-filters=type="google.cloud.firestore.document.v1.updated" \
+        --trigger-event-filters=database="(default)" \
+        --trigger-event-filters-path-pattern="document=batches/{batchId}"
+    waitFor:
+      - "fetch-prepare-url"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: "scheduler-create"
     script: |
       # Use POSIX-compatible flags under /bin/sh
       set -eu
       DISCOVER_URL=$(gcloud functions describe discover --gen2 --region=${_REGION} --format='value(serviceConfig.uri)')
-      gcloud scheduler jobs create http ${_SCHEDULER_JOB} \
-        --location=${_SCHEDULER_LOCATION} \
-        --schedule="${_SCHEDULE}" \
-        --uri="${DISCOVER_URL}?bucket=${_BUCKET}" \
-        --http-method=GET
+      if gcloud scheduler jobs describe ${_SCHEDULER_JOB} --location=${_SCHEDULER_LOCATION} >/dev/null 2>&1; then
+        gcloud scheduler jobs update http ${_SCHEDULER_JOB} \
+          --location=${_SCHEDULER_LOCATION} \
+          --schedule="${_SCHEDULE}" \
+          --uri="${DISCOVER_URL}?bucket=${_BUCKET}" \
+          --http-method=GET
+      else
+        gcloud scheduler jobs create http ${_SCHEDULER_JOB} \
+          --location=${_SCHEDULER_LOCATION} \
+          --schedule="${_SCHEDULE}" \
+          --uri="${DISCOVER_URL}?bucket=${_BUCKET}" \
+          --http-method=GET
+      fi
     waitFor:
       - "deploy-discover"
 
@@ -60,6 +109,7 @@ substitutions:
   _SCHEDULE: "0 */2 * * *"
   _SCHEDULER_JOB: videoclub-discover
   _SCHEDULER_LOCATION: europe-west1
+  _FIRESTORE_REGION: europe-west9
 
 options:
   automapSubstitutions: true

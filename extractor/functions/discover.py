@@ -21,11 +21,14 @@ import os
 import json
 from typing import Any
 import logging
+import uuid
+from datetime import datetime, timedelta, UTC
 
 import functions_framework
 from flask import Request, jsonify
 from google.cloud import storage
 from google.cloud import pubsub
+from google.cloud import firestore
 
 from extractor.youtube import get_videos_videoclub
 import google.auth
@@ -61,6 +64,7 @@ def discover(request: Request):
 
     storage_client = storage.Client()
     publisher = pubsub.PublisherClient()
+    fs = firestore.Client()
 
     # Build topic path
     if not project_id:
@@ -100,9 +104,35 @@ def discover(request: Request):
     total = 0
     skipped = 0
     limited = 0
+
+    # Load blacklist from Firestore collection and env var
+    blacklist: set[str] = set()
+    try:
+        for snap in fs.collection("blacklist").stream():
+            data = snap.to_dict() or {}
+            vid = data.get("video_id") or data.get("id")
+            if vid:
+                blacklist.add(str(vid))
+            else:
+                logger.warning("blacklist doc without video_id: %s", snap.id)
+    except Exception:
+        logger.warning("failed to load blacklist collection; continuing")
+    env_bl = os.environ.get("BLACKLIST_IDS")
+    if env_bl:
+        blacklist.update({x.strip() for x in env_bl.split(",") if x.strip()})
+    if blacklist:
+        logger.info("blacklist loaded: %d ids", len(blacklist))
+
+    # First pass: decide which videos to publish (respecting max)
+    to_publish: list[str] = []
+    blacklisted = 0
     for item in items:
         total += 1
         vid = item.snippet.resourceId.videoId
+        if vid in blacklist:
+            blacklisted += 1
+            logger.info("video %s is blacklisted; skipping", vid)
+            continue
         needs_video = not _blob_exists(storage_client, bucket, f"videos/{vid}/video.json")
         needs_movies = not _blob_exists(storage_client, bucket, f"videos/{vid}/movies.json")
         logger.info(
@@ -112,28 +142,51 @@ def discover(request: Request):
             needs_movies,
         )
         if needs_video or needs_movies:
-            # Respect publish cap if provided
-            if max_items is not None and published >= max_items:
+            if max_items is not None and len(to_publish) >= max_items:
                 limited += 1
-                logger.info("publish limit reached; skipping %s", vid)
                 continue
-            payload: dict[str, Any] = {"id": vid, "bucket": bucket}
-            data = json.dumps(payload).encode("utf-8")
-            try:
-                future = publisher.publish(topic_path, data=data)
-                # Wait briefly to surface publish failures and log
-                try:
-                    future.result(timeout=10)
-                    published += 1
-                    logger.info("publish ok for %s", vid)
-                except Exception as exc:
-                    logger.exception("publish failed for %s: %s", vid, exc)
-            except Exception:
-                # Continue processing others; report in response
-                logger.exception("publish raised for %s", vid)
-                pass
+            to_publish.append(vid)
         else:
             skipped += 1
+
+    # Create a batch document if we have anything to publish
+    batch_id: str | None = None
+    if to_publish:
+        batch_id = str(uuid.uuid4())
+        now = datetime.now(UTC)
+        ttl = now + timedelta(days=14)
+        batch_ref = fs.collection("batches").document(batch_id)
+        batch_doc = {
+            "bucket": bucket,
+            "total": len(to_publish),
+            "completed": 0,
+            "failed": 0,
+            "status": "in_progress",
+            "video_ids": to_publish,
+            "created_at": now,
+            "ttl": ttl,
+        }
+        batch_ref.set(batch_doc)
+        logger.info("batch created: id=%s total=%d", batch_id, len(to_publish))
+
+    # Second pass: publish messages with attributes (if any to publish)
+    for vid in to_publish:
+        payload: dict[str, Any] = {"id": vid, "bucket": bucket}
+        data = json.dumps(payload).encode("utf-8")
+        attrs: dict[str, str] = {"video_id": vid, "bucket": bucket}
+        if batch_id:
+            attrs["batch_id"] = batch_id
+        try:
+            future = publisher.publish(topic_path, data=data, **attrs)
+            try:
+                future.result(timeout=10)
+                published += 1
+                logger.info("publish ok for %s batch_id=%s", vid, batch_id)
+            except Exception as exc:
+                logger.exception("publish failed for %s: %s", vid, exc)
+        except Exception:
+            logger.exception("publish raised for %s", vid)
+            pass
 
     logger.info(
         "discover done: total=%d published=%d skipped=%d limited=%d",
@@ -149,4 +202,6 @@ def discover(request: Request):
         "project": project_id,
         "total": total,
         "published": published,
+        "batch_id": batch_id,
+        "blacklisted": blacklisted,
     })
