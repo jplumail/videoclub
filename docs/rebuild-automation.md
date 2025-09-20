@@ -87,8 +87,8 @@ TRIGGER_NAME=videoclub-web-rebuild
 TOPIC=projects/${PROJECT_ID}/topics/videoclub-rebuild-site
 CONNECTION_NAME=videoclub-github           # name of your Cloud Build connection
 REPO_NAME=videoclub                        # repo registered within that connection
-PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')
-CLOUDBUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
+SERVICE_ACCOUNT_ID=cloudbuild-web          # user-managed SA dedicated to builds
+CLOUDBUILD_SA="${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 gcloud builds triggers create pubsub \
   --project=${PROJECT_ID} \
@@ -104,20 +104,38 @@ gcloud builds triggers create pubsub \
 
 Cloud Build fetches the latest revision of the specified branch for each trigger event so the deployment always uses a consistent commit snapshot.
 
+> Cloud Build 2nd-gen triggers reject the default project-number@cloudbuild.gserviceaccount.com identity. Create and supply your own service account (next section) instead.
+
 ## 5. IAM for Cloud Build
 
-Grant the Cloud Build default service account Firebase Hosting permissions:
+Create (or confirm) the user-managed service account and grant the required roles:
 
 ```bash
+PROJECT_ID=videoclub-447210
+SERVICE_ACCOUNT_ID=cloudbuild-web
+CLOUDBUILD_SA="${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com"
 PROJECT_NUMBER=$(gcloud projects describe ${PROJECT_ID} --format='value(projectNumber)')
-CLOUDBUILD_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
+CLOUDBUILD_P4SA="service-${PROJECT_NUMBER}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+
+gcloud iam service-accounts create ${SERVICE_ACCOUNT_ID} \
+  --project=${PROJECT_ID} \
+  --display-name="Cloud Build web builder"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:${CLOUDBUILD_SA}" \
+  --role="roles/cloudbuild.builds.builder"
 
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --member="serviceAccount:${CLOUDBUILD_SA}" \
   --role="roles/firebasehosting.admin"
+
+gcloud iam service-accounts add-iam-policy-binding ${CLOUDBUILD_SA} \
+  --project=${PROJECT_ID} \
+  --member="serviceAccount:${CLOUDBUILD_P4SA}" \
+  --role="roles/iam.serviceAccountTokenCreator"
 ```
 
-If you store hosting tokens or additional secrets, grant `roles/secretmanager.secretAccessor` instead of distributing download keys manually.
+Grant additional roles (Secret Manager access, Artifact Registry, etc.) if your build steps need them.
 
 ## 6. Manual end-to-end test
 
@@ -126,6 +144,12 @@ Publish a message once everything is wired:
 ```bash
 gcloud pubsub topics publish videoclub-rebuild-site \
   --message='{"bucket":"videoclub-test"}'
+
+# Verify that the trigger exists and is pointing at the expected config:
+
+gcloud builds triggers describe ${TRIGGER_NAME} \
+  --project=${PROJECT_ID} \
+  --region=${REGION}
 ```
 
 Watch Cloud Build for a successful run and confirm that Firebase Hosting deploys the latest build.
