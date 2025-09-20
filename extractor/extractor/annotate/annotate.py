@@ -2,6 +2,7 @@ from datetime import datetime
 import asyncio
 import json
 from google.genai.models import _GenerateContentParameters_to_vertex, _common
+from google.genai.types import ThinkingConfig
 import googleapiclient.discovery
 from google import genai
 from google.genai import types
@@ -29,7 +30,7 @@ def get_title(youtube_id: str):
     youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=API_KEY)
     request = youtube.videos().list(part="snippet", id=youtube_id)
     response = request.execute()
-    return response["items"][0]["snippet"]["title"] # pyright: ignore[reportTypedDictNotRequiredAccess]
+    return response["items"][0]["snippet"]["title"]  # pyright: ignore[reportTypedDictNotRequiredAccess]
 
 
 def create_request(youtube_video_id: str, context: list[types.Content] | None = None):
@@ -54,6 +55,7 @@ La sortie au format JSON doit être minifiée.
         response_schema=AnnotationResponse,
         system_instruction=annotation_instruction,
         safety_settings=safety_settings,
+        thinking_config=ThinkingConfig(include_thoughts=True),
     )
     if context:
         context = context + [
@@ -258,22 +260,23 @@ async def _annotate_videos(
     annotations_done: dict[str, AnnotationResponse] = {}
     with prediction_blob.open("r") as f:
         for line in f:
-            try:
-                response = json.loads(line)
-                video_uri = response["request"]["contents"][0]["parts"][0]["fileData"][
-                    "fileUri"
-                ]
-                video_id = video_uri.split("?v=")[-1]
-                candidate = response["response"]["candidates"][0]
-                if candidate["finishReason"] == "MAX_TOKENS":
-                    print(f"MAX_TOKENS reached for {video_id}, skipping")
-                    continue
-                json_payload = candidate["content"]["parts"][0]["text"]
-                annotations_done[video_id] = AnnotationResponse.model_validate_json(
-                    json_payload
-                )
-            except Exception as e:
-                print(f"Error for {video_id}: {e}")
+            response = json.loads(line)
+            video_uri = response["request"]["contents"][0]["parts"][0]["fileData"][
+                "fileUri"
+            ]
+            video_id = video_uri.split("?v=")[-1]
+            candidate = response["response"]["candidates"][0]
+            if candidate["finishReason"] == "MAX_TOKENS":
+                print(f"MAX_TOKENS reached for {video_id}, skipping")
+                continue
+            json_payload = [
+                part["text"]
+                for part in candidate["content"]["parts"]
+                if part.get("thought", False) is False
+            ][0]
+            annotations_done[video_id] = AnnotationResponse.model_validate_json(
+                json_payload
+            )
 
     print(f"Annotated {len(annotations_done)} videos over {len(video_ids)}")
     return annotations_done
