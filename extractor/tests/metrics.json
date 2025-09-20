@@ -1,0 +1,11 @@
+{
+  "matched": 100,
+  "ground_truth_items": 108,
+  "predicted_items": 103,
+  "precision": 0.970873786407767,
+  "recall": 0.9259259259259259,
+  "title_similarity": 1.0,
+  "authors_f1": 0.92,
+  "years_f1": 0.8866666666666667,
+  "overall_weighted_score": 0.9533333333333334
+}

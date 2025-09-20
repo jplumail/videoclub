@@ -1,6 +1,9 @@
 import asyncio
+import json
 from pathlib import Path
 from collections.abc import Iterable
+
+import typer
 
 import jiwer
 
@@ -250,7 +253,7 @@ def match_items_global(gt: AnnotationResponse, pred: AnnotationResponse):
     return pairs
 
 
-def test_annotate():
+def run_test(job_id: int | None = None, job_name: str | None = None) -> dict[str, float]:
     # Use this file's folder as the canonical tests directory for GT/pred files
     tests_dir = Path(__file__).resolve().parent
 
@@ -261,10 +264,6 @@ def test_annotate():
 
     bucket_name = "videoclub-test"
     video_ids = ["HLUe85q1hNM"]
-    job_id = 1757860849
-    job_name = "projects/957184131556/locations/europe-north1/batchPredictionJobs/5233162975795216384"
-    # job_id = None
-    # job_name = None
     annotations = asyncio.run(
         _annotate_videos(
             bucket_name,
@@ -305,7 +304,22 @@ def test_annotate():
     # Emphasize: title 0.5, authors 0.3, years 0.2
     overall = 0.5 * title_mean + 0.3 * authors_mean + 0.2 * years_mean
 
-    print(f"Matched: {len(pairs)} / GT: {len(gt.items)} / Pred: {len(pred.items)}")
+    metrics = {
+        "matched": len(pairs),
+        "ground_truth_items": len(gt.items),
+        "predicted_items": len(pred.items),
+        "precision": precision,
+        "recall": recall,
+        "title_similarity": title_mean,
+        "authors_f1": authors_mean,
+        "years_f1": years_mean,
+        "overall_weighted_score": overall,
+    }
+
+    metrics_path = tests_dir / "metrics.json"
+    metrics_path.write_text(json.dumps(metrics, indent=2))
+
+    print(f"Matched: {metrics['matched']} / GT: {metrics['ground_truth_items']} / Pred: {metrics['predicted_items']}")
     print(f"Precision: {precision:.2f}, Recall: {recall:.2f}")
     print(f"Title similarity (1-CER): {title_mean:.2f}")
     print(f"Authors F1: {authors_mean:.2f}")
@@ -322,7 +336,13 @@ def test_annotate():
         if idx not in matched_gt:
             print(f"Missed (gt only): {item}")
 
+    return metrics
+
+
+def test_annotate():
+    run_test()
+
 
 # Allow manual run
 if __name__ == "__main__":
-    test_annotate()
+    typer.run(run_test)
