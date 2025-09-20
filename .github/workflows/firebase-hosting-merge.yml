@@ -39,4 +39,3 @@ jobs:
             echo "Failed to start Cloud Build run" >&2
             exit 1
           fi
-          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
