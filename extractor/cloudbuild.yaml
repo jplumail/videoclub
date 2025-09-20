@@ -81,35 +81,13 @@ steps:
     waitFor:
       - "fetch-prepare-url"
 
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    id: "scheduler-create"
-    script: |
-      # Use POSIX-compatible flags under /bin/sh
-      set -eu
-      DISCOVER_URL=$(gcloud functions describe discover --gen2 --region=${_REGION} --format='value(serviceConfig.uri)')
-      if gcloud scheduler jobs describe ${_SCHEDULER_JOB} --location=${_SCHEDULER_LOCATION} >/dev/null 2>&1; then
-        gcloud scheduler jobs update http ${_SCHEDULER_JOB} \
-          --location=${_SCHEDULER_LOCATION} \
-          --schedule="${_SCHEDULE}" \
-          --uri="${DISCOVER_URL}?bucket=${_BUCKET}" \
-          --http-method=GET
-      else
-        gcloud scheduler jobs create http ${_SCHEDULER_JOB} \
-          --location=${_SCHEDULER_LOCATION} \
-          --schedule="${_SCHEDULE}" \
-          --uri="${DISCOVER_URL}?bucket=${_BUCKET}" \
-          --http-method=GET
-      fi
-    waitFor:
-      - "deploy-discover"
+
+# Manual Cloud Scheduler setup documented in docs/extractor-pipeline.md
 
 substitutions:
   _REGION: europe-west9
   _TOPIC: videoclub-new-video
   _BUCKET: videoclub-test
-  _SCHEDULE: "0 */2 * * *"
-  _SCHEDULER_JOB: videoclub-discover
-  _SCHEDULER_LOCATION: europe-west1
   _FIRESTORE_REGION: europe-west9
 
 options:
