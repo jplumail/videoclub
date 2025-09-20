@@ -18,14 +18,12 @@ jobs:
       - id: auth
         uses: google-github-actions/auth@v2
         with:
-          project_id: videoclub-447210
-          workload_identity_provider: ${{ secrets.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
+          workload_identity_provider: projects/957184131556/locations/global/workloadIdentityPools/github/providers/videoclub
           service_account: cloudbuild-web@videoclub-447210.iam.gserviceaccount.com
 
-      - uses: google-github-actions/setup-gcloud@v2
+      - uses: google-github-actions/setup-gcloud@v3
         with:
           project_id: videoclub-447210
-          export_default_credentials: true
 
       - name: Trigger Cloud Build
         id: trigger

@@ -135,6 +135,14 @@ gcloud iam service-accounts add-iam-policy-binding ${CLOUDBUILD_SA} \
   --role="roles/iam.serviceAccountTokenCreator"
 ```
 
+Allow GitHub Actions (repo jplumail/videoclub) to impersonate the build service account via Workload Identity Federation.
+```bash
+gcloud iam service-accounts add-iam-policy-binding ${CLOUDBUILD_SA} \
+  --project=${PROJECT_ID} \
+  --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github/attribute.repository/jplumail/videoclub" \
+  --role="roles/iam.workloadIdentityUser"
+```
+
 Grant additional roles (Secret Manager access, Artifact Registry, etc.) if your build steps need them.
 
 ## 6. Manual end-to-end test
