@@ -159,7 +159,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "00:37",
-        "end_time": "00:40"
+        "end_time": "00:41"
       },
       "authors": [
         "Christopher Nolan"
@@ -228,7 +228,7 @@
       "title": "Amadeus",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "01:56",
+        "start_time": "01:57",
         "end_time": "01:59"
       },
       "authors": [
@@ -298,7 +298,7 @@
       "title": "The White Lotus",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "02:35",
+        "start_time": "02:36",
         "end_time": "02:37"
       },
       "authors": [
@@ -551,7 +551,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "06:01",
-        "end_time": "06:02"
+        "end_time": "06:03"
       },
       "authors": [
         "Francis Ford Coppola"
@@ -565,7 +565,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "06:03",
-        "end_time": "06:04"
+        "end_time": "06:05"
       },
       "authors": [
         "William Friedkin"
@@ -705,7 +705,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "08:39",
-        "end_time": "08:40"
+        "end_time": "08:41"
       },
       "authors": [
         "Jim Sheridan"
@@ -733,7 +733,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "09:09",
-        "end_time": "09:10"
+        "end_time": "09:11"
       },
       "authors": [
         "Nicolas Winding Refn"
@@ -776,20 +776,6 @@
       "timecode": {
         "start_time": "09:34",
         "end_time": "09:36"
-      },
-      "authors": [
-        "Terrence Malick"
-      ],
-      "years": [
-        1999
-      ]
-    },
-    {
-      "title": "La Ligne rouge",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "10:00",
-        "end_time": "10:02"
       },
       "authors": [
         "Terrence Malick"
@@ -846,6 +832,20 @@
       "timecode": {
         "start_time": "11:03",
         "end_time": "11:07"
+      },
+      "authors": [
+        "Mathieu Kassovitz"
+      ],
+      "years": [
+        1995
+      ]
+    },
+    {
+      "title": "La Haine",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "11:12",
+        "end_time": "11:13"
       },
       "authors": [
         "Mathieu Kassovitz"
@@ -914,6 +914,20 @@
       "title": "Le Salaire de la peur",
       "title_position": "top-left",
       "timecode": {
+        "start_time": "11:56",
+        "end_time": "11:58"
+      },
+      "authors": [
+        "Henri-Georges Clouzot"
+      ],
+      "years": [
+        1953
+      ]
+    },
+    {
+      "title": "Le Salaire de la peur",
+      "title_position": "top-left",
+      "timecode": {
         "start_time": "12:05",
         "end_time": "12:07"
       },
@@ -956,8 +970,8 @@
       "title": "Le Convoi de la peur",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "12:33",
-        "end_time": "12:36"
+        "start_time": "12:31",
+        "end_time": "12:35"
       },
       "authors": [
         "William Friedkin"
@@ -971,7 +985,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "12:41",
-        "end_time": "12:45"
+        "end_time": "12:46"
       },
       "authors": [
         "William Friedkin"
@@ -1042,20 +1056,6 @@
       "timecode": {
         "start_time": "13:38",
         "end_time": "13:40"
-      },
-      "authors": [
-        "Alfred Hitchcock"
-      ],
-      "years": [
-        1948
-      ]
-    },
-    {
-      "title": "Correspondant 17",
-      "title_position": "top-left",
-      "timecode": {
-        "start_time": "13:49",
-        "end_time": "13:52"
       },
       "authors": [
         "Alfred Hitchcock"
@@ -1177,10 +1177,24 @@
       ]
     },
     {
+      "title": "Zoulou",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "15:17",
+        "end_time": "15:19"
+      },
+      "authors": [
+        "Cyril R. Endfield"
+      ],
+      "years": [
+        1964
+      ]
+    },
+    {
       "title": "Citizen Kane",
       "title_position": "top-left",
       "timecode": {
-        "start_time": "15:35",
+        "start_time": "15:34",
         "end_time": "15:38"
       },
       "authors": [
@@ -1195,7 +1209,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "15:49",
-        "end_time": "15:51"
+        "end_time": "15:52"
       },
       "authors": [
         "Orson Welles"
@@ -1209,7 +1223,7 @@
       "title_position": "top-left",
       "timecode": {
         "start_time": "15:54",
-        "end_time": "15:55"
+        "end_time": "15:56"
       },
       "authors": [
         "Orson Welles"
@@ -1361,11 +1375,25 @@
       ]
     },
     {
+      "title": "The Dark Knight : Le Chevalier noir",
+      "title_position": "top-left",
+      "timecode": {
+        "start_time": "18:07",
+        "end_time": "18:08"
+      },
+      "authors": [
+        "Christopher Nolan"
+      ],
+      "years": [
+        2008
+      ]
+    },
+    {
       "title": "Furyo",
       "title_position": "top-left",
       "timecode": {
         "start_time": "18:29",
-        "end_time": "18:32"
+        "end_time": "18:31"
       },
       "authors": [
         "Nagisa Ōshima"
