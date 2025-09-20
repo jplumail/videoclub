@@ -1,6 +1,7 @@
 from datetime import datetime
 import asyncio
 import json
+from pathlib import Path
 from google.genai.models import _GenerateContentParameters_to_vertex, _common
 from google.genai.types import ThinkingConfig
 import googleapiclient.discovery
@@ -91,23 +92,35 @@ La sortie au format JSON doit être minifiée.
 
 
 def create_batch_prediction_request_file(
-    bucket_name: str, video_ids: list[str], request_blob_name: str
+    bucket_name: str,
+    video_ids: list[str],
+    request_blob_name: str,
+    local_request_path: Path | None = None,
 ) -> str:
     assert request_blob_name.endswith(".jsonl")
     requests = [
         json.dumps(create_request(video_id), ensure_ascii=False)
         for video_id in video_ids
     ]
+    payload = "\n".join(requests)
+
+    if local_request_path:
+        local_request_path.parent.mkdir(parents=True, exist_ok=True)
+        local_request_path.write_text(payload, encoding="utf-8")
+        print(f"Saved request payload to {local_request_path}")
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(request_blob_name)
-    blob.upload_from_string("\n".join(requests), content_type="application/jsonl")
+    blob.upload_from_string(payload, content_type="application/jsonl")
     return blob.name  # type: ignore
 
 
 def create_batch_prediction_request_file_continue(
-    bucket_name: str, requests_to_continue: list[dict], request_blob_name: str
+    bucket_name: str,
+    requests_to_continue: list[dict],
+    request_blob_name: str,
+    local_request_path: Path | None = None,
 ) -> str:
     assert request_blob_name.endswith(".jsonl")
     video_blobs = [
@@ -136,11 +149,17 @@ def create_batch_prediction_request_file_continue(
         )
         for blob, context in zip(video_blobs, contexts)
     ]
+    payload = "\n".join(requests)
+
+    if local_request_path:
+        local_request_path.parent.mkdir(parents=True, exist_ok=True)
+        local_request_path.write_text(payload, encoding="utf-8")
+        print(f"Saved request payload to {local_request_path}")
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(request_blob_name)
-    blob.upload_from_string("\n".join(requests), content_type="application/jsonl")
+    blob.upload_from_string(payload, content_type="application/jsonl")
     return blob.name  # type: ignore
 
 
@@ -149,9 +168,13 @@ def create_batch_prediction_job(
     video_ids: list[str],
     request_blob_name: str,
     destination_prefix: str,
+    local_request_path: Path | None = None,
 ):
     request_blob_name = create_batch_prediction_request_file(
-        bucket_name, video_ids, request_blob_name
+        bucket_name,
+        video_ids,
+        request_blob_name,
+        local_request_path=local_request_path,
     )
     job = client.batches.create(
         model=MODEL,
@@ -168,9 +191,13 @@ def create_batch_prediction_job_continue(
     requests_to_continue: list[dict],
     request_blob_name: str,
     destination_prefix: str,
+    local_request_path: Path | None = None,
 ):
     request_blob_name = create_batch_prediction_request_file_continue(
-        bucket_name, requests_to_continue, request_blob_name
+        bucket_name,
+        requests_to_continue,
+        request_blob_name,
+        local_request_path=local_request_path,
     )
     job = client.batches.create(
         model=MODEL,
@@ -218,17 +245,24 @@ async def _annotate_videos(
     video_ids: list[str],
     job_id: int | None = None,
     job_name: str | None = None,
+    debug_output_dir: str | Path | None = None,
 ):
     job_id = int(datetime.now().timestamp()) if job_id is None else job_id
     # job_id = 1756792772
     job_prefix = f"work/{job_id}"
     output_folder = f"{job_prefix}/output"
+    base_dir = Path(debug_output_dir) if debug_output_dir is not None else Path(".")
+    local_job_dir = base_dir / job_prefix
+    local_job_dir.mkdir(parents=True, exist_ok=True)
+    local_request_path = local_job_dir / "annotations-request.jsonl"
+    local_predictions_path = local_job_dir / "predictions.jsonl"
     job_name = (
         create_batch_prediction_job(
             bucket_name,
             video_ids,
             f"{job_prefix}/annotations-request.jsonl",
             output_folder,
+            local_request_path=local_request_path,
         )
         if job_name is None
         else job_name
@@ -263,8 +297,12 @@ async def _annotate_videos(
     )
     print(f"Downloading {prediction_blob.name}")
     annotations_done: dict[str, AnnotationResponse] = {}
-    with prediction_blob.open("r") as f:
-        for line in f:
+    with (
+        prediction_blob.open("r") as prediction_stream,
+        local_predictions_path.open("w", encoding="utf-8") as local_predictions_file,
+    ):
+        for line in prediction_stream:
+            local_predictions_file.write(line)
             response = json.loads(line)
             video_uri = response["request"]["contents"][0]["parts"][0]["fileData"][
                 "fileUri"
@@ -284,13 +322,19 @@ async def _annotate_videos(
             )
 
     print(f"Annotated {len(annotations_done)} videos over {len(video_ids)}")
+    print(f"Saved predictions payload to {local_predictions_path}")
     return annotations_done
 
 
 async def annotate_videos(
-    bucket_name: str, video_ids: list[str], annotation_output_blob_list: list[str]
+    bucket_name: str,
+    video_ids: list[str],
+    annotation_output_blob_list: list[str],
+    debug_output_dir: str | Path | None = None,
 ):
-    annotation_responses = await _annotate_videos(bucket_name, video_ids)
+    annotation_responses = await _annotate_videos(
+        bucket_name, video_ids, debug_output_dir=debug_output_dir
+    )
     annotations_uploaded = []
     for video_id, annotation_response in annotation_responses.items():
         annotation_output_blob = next(

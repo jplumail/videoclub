@@ -2,6 +2,7 @@
 
 Produces:
 - `videos/{video_id}/annotations.json`
+- Local debug copies of `annotations-request.jsonl` and `predictions.jsonl`
 
 This script:
 - Lists YouTube playlist videos via `extractor.youtube.get_videos_videoclub`.
@@ -23,7 +24,11 @@ from extractor.youtube import get_videos_videoclub
 logger = logging.getLogger(__name__)
 
 
-async def annotate_all_videos(bucket_name: str, ids: list[str] | None = None):
+async def annotate_all_videos(
+    bucket_name: str,
+    ids: list[str] | None = None,
+    debug_output_dir: str | None = None,
+):
     # Prepare the list of IDs without unnecessary playlist fetch
     if ids:
         video_ids = list(ids)
@@ -35,7 +40,12 @@ async def annotate_all_videos(bucket_name: str, ids: list[str] | None = None):
 
     annotation_blobs = [f"videos/{id_}/annotations.json" for id_ in video_ids]
 
-    annotations_done = await annotate_videos(bucket_name, video_ids, annotation_blobs)
+    annotations_done = await annotate_videos(
+        bucket_name,
+        video_ids,
+        annotation_blobs,
+        debug_output_dir=debug_output_dir,
+    )
     logger.info("Annotated %d videos over %d", len(annotations_done), len(video_ids))
     if len(annotations_done) < len(video_ids):
         missing = set(video_ids) - set(annotations_done)
@@ -62,6 +72,14 @@ if __name__ == "__main__":
         nargs="*",
         help="Specific YouTube video IDs to process.",
     )
+    parser.add_argument(
+        "--debug-output-dir",
+        default=None,
+        help=(
+            "Local directory to mirror batch request/prediction payloads "
+            "(default: current working directory's work/<job_id>)"
+        ),
+    )
     args = parser.parse_args()
 
     # Require either --all or at least one ID
@@ -70,4 +88,4 @@ if __name__ == "__main__":
 
     # If IDs are provided, restrict to those; otherwise, process all
     selected_ids = args.ids if args.ids else None
-    asyncio.run(annotate_all_videos(args.bucket, selected_ids))
+    asyncio.run(annotate_all_videos(args.bucket, selected_ids, args.debug_output_dir))
