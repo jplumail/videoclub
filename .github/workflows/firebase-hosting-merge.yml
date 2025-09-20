@@ -9,30 +9,51 @@ on:
 permissions:
   contents: read
   id-token: write
-defaults:
-  run:
-    working-directory: web
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: 'google-github-actions/auth@v2'
+
+      - id: auth
+        uses: google-github-actions/auth@v2
         with:
           project_id: videoclub-447210
           workload_identity_provider: ${{ secrets.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+          service_account: cloudbuild-web@videoclub-447210.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
         with:
-          version: 9
-      - name: Install dependencies
-        run: pnpm install
-      - name: Build
-        run: pnpm build
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_VIDEOCLUB_447210 }}
-          channelId: live
-          projectId: videoclub-447210
-          entrypoint: web
+          project_id: videoclub-447210
+          export_default_credentials: true
+
+      - name: Trigger Cloud Build
+        id: trigger
+        env:
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+        run: |
+          BUILD_ID=$(gcloud builds triggers run videoclub-web-rebuild \
+            --project=videoclub-447210 \
+            --region=europe-west9 \
+            --branch="${DEPLOY_BRANCH}" \
+            --format='value(metadata.build.id)')
+          if [ -z "$BUILD_ID" ]; then
+            echo "Failed to start Cloud Build run" >&2
+            exit 1
+          fi
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Stream Cloud Build logs
+        run: |
+          gcloud builds log "${{ steps.trigger.outputs.build_id }}" \
+            --project=videoclub-447210 \
+            --region=europe-west9
+
+      - name: Verify Cloud Build result
+        run: |
+          STATUS=$(gcloud builds describe "${{ steps.trigger.outputs.build_id }}" \
+            --project=videoclub-447210 \
+            --region=europe-west9 \
+            --format='value(status)')
+          echo "Cloud Build finished with status: $STATUS"
+          test "$STATUS" = "SUCCESS"
