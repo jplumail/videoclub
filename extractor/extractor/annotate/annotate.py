@@ -22,7 +22,7 @@ client = genai.Client(
 
 MODEL = "gemini-2.5-flash"
 TEMP = 0
-THINKING_BUDGET = None  # None means no limit
+THINKING_BUDGET = 1000  # None means no limit
 
 
 def get_title(youtube_id: str):
