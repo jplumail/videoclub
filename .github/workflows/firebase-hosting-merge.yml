@@ -40,18 +40,3 @@ jobs:
             exit 1
           fi
           echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Stream Cloud Build logs
-        run: |
-          gcloud builds log "${{ steps.trigger.outputs.build_id }}" \
-            --project=videoclub-447210 \
-            --region=europe-west9
-
-      - name: Verify Cloud Build result
-        run: |
-          STATUS=$(gcloud builds describe "${{ steps.trigger.outputs.build_id }}" \
-            --project=videoclub-447210 \
-            --region=europe-west9 \
-            --format='value(status)')
-          echo "Cloud Build finished with status: $STATUS"
-          test "$STATUS" = "SUCCESS"

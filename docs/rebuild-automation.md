@@ -141,6 +141,12 @@ gcloud iam service-accounts add-iam-policy-binding ${CLOUDBUILD_SA} \
   --project=${PROJECT_ID} \
   --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github/attribute.repository/jplumail/videoclub" \
   --role="roles/iam.workloadIdentityUser"
+
+gcloud iam service-accounts add-iam-policy-binding ${CLOUDBUILD_SA} \
+  --project=${PROJECT_ID} \
+  --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github/attribute.repository/jplumail/videoclub" \
+  --role="roles/iam.serviceAccountUser"
+# Required so the federated identity can set itself as the Cloud Build trigger service account when invoking builds.
 ```
 
 Grant additional roles (Secret Manager access, Artifact Registry, etc.) if your build steps need them.
