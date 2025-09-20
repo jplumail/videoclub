@@ -1,5 +1,5 @@
 steps:
-  - name: "ghcr.io/astral-sh/uv:python3.12-alpine"
+  - name: "ghcr.io/astral-sh/uv:latest"
     script: uv export --no-emit-project -o requirements.txt
     id: "export-requirements"
 
