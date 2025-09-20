@@ -1,0 +1,28 @@
+steps:
+  - id: install
+    name: node
+    entrypoint: bash
+    dir: web
+    args:
+      - -c
+      - |
+          set -euo pipefail
+          corepack enable
+          pnpm install --frozen-lockfile
+  - id: build
+    name: node
+    entrypoint: bash
+    dir: web
+    args:
+      - -c
+      - |
+          set -euo pipefail
+          corepack enable
+          pnpm build
+  - id: deploy-hosting
+    name: us-docker.pkg.dev/firebase-cli/us/firebase
+    entrypoint: firebase
+    dir: web
+    args: ["deploy", "--project=${_FIREBASE_PROJECT_ID}", "--only=hosting"]
+substitutions:
+  _FIREBASE_PROJECT_ID: videoclub-staging
