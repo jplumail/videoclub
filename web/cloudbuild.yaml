@@ -26,3 +26,5 @@ steps:
     args: ["deploy", "--project=${_FIREBASE_PROJECT_ID}", "--only=hosting"]
 substitutions:
   _FIREBASE_PROJECT_ID: videoclub-staging
+options:
+  logging: CLOUD_LOGGING_ONLY
