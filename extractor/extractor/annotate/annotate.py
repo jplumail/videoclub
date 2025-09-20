@@ -21,6 +21,7 @@ client = genai.Client(
 
 MODEL = "gemini-2.5-flash"
 TEMP = 0
+THINKING_BUDGET = None  # None means no limit
 
 
 def get_title(youtube_id: str):
@@ -46,6 +47,7 @@ Pour chaque extrait vidéo :
 
 La sortie au format JSON doit être minifiée.
 """
+    include_thoughts = THINKING_BUDGET > 0 if THINKING_BUDGET is not None else True
 
     generation_config = types.GenerateContentConfig(
         max_output_tokens=None,
@@ -55,7 +57,10 @@ La sortie au format JSON doit être minifiée.
         response_schema=AnnotationResponse,
         system_instruction=annotation_instruction,
         safety_settings=safety_settings,
-        thinking_config=ThinkingConfig(include_thoughts=True),
+        thinking_config=ThinkingConfig(
+            include_thoughts=include_thoughts,
+            thinking_budget=THINKING_BUDGET,
+        ),
     )
     if context:
         context = context + [
