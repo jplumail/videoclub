@@ -52,7 +52,7 @@ Use the Cloud Scheduler console to verify invocations succeed, or review Cloud L
 
 ## Update the scheduler
 
-````bash
+```bash
 gcloud scheduler jobs update http ${SCHEDULER_JOB} \
   --project=${PROJECT_ID} \
   --location=${SCHEDULER_LOCATION} \
