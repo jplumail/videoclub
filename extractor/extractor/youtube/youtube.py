@@ -7,12 +7,9 @@ import requests
 VIDEO_CLUB_PLAYLIST_ID = "PL6yqY0TQJgwcSGYD6a2P4YgpHIp-HCzZn"
 API_KEY = "AIzaSyB8iURfuYgKGusxLeeJRziG-fBmqorX5ko"
 
-videos_exclude = [
-    "PYBNm843pmQ",
-]
-
 logger = logging.getLogger(__name__)
 
+videos_exclude = {}
 
 def is_video_a_short(video_id: str):
     """Check if a YouTube video is a Short.
