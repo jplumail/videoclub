@@ -60,3 +60,9 @@ gcloud scheduler jobs update http ${SCHEDULER_JOB} \
   --uri="${DISCOVER_URL}?bucket=${BUCKET}" \
   --http-method=GET
 ```
+
+## Trigger the pipeline manually
+
+```bash
+curl -sS "https://europe-west9-videoclub-447210.cloudfunctions.net/discover?bucket=videoclub-test"
+```
