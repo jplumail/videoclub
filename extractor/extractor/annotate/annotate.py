@@ -289,12 +289,18 @@ async def _annotate_videos(
     if job.state not in success_states:
         print(job)
         raise Exception("Job failed")
+    else:
+        # sleep a bit to ensure files are visible
+        await asyncio.sleep(5)
 
     bucket = storage.Client().bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=output_folder)
-    prediction_blob = next(
-        iter([blob for blob in blobs if blob.name.endswith("predictions.jsonl")])
-    )
+    try:
+        prediction_blob = next(
+            iter([blob for blob in blobs if blob.name.endswith("predictions.jsonl")])
+        )
+    except StopIteration:
+        raise Exception("No predictions.jsonl found in output folder")
     print(f"Downloading {prediction_blob.name}")
     annotations_done: dict[str, AnnotationResponse] = {}
     with (
