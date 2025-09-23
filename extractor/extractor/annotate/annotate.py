@@ -8,6 +8,7 @@ import googleapiclient.discovery
 from google import genai
 from google.genai import types
 from google.cloud import storage
+from google.api_core.exceptions import RetryError
 import io
 import json_stream
 from json_stream.base import PersistentStreamingJSONObject, PersistentStreamingJSONList
@@ -17,12 +18,20 @@ from .models import AnnotationResponse
 
 
 client = genai.Client(
-    vertexai=True, project="videoclub-447210", location="europe-north1"
+    vertexai=True,
+    project="videoclub-447210",
+    location="europe-north1",
+    http_options=types.HttpOptions(api_version="v1"),
 )
 
 MODEL = "gemini-2.5-flash"
 TEMP = 0
-THINKING_BUDGET = 1000  # None means no limit
+# Si je mets 1000 ou autre, le thinkingBudget est ignoré
+# et ça peut poser problème pour les longues vidéos
+# qui arrivent à la limite de tokens de 65536 tokens
+# Voir: https://github.com/googleapis/python-genai/issues/782
+# Donc je mets 0 pour l'instant et je gère les erreurs de max_tokens dans processor.py
+THINKING_BUDGET = 0  # None means no limit
 
 
 def get_title(youtube_id: str):
@@ -291,7 +300,7 @@ async def _annotate_videos(
         raise Exception("Job failed")
     else:
         # sleep a bit to ensure files are visible
-        await asyncio.sleep(5)
+        await asyncio.sleep(10)
 
     bucket = storage.Client().bucket(bucket_name)
     blobs = bucket.list_blobs(prefix=output_folder)
@@ -299,7 +308,7 @@ async def _annotate_videos(
         prediction_blob = next(
             iter([blob for blob in blobs if blob.name.endswith("predictions.jsonl")])
         )
-    except StopIteration:
+    except (StopIteration, RetryError):
         raise Exception("No predictions.jsonl found in output folder")
     print(f"Downloading {prediction_blob.name}")
     annotations_done: dict[str, AnnotationResponse] = {}

@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, TypeAdapter
 from google import genai
 from google.genai import types
@@ -19,10 +18,14 @@ class PersonnalitesResponse(BaseModel):
 
 
 client = genai.Client(
-    vertexai=True, project="videoclub-447210", location="europe-north1"
+    vertexai=True,
+    project="videoclub-447210",
+    location="europe-north1",
+    http_options=types.HttpOptions(api_version="v1"),
 )
 
 MODEL = "gemini-2.5-flash"
+
 
 async def extract_names(title: str, thumbnail_uri: str | None):
     """Extract personnalites from title and description."""
@@ -30,7 +33,9 @@ async def extract_names(title: str, thumbnail_uri: str | None):
         types.Part.from_text(text=f'{{"titre": "{title}"}}'),
     ]
     if thumbnail_uri:
-        parts.append(types.Part.from_uri(file_uri=thumbnail_uri, mime_type="image/jpeg"))
+        parts.append(
+            types.Part.from_uri(file_uri=thumbnail_uri, mime_type="image/jpeg")
+        )
     response = await client.aio.models.generate_content(
         model=MODEL,
         contents=[
