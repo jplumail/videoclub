@@ -24,14 +24,14 @@ client = genai.Client(
     http_options=types.HttpOptions(api_version="v1"),
 )
 
-MODEL = "gemini-2.5-flash"
-TEMP = 0
+DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_TEMPERATURE = 0.0
 # Si je mets 1000 ou autre, le thinkingBudget est ignoré
 # et ça peut poser problème pour les longues vidéos
 # qui arrivent à la limite de tokens de 65536 tokens
 # Voir: https://github.com/googleapis/python-genai/issues/782
 # Donc je mets 0 pour l'instant et je gère les erreurs de max_tokens dans processor.py
-THINKING_BUDGET = 0  # None means no limit
+DEFAULT_THINKING_BUDGET = 0  # None means no limit
 
 
 def get_title(youtube_id: str):
@@ -44,7 +44,12 @@ def get_title(youtube_id: str):
     return response["items"][0]["snippet"]["title"]  # pyright: ignore[reportTypedDictNotRequiredAccess]
 
 
-def create_request(youtube_video_id: str, context: list[types.Content] | None = None):
+def create_request(
+    youtube_video_id: str,
+    context: list[types.Content] | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
+):
     annotation_instruction = """Tu es un agent ContentID. 
 Ta tâche : extraire uniquement les films et les séries dont un extrait vidéo apparaît dans l’émission "Vidéo Club" de Konbini. 
 ⚠️ Ignore les titres seulement cités oralement ou écrits sans extrait.
@@ -57,11 +62,20 @@ Pour chaque extrait vidéo :
 
 La sortie au format JSON doit être minifiée.
 """
-    include_thoughts = THINKING_BUDGET > 0 if THINKING_BUDGET is not None else True
+    resolved_thinking_budget = (
+        thinking_budget
+        if thinking_budget is not None
+        else DEFAULT_THINKING_BUDGET
+    )
+    include_thoughts = (
+        resolved_thinking_budget > 0
+        if resolved_thinking_budget is not None
+        else True
+    )
 
     generation_config = types.GenerateContentConfig(
         max_output_tokens=None,
-        temperature=TEMP,
+        temperature=temperature if temperature is not None else DEFAULT_TEMPERATURE,
         top_p=0.95,
         response_mime_type="application/json",
         response_schema=AnnotationResponse,
@@ -69,7 +83,7 @@ La sortie au format JSON doit être minifiée.
         safety_settings=safety_settings,
         thinking_config=ThinkingConfig(
             include_thoughts=include_thoughts,
-            thinking_budget=THINKING_BUDGET,
+            thinking_budget=resolved_thinking_budget,
         ),
     )
     if context:
@@ -105,10 +119,19 @@ def create_batch_prediction_request_file(
     video_ids: list[str],
     request_blob_name: str,
     local_request_path: Path | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
 ) -> str:
     assert request_blob_name.endswith(".jsonl")
     requests = [
-        json.dumps(create_request(video_id), ensure_ascii=False)
+        json.dumps(
+            create_request(
+                video_id,
+                temperature=temperature,
+                thinking_budget=thinking_budget,
+            ),
+            ensure_ascii=False,
+        )
         for video_id in video_ids
     ]
     payload = "\n".join(requests)
@@ -130,6 +153,8 @@ def create_batch_prediction_request_file_continue(
     requests_to_continue: list[dict],
     request_blob_name: str,
     local_request_path: Path | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
 ) -> str:
     assert request_blob_name.endswith(".jsonl")
     video_blobs = [
@@ -153,7 +178,12 @@ def create_batch_prediction_request_file_continue(
     ]
     requests = [
         json.dumps(
-            create_request(blob, context=context),
+            create_request(
+                blob,
+                context=context,
+                temperature=temperature,
+                thinking_budget=thinking_budget,
+            ),
             ensure_ascii=False,
         )
         for blob, context in zip(video_blobs, contexts)
@@ -178,15 +208,21 @@ def create_batch_prediction_job(
     request_blob_name: str,
     destination_prefix: str,
     local_request_path: Path | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
 ):
     request_blob_name = create_batch_prediction_request_file(
         bucket_name,
         video_ids,
         request_blob_name,
         local_request_path=local_request_path,
+        temperature=temperature,
+        thinking_budget=thinking_budget,
     )
+    resolved_model = model if model is not None else DEFAULT_MODEL
     job = client.batches.create(
-        model=MODEL,
+        model=resolved_model,
         src=f"gs://{bucket_name}/{request_blob_name}",
         config=types.CreateBatchJobConfig(
             dest=f"gs://{bucket_name}/{destination_prefix}"
@@ -201,15 +237,21 @@ def create_batch_prediction_job_continue(
     request_blob_name: str,
     destination_prefix: str,
     local_request_path: Path | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
 ):
     request_blob_name = create_batch_prediction_request_file_continue(
         bucket_name,
         requests_to_continue,
         request_blob_name,
         local_request_path=local_request_path,
+        temperature=temperature,
+        thinking_budget=thinking_budget,
     )
+    resolved_model = model if model is not None else DEFAULT_MODEL
     job = client.batches.create(
-        model=MODEL,
+        model=resolved_model,
         src=f"gs://{bucket_name}/{request_blob_name}",
         config=types.CreateBatchJobConfig(
             dest=f"gs://{bucket_name}/{destination_prefix}"
@@ -255,6 +297,9 @@ async def _annotate_videos(
     job_id: int | None = None,
     job_name: str | None = None,
     debug_output_dir: str | Path | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
 ):
     job_id = int(datetime.now().timestamp()) if job_id is None else job_id
     # job_id = 1756792772
@@ -272,6 +317,9 @@ async def _annotate_videos(
             f"{job_prefix}/annotations-request.jsonl",
             output_folder,
             local_request_path=local_request_path,
+            model=model,
+            temperature=temperature,
+            thinking_budget=thinking_budget,
         )
         if job_name is None
         else job_name
@@ -346,9 +394,17 @@ async def annotate_videos(
     video_ids: list[str],
     annotation_output_blob_list: list[str],
     debug_output_dir: str | Path | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
 ):
     annotation_responses = await _annotate_videos(
-        bucket_name, video_ids, debug_output_dir=debug_output_dir
+        bucket_name,
+        video_ids,
+        debug_output_dir=debug_output_dir,
+        model=model,
+        temperature=temperature,
+        thinking_budget=thinking_budget,
     )
     annotations_uploaded = []
     for video_id, annotation_response in annotation_responses.items():

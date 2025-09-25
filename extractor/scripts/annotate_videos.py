@@ -18,6 +18,11 @@ import argparse
 import logging
 
 from extractor.annotate import annotate_videos
+from extractor.annotate.annotate import (
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    DEFAULT_THINKING_BUDGET,
+)
 from extractor.youtube import get_videos_videoclub
 
 
@@ -28,6 +33,9 @@ async def annotate_all_videos(
     bucket_name: str,
     ids: list[str] | None = None,
     debug_output_dir: str | None = None,
+    model: str | None = None,
+    temperature: float | None = None,
+    thinking_budget: int | None = None,
 ):
     # Prepare the list of IDs without unnecessary playlist fetch
     if ids:
@@ -45,6 +53,9 @@ async def annotate_all_videos(
         video_ids,
         annotation_blobs,
         debug_output_dir=debug_output_dir,
+        model=model,
+        temperature=temperature,
+        thinking_budget=thinking_budget,
     )
     logger.info("Annotated %d videos over %d", len(annotations_done), len(video_ids))
     if len(annotations_done) < len(video_ids):
@@ -80,12 +91,50 @@ if __name__ == "__main__":
             "(default: current working directory's work/<job_id>)"
         ),
     )
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=(
+            "Vertex AI model name to use for batch annotation. "
+            f"Defaults to {DEFAULT_MODEL}."
+        ),
+    )
+    parser.add_argument(
+        "--temp",
+        type=float,
+        default=DEFAULT_TEMPERATURE,
+        help=(
+            "Generation temperature passed to the annotation request. "
+            f"Defaults to {DEFAULT_TEMPERATURE}."
+        ),
+    )
+    parser.add_argument(
+        "--thinking-budget",
+        type=int,
+        default=DEFAULT_THINKING_BUDGET,
+        help=(
+            "Thinking budget passed to Gemini (set to 0 to disable chain of thought). "
+            f"Defaults to {DEFAULT_THINKING_BUDGET}. -1 is AUTOMATIC."
+        ),
+    )
     args = parser.parse_args()
 
     # Require either --all or at least one ID
     if not args.all and not args.ids:
         parser.error("Provide --all or one or more video IDs.")
 
+    if args.model == "gemini-2.5-pro" and args.thinking_budget == 0:
+        parser.error("gemini-2.5-pro requires --thinking-budget > 0")
+
     # If IDs are provided, restrict to those; otherwise, process all
     selected_ids = args.ids if args.ids else None
-    asyncio.run(annotate_all_videos(args.bucket, selected_ids, args.debug_output_dir))
+    asyncio.run(
+        annotate_all_videos(
+            args.bucket,
+            selected_ids,
+            args.debug_output_dir,
+            model=args.model,
+            temperature=args.temp,
+            thinking_budget=args.thinking_budget,
+        )
+    )
