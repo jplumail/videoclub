@@ -66,3 +66,10 @@ gcloud scheduler jobs update http ${SCHEDULER_JOB} \
 ```bash
 curl -sS "https://europe-west9-videoclub-447210.cloudfunctions.net/discover?bucket=videoclub-test"
 ```
+
+## Create the Pub/Sub topics
+
+```bash
+gcloud pubsub topics create videoclub-processor
+gcloud pubsub topics create videoclub-prepare-data
+```

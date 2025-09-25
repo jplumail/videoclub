@@ -30,7 +30,7 @@ def _parse_message_data(cloud_event: CloudEvent) -> tuple[str, str]:
 
     Accepts data formats:
     - JSON object with keys {"id"|"video_id", "bucket"}
-    - Plain string: video id; bucket defaults to videoclub-test
+    - Plain string: video id
     """
     data_field = cloud_event.data.get("message", {}).get("data")
     if not data_field:
@@ -40,21 +40,17 @@ def _parse_message_data(cloud_event: CloudEvent) -> tuple[str, str]:
     except Exception as exc:
         raise ValueError(f"Invalid base64 payload: {exc}")
 
-    bucket = "videoclub-test"
-    try:
-        obj = json.loads(decoded)
-        if isinstance(obj, dict):
-            video_id = obj.get("id") or obj.get("video_id")
-            if not video_id:
-                raise ValueError("Payload missing 'id' or 'video_id'")
-            bucket = obj.get("bucket", bucket)
-            return str(video_id), str(bucket)
-    except json.JSONDecodeError:
-        # treat as raw video id string
-        pass
-
-    # Fallback: raw string is the video ID
-    return decoded.strip(), bucket
+    obj = json.loads(decoded)
+    if isinstance(obj, dict):
+        video_id = obj.get("id")
+        if not video_id:
+            raise ValueError("Payload missing 'id' or 'video_id'")
+        bucket = obj.get("bucket")
+        if not bucket:
+            raise ValueError("Payload missing 'bucket'")
+        return str(video_id), str(bucket)
+    else:
+        raise ValueError("Payload must be a JSON object with 'id' and 'bucket'")
 
 
 @functions_framework.cloud_event

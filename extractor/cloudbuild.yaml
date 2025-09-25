@@ -4,13 +4,6 @@ steps:
     id: "export-requirements"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    id: "ensure-topic"
-    script: >
-      gcloud pubsub topics describe ${_TOPIC} || gcloud pubsub topics create ${_TOPIC}
-    waitFor:
-      - "export-requirements"
-
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: "deploy-discover"
     script: >
       gcloud functions deploy discover
@@ -19,8 +12,9 @@ steps:
       --region=${_REGION}
       --source=.
       --entry-point=discover
-      --timeout=3600s
+      --timeout=540s
       --trigger-http --allow-unauthenticated
+      --set-env-vars=BUCKET=${_BUCKET},PROCESSOR_TOPIC=${_PROCESSOR_TOPIC}
     waitFor:
       - "export-requirements"
 
@@ -35,9 +29,26 @@ steps:
       --entry-point=processor
       --timeout=540s
       --memory=512MiB
-      --trigger-topic=${_TOPIC}
+      --trigger-topic=${_PROCESSOR_TOPIC}
     waitFor:
-      - "ensure-topic"
+      - "export-requirements"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-aggregator"
+    script: >
+      gcloud functions deploy aggregator
+      --gen2
+      --runtime=python312
+      --region=${_FIRESTORE_REGION}
+      --trigger-location=${_FIRESTORE_REGION}
+      --source=.
+      --entry-point=aggregator
+      --set-env-vars=PREPARE_DATA_TOPIC=${_PREPARE_DATA_TOPIC}
+      --trigger-event-filters=type="google.cloud.firestore.document.v1.updated"
+      --trigger-event-filters=database="(default)"
+      --trigger-event-filters-path-pattern="document=batches/{batchId}"
+    waitFor:
+      - "export-requirements"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     id: "deploy-prepare-data"
@@ -48,47 +59,22 @@ steps:
       --region=${_REGION}
       --source=.
       --entry-point=prepare_data
-      --timeout=3600s
+      --timeout=540s
       --memory=512MiB
-      --set-env-vars=BUCKET=${_BUCKET},REBUILD_SITE_TOPIC=videoclub-rebuild-site
-      --trigger-http --allow-unauthenticated
+      --set-env-vars=REBUILD_SITE_TOPIC=videoclub-rebuild-site
+      --trigger-topic=${_PREPARE_DATA_TOPIC}
     waitFor:
       - "export-requirements"
-
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    id: "fetch-prepare-url"
-    script: >
-      gcloud functions describe prepare_data --gen2 --region=${_REGION} --format='value(serviceConfig.uri)' > /workspace/prepare_url.txt
-    waitFor:
-      - "deploy-prepare-data"
-
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    id: "deploy-aggregator"
-    script: |
-      set -eu
-      PREPARE_URL=$(cat /workspace/prepare_url.txt)
-      gcloud functions deploy aggregator \
-        --gen2 \
-        --runtime=python312 \
-        --region=${_FIRESTORE_REGION} \
-        --trigger-location=${_FIRESTORE_REGION} \
-        --source=. \
-        --entry-point=aggregator \
-        --set-env-vars=PREPARE_DATA_URL=${PREPARE_URL} \
-        --trigger-event-filters=type="google.cloud.firestore.document.v1.updated" \
-        --trigger-event-filters=database="(default)" \
-        --trigger-event-filters-path-pattern="document=batches/{batchId}"
-    waitFor:
-      - "fetch-prepare-url"
 
 
 # Manual Cloud Scheduler setup documented in docs/extractor-pipeline.md
 
 substitutions:
   _REGION: europe-west9
-  _TOPIC: videoclub-new-video
+  _PROCESSOR_TOPIC: videoclub-processor
   _BUCKET: videoclub-test
   _FIRESTORE_REGION: europe-west9
+  _PREPARE_DATA_TOPIC: videoclub-prepare-data
 
 options:
   automapSubstitutions: true

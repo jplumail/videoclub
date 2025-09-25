@@ -1,20 +1,20 @@
 """Firestore onUpdate function to fan-in processor completions.
 
 When a batch document in `batches/{batch_id}` reaches completed == total,
-and status != 'done', this function marks it done and calls the prepare-data
-Cloud Run service (HTTP with OIDC), passing the bucket.
+and status != 'done', this function marks it done and publishes a message to
+the prepare-data Pub/Sub topic so the CloudEvent function can run.
 """
 
 from __future__ import annotations
 
 import logging
 import os
-from typing import Optional
 
 import functions_framework
 from cloudevents.http.event import CloudEvent  # type: ignore
 from google.cloud import firestore
-import requests
+from google.cloud import pubsub
+import google.auth
 
 
 logger = logging.getLogger(__name__)
@@ -33,10 +33,36 @@ def _extract_batch_id_from_subject(subject: str | None) -> str | None:
     return None
 
 
-def _call_prepare_data(url: str, bucket: str) -> None:
-    # Call HTTP Cloud Function endpoint directly; function is unauthenticated
-    resp = requests.post(url, json={"bucket": bucket}, timeout=300)
-    resp.raise_for_status()
+def _project_id() -> str:
+    _, project_id = google.auth.default()
+    return project_id or ""
+
+
+def _publish_prepare_data(bucket: str, batch_id: str | None, logger: logging.Logger) -> None:
+    """Publish a message to trigger prepare_data via Pub/Sub."""
+
+    topic_name = os.environ.get("PREPARE_DATA_TOPIC")
+    if not topic_name:
+        logger.error("aggregator: PREPARE_DATA_TOPIC not set; skipping publish")
+        return
+
+    publisher = pubsub.PublisherClient()
+    topic_path = publisher.topic_path(_project_id(), topic_name)
+    payload = b""
+
+    attributes: dict[str, str] = {"bucket": bucket}
+    if batch_id:
+        attributes["batch_id"] = batch_id
+
+    try:
+        future = publisher.publish(topic_path, payload, **attributes)
+        future.result(timeout=10)
+        logger.info(
+            "aggregator: published prepare_data message",
+            extra={"topic": topic_path, "bucket": bucket, "batch_id": batch_id},
+        )
+    except Exception:
+        logger.exception("aggregator: failed to publish prepare_data message for bucket=%s", bucket)
 
 
 @functions_framework.cloud_event
@@ -79,7 +105,7 @@ def aggregator(event: CloudEvent):
         logger.info("aggregator: not complete or already done")
         return None
 
-    # Transition to done and call prepare-data exactly once
+    # Transition to done and publish prepare-data exactly once
     def txn_mark_done(transaction: firestore.Transaction):
         current = batch_ref.get(transaction=transaction)
         if not current.exists:
@@ -95,18 +121,11 @@ def aggregator(event: CloudEvent):
         logger.exception("aggregator: transaction failed for batch %s", batch_id)
         return None
 
-    # After the state change, call prepare-data
-    url = os.environ.get("PREPARE_DATA_URL")
-    if not url:
-        logger.error("aggregator: PREPARE_DATA_URL not set; skipping call")
+    # After the state change, publish to prepare-data topic
+    if not bucket:
+        logger.error("aggregator: bucket missing; skipping prepare_data publish")
         return None
 
-    try:
-        _call_prepare_data(url, bucket)
-        logger.info("aggregator: prepare-data invoked for bucket=%s", bucket)
-    except Exception:
-        logger.exception("aggregator: prepare-data call failed for bucket=%s", bucket)
-        # Do not revert status; rely on retries/manual intervention
-        return None
+    _publish_prepare_data(bucket, batch_id, logger)
 
     return None

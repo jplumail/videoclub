@@ -7,8 +7,8 @@ This function:
 
 Environment variables:
 - GOOGLE_CLOUD_PROJECT or GCP_PROJECT: GCP project ID used for Pub/Sub topic path
-- TOPIC (optional): Pub/Sub topic name (default: "videoclub-new-video")
-- BUCKET (optional): default GCS bucket (default: "videoclub-test")
+- TOPIC (optional): Pub/Sub topic name
+- BUCKET (optional): default GCS bucket
 
 Query parameters:
 - bucket: override default bucket
@@ -50,12 +50,15 @@ def discover(request: Request):
     logger = logging.getLogger(__name__)
 
     # Resolve configuration
-    default_bucket = os.environ.get("BUCKET", "videoclub-test")
-    topic_name = os.environ.get("TOPIC", "videoclub-new-video")
+    topic_name = os.environ.get("PROCESSOR_TOPIC")
+    if not topic_name:
+        raise ValueError("Missing PROCESSOR_TOPIC in env")
     project_id = _project_id()
 
     # Parse inputs
-    bucket = request.args.get("bucket", default_bucket)
+    bucket = request.args.get("bucket")
+    if not bucket:
+        raise ValueError("Missing bucket parameter in request")
     max_items_arg = request.args.get("max")
     try:
         max_items = int(max_items_arg) if max_items_arg is not None else None

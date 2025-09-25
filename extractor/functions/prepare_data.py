@@ -1,8 +1,4 @@
-"""HTTP Cloud Function (Gen2) to run prepare_data for a bucket.
-
-Endpoint:
-- POST with JSON {"bucket": "<name>"} or GET with ?bucket=...
-"""
+"""Pub/Sub-triggered Cloud Function to run prepare_data for a bucket."""
 
 from __future__ import annotations
 
@@ -11,10 +7,10 @@ import logging
 import os
 from datetime import UTC, datetime
 
-from flask import Request, jsonify
 import functions_framework
 import google.auth
 from google.cloud import pubsub
+from cloudevents.http.event import CloudEvent  # type: ignore
 
 from scripts.prepare_data import prepare_data as run_prepare
 
@@ -22,28 +18,39 @@ def _project_id() -> str:
     _, project_id = google.auth.default()
     return project_id or ""
 
+def _extract_bucket(event: CloudEvent, default_bucket: str, logger: logging.Logger) -> str:
+    """Return the bucket name from Pub/Sub CloudEvent attributes."""
 
-@functions_framework.http
-def prepare_data(request: Request):
+    envelope = getattr(event, "data", None)
+    message = envelope.get("message") if isinstance(envelope, dict) else None
+    if not isinstance(message, dict):
+        logger.warning("prepare_data: missing Pub/Sub message; using default bucket")
+        return default_bucket
+
+    attributes = message.get("attributes") or {}
+    if isinstance(attributes, dict):
+        bucket = attributes.get("bucket")
+        if isinstance(bucket, str) and bucket.strip():
+            return bucket.strip()
+
+    logger.warning("prepare_data: bucket attribute missing; using default bucket")
+    return default_bucket
+
+
+@functions_framework.cloud_event
+def prepare_data(event: CloudEvent):
     logger = logging.getLogger(__name__)
 
     default_bucket = os.environ.get("BUCKET", "videoclub-test")
-    bucket = request.args.get("bucket", None)
-    if not bucket:
-        try:
-            payload = request.get_json(silent=True) or {}
-            bucket = payload.get("bucket", default_bucket)
-        except Exception:
-            bucket = default_bucket
+    bucket = _extract_bucket(event, default_bucket, logger)
 
     logger.info("prepare_data: start bucket=%s", bucket)
     try:
         run_prepare(bucket)
         _publish_rebuild_message(bucket, logger)
-        return jsonify({"status": "ok", "bucket": bucket})
-    except Exception as exc:
+    except Exception:
         logger.exception("prepare_data: error bucket=%s", bucket)
-        return jsonify({"status": "error", "error": str(exc)}), 500
+        raise
 
 
 def _publish_rebuild_message(bucket: str, logger: logging.Logger) -> None:
@@ -53,7 +60,7 @@ def _publish_rebuild_message(bucket: str, logger: logging.Logger) -> None:
     publisher = pubsub.PublisherClient()
     project_id = _project_id()
     topic_path = publisher.topic_path(project_id, topic_name)
-    
+
     payload = {"bucket": bucket, "ts": datetime.now(UTC).isoformat()}
 
     try:
