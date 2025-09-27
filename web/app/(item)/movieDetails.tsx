@@ -1,8 +1,6 @@
 import { MediaIdData } from "@/lib/backend/types";
-import meilleursStyles from "@/app/(meilleurs)/meilleurs.module.css";
 import { MovieCard } from "@/components/MovieCard";
 import { PersonCard } from "@/components/PersonCard";
-import MovieCardDetails from "@/components/MovieCardDetails";
 import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 import { ConfigurationManager } from "@/lib/data/tmdb";

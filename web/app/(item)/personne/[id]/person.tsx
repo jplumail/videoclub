@@ -1,6 +1,5 @@
 import { PersonneIdData } from "@/lib/backend/types";
 import { MovieCard } from "@/components/MovieCard";
-import MovieCardDetails from "@/components/MovieCardDetails";
 import Gallery from "@/components/Gallery";
 import { slugify } from "@/lib/utils";
 import ytIconStyle from "@/components/styles/yt-icon.module.css";
