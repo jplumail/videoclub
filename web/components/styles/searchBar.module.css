@@ -21,7 +21,8 @@
 
 .compact {
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
+  width: 100%;
 }
 
 .trigger {
@@ -72,6 +73,10 @@
   transform: rotate(45deg);
 }
 
+.compact .trigger {
+  align-self: flex-end;
+}
+
 .panel {
   position: relative;
   width: 100%;
@@ -79,7 +84,8 @@
 
 .compact .panel {
   margin-top: 0.75rem;
-  width: min(100vw - 2rem, 420px);
+  width: 100%;
+  max-width: min(100vw - 2rem, 420px);
 }
 
 .inputRow {
@@ -142,7 +148,8 @@
   margin-top: 0.75rem;
   max-height: 55vh;
   overflow-y: auto;
-  width: min(100vw - 2rem, 420px);
+  width: 100%;
+  max-width: min(100vw - 2rem, 420px);
 }
 
 .result {

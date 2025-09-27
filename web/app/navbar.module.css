@@ -1,6 +1,7 @@
 .nav {
   padding: 1rem;
   font-size: large;
+  width: 100%;
 }
 
 .list {
@@ -10,6 +11,7 @@
   gap: 0.75rem;
   padding: 0;
   margin: 0;
+  width: 100%;
 }
 
 .item {
@@ -63,11 +65,19 @@
 
 @media screen and (max-width: 600px) {
   .list {
+    flex-direction: column;
+    align-items: stretch;
     gap: 0.5rem;
   }
 
   .item {
     height: auto;
+    width: 100%;
+  }
+
+  .link {
+    justify-content: center;
+    width: 100%;
   }
 
   .searchItem {
