@@ -34,6 +34,7 @@ interface MovieCardProps {
   poster?: React.ReactElement<PosterProps>;
   children?: React.ReactNode;
   hasDetails?: boolean;
+  hrefOverride?: string;
 }
 
 export async function MovieCard({
@@ -41,6 +42,7 @@ export async function MovieCard({
   children,
   poster,
   hasDetails = true,
+  hrefOverride,
 }: MovieCardProps) {
   const defaultPoster = <Poster media={media} />;
   return (
@@ -48,6 +50,7 @@ export async function MovieCard({
       item={media}
       media={poster || defaultPoster}
       hasDetails={hasDetails}
+      hrefOverride={hrefOverride}
     >
       {children}
     </Card>

@@ -10,6 +10,11 @@ export interface CardBaseProps {
   media?: React.ReactElement;
   children?: React.ReactNode;
   hasDetails?: boolean;
+  /**
+   * Optional href to use instead of the computed one
+   * (e.g., on person page, link movie card directly to the video page).
+   */
+  hrefOverride?: string;
 }
 
 export function Card({
@@ -17,6 +22,7 @@ export function Card({
   media,
   children,
   hasDetails = true,
+  hrefOverride,
 }: CardBaseProps) {
   const [isActive, setIsActive] = useState(false);
   let href = "";
@@ -35,6 +41,9 @@ export function Card({
     href = `/personne/${id}`;
     title = person.name || "";
   }
+
+  const effectiveHref = hrefOverride || href;
+  const wrapMediaWithLink = !hasDetails && Boolean(hrefOverride);
 
   return (
     <div className={`${styles.container} ${isActive ? styles.active : ""}`}>
@@ -58,12 +67,20 @@ export function Card({
           </svg>
         </button>
       )}
-      {media}
+      {wrapMediaWithLink ? (
+        // When details overlay is disabled on contexts like person page,
+        // and an explicit hrefOverride is provided, make the poster clickable.
+        <Link href={effectiveHref} aria-label={`Ouvrir ${title}`}>
+          {media}
+        </Link>
+      ) : (
+        media
+      )}
       {hasDetails && (
         <div className={styles.children}>
           {children}
           <p className={styles.movieDetails}>
-            <Link href={href} className={styles.details}>
+            <Link href={effectiveHref} className={styles.details}>
               <span className={styles.title}>{title}</span>
             </Link>
             {year && <span> - {year}</span>}
