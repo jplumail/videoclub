@@ -45,23 +45,32 @@ export async function MovieDetails({
       <section>
         <h2>Cité par</h2>
         <Gallery>
-          {movie.citations.map((c, index) => (
-            <li key={index}>
-              <PersonCard person={c.personnalite}>
-                <ul className={meilleursStyles.citeList}>
-                  <MovieCardDetails
-                    items={c.videoIds.map((videoId) => ({
-                      main: {
-                        title: c.personnalite.name || "",
-                        href: `/video/${videoId}#${slugify(getTitle({ id: movie.id, type: kind === "film" ? "movie" : "tv", title: movie.title, release_year: movie.release_year }) || "")}`,
-                      },
-                      youtubeUrls: [{ videoId: videoId, timestamp: 0 }],
-                    }))}
-                  />
-                </ul>
-              </PersonCard>
-            </li>
-          ))}
+          {movie.citations.map((c, index) => {
+            const first = c.videoIds[0];
+            const href = first
+              ? `/video/${first}#${slugify(
+                  getTitle({
+                    id: movie.id,
+                    type: kind === "film" ? "movie" : "tv",
+                    title: movie.title,
+                    release_year: movie.release_year,
+                  }) || "",
+                )}`
+              : "#";
+            return (
+              <li key={index}>
+                <PersonCard
+                  person={c.personnalite}
+                  hasDetails={false}
+                  hrefOverride={href}
+                  badgeText="Regarder"
+                />
+                <p style={{ marginTop: ".5rem", fontSize: "1.4rem" }}>
+                  {c.personnalite.name}
+                </p>
+              </li>
+            );
+          })}
         </Gallery>
       </section>
     </>
