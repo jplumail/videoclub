@@ -25,6 +25,18 @@ ul.list > * {
   color: var(--konbini-yellow);
 }
 
+.searchTrigger {
+  border: white solid 1px;
+  padding-inline: 1rem;
+  background: transparent;
+  color: inherit;
+}
+
+.searchTrigger:hover {
+  background-color: var(--konbini-red);
+  color: var(--konbini-yellow);
+}
+
 .videoLink {
   display: flex;
   align-items: center;

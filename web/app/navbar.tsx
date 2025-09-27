@@ -6,6 +6,7 @@ import ytIconStyle from "@/components/styles/yt-icon.module.css";
 import utilsStyles from "@/components/styles/utils.module.css";
 import { Candal } from "next/font/google";
 import { usePathname } from "next/navigation";
+import SearchDialog from "@/components/SearchDialog";
 
 const candal = Candal({ weight: "400", subsets: ["latin"] });
 
@@ -39,6 +40,9 @@ export default function Navbar() {
             {content}
           </Link>
         ))}
+        <SearchDialog
+          buttonClassName={`${styles.searchTrigger} ${utilsStyles.textShadow}`}
+        />
       </ul>
     </nav>
   );
