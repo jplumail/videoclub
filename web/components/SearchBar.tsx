@@ -91,8 +91,9 @@ export default function SearchBar({ className }: SearchBarProps) {
             keys: payload.fuse.keys,
             includeScore: true,
             ignoreLocation: true,
-            threshold: 0.35,
+            threshold: 0,
             minMatchCharLength: 2,
+            ignoreDiacritics: true,
           },
           parsedIndex,
         );
@@ -251,7 +252,7 @@ export default function SearchBar({ className }: SearchBarProps) {
               onBlur={handleBlur}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Rechercher un film, une série ou une personne"
+              placeholder="Rechercher"
               aria-label="Recherche"
             />
           </div>
