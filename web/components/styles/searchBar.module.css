@@ -25,32 +25,6 @@
   width: 100%;
 }
 
-.trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  background: transparent;
-  color: inherit;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.trigger:hover,
-.triggerActive {
-  background: var(--konbini-red);
-  border-color: var(--konbini-yellow);
-  color: var(--konbini-yellow);
-}
-
-.trigger:focus-visible {
-  outline: 2px solid var(--konbini-yellow);
-  outline-offset: 3px;
-}
-
 .icon {
   flex-shrink: 0;
   width: 1.1rem;
@@ -71,10 +45,6 @@
   bottom: -0.18rem;
   right: -0.2rem;
   transform: rotate(45deg);
-}
-
-.compact .trigger {
-  display: none;
 }
 
 .panel {

@@ -214,7 +214,6 @@ export default function SearchBar({ className }: SearchBarProps) {
   );
 
   const showInput = true;
-  const showTrigger = !isCompact;
 
   const statusMessage = useMemo(() => {
     const trimmed = query.trim();
@@ -239,30 +238,6 @@ export default function SearchBar({ className }: SearchBarProps) {
 
   return (
     <div ref={containerRef} className={resolvedClassName}>
-      {showTrigger && (
-        <button
-          type="button"
-          className={`${styles.trigger} ${showInput ? styles.triggerActive : ""}`}
-          aria-label="Afficher la recherche"
-          aria-expanded={showInput}
-          onClick={() => {
-            setIsFocused((value) => {
-              const next = !value;
-              if (next) {
-                setTimeout(() => inputRef.current?.focus(), 0);
-              } else {
-                setQuery("");
-                setResults([]);
-                setActiveIndex(-1);
-              }
-              return next;
-            });
-          }}
-        >
-          <span className={styles.icon} aria-hidden="true" />
-        </button>
-      )}
-
       {showInput && (
         <div className={styles.panel}>
           <div className={`${styles.inputRow} ${isFocused ? styles.inputRowFocused : ""}`}>
