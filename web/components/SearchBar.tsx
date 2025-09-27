@@ -23,7 +23,6 @@ type SearchDocument = {
   url: string;
   metadata?: {
     releaseYear?: string | null;
-    director?: string | null;
   };
 };
 
@@ -289,11 +288,10 @@ export default function SearchBar({ className }: SearchBarProps) {
           {results.map((item, index) => {
             const isActive = index === activeIndex;
             const year = extractYear(item.metadata?.releaseYear);
-            const director = item.metadata?.director ?? undefined;
             const subtitle =
               item.kind === "personne"
                 ? undefined
-                : [year, director].filter(Boolean).join(" · ");
+                : year?.toString();
             return (
               <li key={`${item.kind}-${item.id}`}>
                 <Link
