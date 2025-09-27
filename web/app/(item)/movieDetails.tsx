@@ -63,7 +63,7 @@ export async function MovieDetails({
                   person={c.personnalite}
                   hasDetails={false}
                   hrefOverride={href}
-                  badgeText="Regarder"
+                  badgeText="Voir l’extrait"
                 />
                 <p style={{ marginTop: ".5rem", fontSize: "1.4rem" }}>
                   {c.personnalite.name}

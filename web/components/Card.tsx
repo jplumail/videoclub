@@ -48,7 +48,7 @@ export function Card({
   const effectiveHref = hrefOverride || href;
   const wrapMediaWithLink = !hasDetails && Boolean(hrefOverride);
   const computedBadgeText =
-    badgeText || (hrefOverride?.startsWith("/video/") ? "Regarder" : "Ouvrir");
+    badgeText || (hrefOverride?.startsWith("/video/") ? "Voir l’extrait" : "Ouvrir");
 
   return (
     <div
