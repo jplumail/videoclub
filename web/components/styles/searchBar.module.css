@@ -74,7 +74,7 @@
 }
 
 .compact .trigger {
-  align-self: flex-end;
+  display: none;
 }
 
 .panel {
@@ -192,10 +192,22 @@
 @media (max-width: 640px) {
   .container {
     width: auto;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .inputRow,
   .results {
     width: 100%;
+  }
+
+  .panel {
+    max-width: 100%;
+  }
+
+  .results {
+    position: static;
+    max-height: 60vh;
+    overflow-y: auto;
   }
 }
