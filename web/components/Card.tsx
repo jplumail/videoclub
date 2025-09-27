@@ -46,7 +46,11 @@ export function Card({
   const wrapMediaWithLink = !hasDetails && Boolean(hrefOverride);
 
   return (
-    <div className={`${styles.container} ${isActive ? styles.active : ""}`}>
+    <div
+      className={`${styles.container} ${isActive ? styles.active : ""} ${
+        wrapMediaWithLink ? styles.clickable : ""
+      }`}
+    >
       {hasDetails && (
         <button
           title="Afficher/masquer les détails"
@@ -70,7 +74,14 @@ export function Card({
       {wrapMediaWithLink ? (
         // When details overlay is disabled on contexts like person page,
         // and an explicit hrefOverride is provided, make the poster clickable.
-        <Link href={effectiveHref} aria-label={`Ouvrir ${title}`}>
+        <Link href={effectiveHref} aria-label={`Voir l’extrait: ${title}`}>
+          <span className={styles.playBadge} aria-hidden="true">
+            {/* simple play icon */}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Voir
+          </span>
           {media}
         </Link>
       ) : (

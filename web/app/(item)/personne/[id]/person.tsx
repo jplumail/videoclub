@@ -48,7 +48,16 @@ export async function PersonComponent({
                   ? `/video/${first.videoId}#${slugify(c.media.title || "")}`
                   : "#";
                 return (
-                  <MovieCard media={c.media} hasDetails={false} hrefOverride={href} />
+                  <>
+                    <MovieCard
+                      media={c.media}
+                      hasDetails={false}
+                      hrefOverride={href}
+                    />
+                    <p style={{ marginTop: ".5rem", fontSize: "1.4rem" }}>
+                      {c.media.title}
+                    </p>
+                  </>
                 );
               })()}
             </li>
