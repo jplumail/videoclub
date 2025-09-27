@@ -65,13 +65,15 @@ export default function SearchBar({ className }: SearchBarProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCompact, setIsCompact] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fuseRef = useRef<Fuse<SearchDocument> | null>(null);
   const documentsRef = useRef<SearchDocument[]>([]);
   const loadPromiseRef = useRef<Promise<void> | null>(null);
+  const latestQueryRef = useRef("");
 
   const ensureIndex = useCallback(async () => {
     if (fuseRef.current || loadPromiseRef.current) return loadPromiseRef.current;
@@ -109,10 +111,10 @@ export default function SearchBar({ className }: SearchBarProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mediaQuery = window.matchMedia(COMPACT_QUERY);
-    const update = () => {
+    const updateMode = () => {
       setIsCompact(mediaQuery.matches);
     };
-    update();
+    updateMode();
     const handler = (event: MediaQueryListEvent) => setIsCompact(event.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
@@ -120,73 +122,87 @@ export default function SearchBar({ className }: SearchBarProps) {
 
   useEffect(() => {
     if (!isCompact) {
-      setIsExpanded(true);
+      setIsOpen(true);
       return;
     }
-    setIsExpanded(false);
-  }, [isCompact]);
-
-  useEffect(() => {
-    if (!isExpanded) return;
-    ensureIndex();
-    const frame = window.requestAnimationFrame(() => {
-      inputRef.current?.focus();
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [ensureIndex, isExpanded]);
-
-  useEffect(() => {
-    if (!isExpanded) {
-      setResults([]);
-      setActiveIndex(-1);
-      return;
-    }
-    if (!query.trim()) {
-      setResults([]);
-      setActiveIndex(-1);
-      return;
-    }
-    if (!fuseRef.current) return;
-    const matches = fuseRef.current.search(query, { limit: 12 });
-    setResults(matches.map((match) => match.item));
-    setActiveIndex(matches.length ? 0 : -1);
-  }, [query, isExpanded]);
-
-  useEffect(() => {
-    if (!isExpanded) return;
+    setIsOpen(false);
     setQuery("");
     setResults([]);
     setActiveIndex(-1);
-  }, [isExpanded, pathname]);
+  }, [isCompact]);
 
   useEffect(() => {
-    if (!isExpanded) return;
+    if (!isCompact || !isOpen) return;
     const handleOutsideClick = (event: MouseEvent) => {
       if (!containerRef.current) return;
       if (!containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setQuery("");
         setResults([]);
-        if (isCompact) {
-          setIsExpanded(false);
-          setQuery("");
-        }
+        setActiveIndex(-1);
       }
     };
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, [isCompact, isExpanded]);
+  }, [isCompact, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const trimmed = query.trim();
+    if (trimmed.length < 2) {
+      setResults([]);
+      setActiveIndex(-1);
+      return;
+    }
+    setResults([]);
+    setActiveIndex(-1);
+    let cancelled = false;
+    const run = async () => {
+      await ensureIndex();
+      if (cancelled || !fuseRef.current) return;
+      const nextQuery = latestQueryRef.current.trim();
+      if (nextQuery.length < 2) return;
+      const matches = fuseRef.current.search(nextQuery, { limit: 12 });
+      setResults(matches.map((match) => match.item));
+      setActiveIndex(matches.length ? 0 : -1);
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [ensureIndex, isOpen, query]);
+
+  useEffect(() => {
+    setQuery("");
+    setResults([]);
+    setActiveIndex(-1);
+    if (isCompact) {
+      setIsOpen(false);
+    }
+  }, [pathname, isCompact]);
+
+  useEffect(() => {
+    latestQueryRef.current = query;
+  }, [query]);
+
+  const handleFocus = useCallback(() => {
+    setIsFocused(true);
+    ensureIndex();
+  }, [ensureIndex]);
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+  }, []);
 
   const handleKeyDown = useCallback(
     (event: ReactKeyboardEvent<HTMLInputElement>) => {
       if (event.key === "Escape") {
         if (isCompact) {
-          setIsExpanded(false);
-          setQuery("");
-          setResults([]);
-          setActiveIndex(-1);
-        } else {
-          setResults([]);
-          setActiveIndex(-1);
+          setIsOpen(false);
         }
+        setQuery("");
+        setResults([]);
+        setActiveIndex(-1);
         return;
       }
       if (!results.length) return;
@@ -206,7 +222,7 @@ export default function SearchBar({ className }: SearchBarProps) {
           const selected = results[activeIndex];
           router.push(selected.url);
           if (isCompact) {
-            setIsExpanded(false);
+            setIsOpen(false);
           }
           setQuery("");
           setResults([]);
@@ -220,7 +236,7 @@ export default function SearchBar({ className }: SearchBarProps) {
     (item: SearchDocument) => {
       router.push(item.url);
       if (isCompact) {
-        setIsExpanded(false);
+        setIsOpen(false);
       }
       setQuery("");
       setResults([]);
@@ -228,23 +244,26 @@ export default function SearchBar({ className }: SearchBarProps) {
     [isCompact, router],
   );
 
+  const showInput = isOpen || !isCompact;
+
   const statusMessage = useMemo(() => {
-    if (!isExpanded) return null;
-    if (loading) return "Chargement…";
+    if (!showInput) return null;
+    const trimmed = query.trim();
+    if (loading && trimmed.length >= 2) return "Chargement…";
     if (error) return error;
-    if (!query) return "Tapez au moins deux caractères";
-    if (query && !results.length) return "Aucun résultat";
+    if (trimmed.length > 0 && trimmed.length < 2) return "Tapez au moins deux caractères";
+    if (trimmed.length >= 2 && !results.length && !loading) return "Aucun résultat";
     return null;
-  }, [error, isExpanded, loading, query, results.length]);
+  }, [error, loading, query, results.length, showInput]);
 
   const showResults =
-    isExpanded && !loading && !error && query.trim().length >= 2 && results.length > 0;
+    showInput && !loading && !error && query.trim().length >= 2 && results.length > 0;
 
   const resolvedClassName = [
     styles.container,
     className,
     isCompact ? styles.compact : styles.desktop,
-    isExpanded ? styles.expanded : "",
+    showInput ? styles.open : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -254,32 +273,50 @@ export default function SearchBar({ className }: SearchBarProps) {
       {isCompact && (
         <button
           type="button"
-          className={`${styles.trigger} ${isExpanded ? styles.triggerActive : ""}`}
-          aria-label="Ouvrir la recherche"
-          aria-expanded={isExpanded}
-          onClick={() => setIsExpanded((value) => !value)}
+          className={`${styles.trigger} ${showInput ? styles.triggerActive : ""}`}
+          aria-label="Afficher la recherche"
+          aria-expanded={showInput}
+          onClick={() => {
+            setIsOpen((value) => {
+              const next = !value;
+              if (next) {
+                setTimeout(() => inputRef.current?.focus(), 0);
+              } else {
+                setQuery("");
+                setResults([]);
+                setActiveIndex(-1);
+                setIsFocused(false);
+              }
+              return next;
+            });
+          }}
         >
           <span className={styles.icon} aria-hidden="true" />
         </button>
       )}
 
-      {(!isCompact || isExpanded) && (
+      {showInput && (
         <div className={styles.panel}>
-          <div className={styles.inputRow}>
-            {!isCompact && <span className={styles.icon} aria-hidden="true" />}
+          <div className={`${styles.inputRow} ${isFocused ? styles.inputRowFocused : ""}`}>
+            <span className={styles.icon} aria-hidden="true" />
             <input
               ref={inputRef}
               className={styles.input}
               type="search"
               value={query}
-              onFocus={ensureIndex}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Rechercher un film, une série ou une personne"
               aria-label="Recherche"
             />
           </div>
-          {statusMessage && <div className={styles.status}>{statusMessage}</div>}
+          {statusMessage && (
+            <div className={styles.status} role="status">
+              {statusMessage}
+            </div>
+          )}
         </div>
       )}
 

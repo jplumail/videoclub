@@ -51,7 +51,8 @@
 }
 
 .searchItem {
-  height: auto;
+  margin-left: auto;
+  height: 100%;
 }
 
 .searchBarWrapper {
@@ -60,9 +61,18 @@
   height: 100%;
 }
 
-@media screen and (max-width: 520px) {
+@media screen and (max-width: 600px) {
+  .list {
+    gap: 0.5rem;
+  }
+
   .item {
     height: auto;
+  }
+
+  .searchItem {
+    margin-left: 0;
+    width: 100%;
   }
 }
 
