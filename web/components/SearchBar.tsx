@@ -1,0 +1,318 @@
+"use client";
+
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import Fuse from "fuse.js";
+import type { FuseIndex } from "fuse.js";
+import styles from "@/components/styles/searchBar.module.css";
+
+type SearchKind = "film" | "serie" | "personne";
+
+type SearchDocument = {
+  id: string;
+  kind: SearchKind;
+  title: string;
+  url: string;
+  metadata?: {
+    releaseYear?: string | null;
+    director?: string | null;
+  };
+};
+
+type SerializedFuseIndex = ReturnType<FuseIndex<SearchDocument>["toJSON"]>;
+
+type SearchIndexPayload = {
+  generatedAt: string;
+  documents: SearchDocument[];
+  fuse: {
+    keys: ReadonlyArray<string>;
+    index: SerializedFuseIndex;
+  };
+};
+
+type SearchBarProps = {
+  className?: string;
+};
+
+const KIND_LABEL: Record<SearchKind, string> = {
+  film: "Film",
+  serie: "Série",
+  personne: "Personne",
+};
+
+const COMPACT_QUERY = "(max-width: 640px)";
+
+function extractYear(value: string | null | undefined) {
+  if (!value) return undefined;
+  const year = new Date(value).getFullYear();
+  return Number.isNaN(year) ? undefined : year;
+}
+
+export default function SearchBar({ className }: SearchBarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchDocument[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isCompact, setIsCompact] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const fuseRef = useRef<Fuse<SearchDocument> | null>(null);
+  const documentsRef = useRef<SearchDocument[]>([]);
+  const loadPromiseRef = useRef<Promise<void> | null>(null);
+
+  const ensureIndex = useCallback(async () => {
+    if (fuseRef.current || loadPromiseRef.current) return loadPromiseRef.current;
+    loadPromiseRef.current = (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/search-index.json", { cache: "force-cache" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = (await response.json()) as SearchIndexPayload;
+        documentsRef.current = payload.documents;
+        const parsedIndex = Fuse.parseIndex<SearchDocument>(payload.fuse.index);
+        fuseRef.current = new Fuse(
+          documentsRef.current,
+          {
+            keys: payload.fuse.keys,
+            includeScore: true,
+            ignoreLocation: true,
+            threshold: 0.35,
+            minMatchCharLength: 2,
+          },
+          parsedIndex,
+        );
+      } catch (err) {
+        console.error("Failed to load search index", err);
+        setError("Impossible de charger la recherche");
+      } finally {
+        setLoading(false);
+        loadPromiseRef.current = null;
+      }
+    })();
+    return loadPromiseRef.current;
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia(COMPACT_QUERY);
+    const update = () => {
+      setIsCompact(mediaQuery.matches);
+    };
+    update();
+    const handler = (event: MediaQueryListEvent) => setIsCompact(event.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (!isCompact) {
+      setIsExpanded(true);
+      return;
+    }
+    setIsExpanded(false);
+  }, [isCompact]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    ensureIndex();
+    const frame = window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [ensureIndex, isExpanded]);
+
+  useEffect(() => {
+    if (!isExpanded) {
+      setResults([]);
+      setActiveIndex(-1);
+      return;
+    }
+    if (!query.trim()) {
+      setResults([]);
+      setActiveIndex(-1);
+      return;
+    }
+    if (!fuseRef.current) return;
+    const matches = fuseRef.current.search(query, { limit: 12 });
+    setResults(matches.map((match) => match.item));
+    setActiveIndex(matches.length ? 0 : -1);
+  }, [query, isExpanded]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    setQuery("");
+    setResults([]);
+    setActiveIndex(-1);
+  }, [isExpanded, pathname]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(event.target as Node)) {
+        setResults([]);
+        if (isCompact) {
+          setIsExpanded(false);
+          setQuery("");
+        }
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isCompact, isExpanded]);
+
+  const handleKeyDown = useCallback(
+    (event: ReactKeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Escape") {
+        if (isCompact) {
+          setIsExpanded(false);
+          setQuery("");
+          setResults([]);
+          setActiveIndex(-1);
+        } else {
+          setResults([]);
+          setActiveIndex(-1);
+        }
+        return;
+      }
+      if (!results.length) return;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        setActiveIndex((current) =>
+          current + 1 >= results.length ? 0 : current + 1,
+        );
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        setActiveIndex((current) =>
+          current - 1 < 0 ? results.length - 1 : current - 1,
+        );
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        if (activeIndex >= 0) {
+          const selected = results[activeIndex];
+          router.push(selected.url);
+          if (isCompact) {
+            setIsExpanded(false);
+          }
+          setQuery("");
+          setResults([]);
+        }
+      }
+    },
+    [activeIndex, isCompact, results, router],
+  );
+
+  const handleSelect = useCallback(
+    (item: SearchDocument) => {
+      router.push(item.url);
+      if (isCompact) {
+        setIsExpanded(false);
+      }
+      setQuery("");
+      setResults([]);
+    },
+    [isCompact, router],
+  );
+
+  const statusMessage = useMemo(() => {
+    if (!isExpanded) return null;
+    if (loading) return "Chargement…";
+    if (error) return error;
+    if (!query) return "Tapez au moins deux caractères";
+    if (query && !results.length) return "Aucun résultat";
+    return null;
+  }, [error, isExpanded, loading, query, results.length]);
+
+  const showResults =
+    isExpanded && !loading && !error && query.trim().length >= 2 && results.length > 0;
+
+  const resolvedClassName = [
+    styles.container,
+    className,
+    isCompact ? styles.compact : styles.desktop,
+    isExpanded ? styles.expanded : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <div ref={containerRef} className={resolvedClassName}>
+      {isCompact && (
+        <button
+          type="button"
+          className={`${styles.trigger} ${isExpanded ? styles.triggerActive : ""}`}
+          aria-label="Ouvrir la recherche"
+          aria-expanded={isExpanded}
+          onClick={() => setIsExpanded((value) => !value)}
+        >
+          <span className={styles.icon} aria-hidden="true" />
+        </button>
+      )}
+
+      {(!isCompact || isExpanded) && (
+        <div className={styles.panel}>
+          <div className={styles.inputRow}>
+            {!isCompact && <span className={styles.icon} aria-hidden="true" />}
+            <input
+              ref={inputRef}
+              className={styles.input}
+              type="search"
+              value={query}
+              onFocus={ensureIndex}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Rechercher un film, une série ou une personne"
+              aria-label="Recherche"
+            />
+          </div>
+          {statusMessage && <div className={styles.status}>{statusMessage}</div>}
+        </div>
+      )}
+
+      {showResults && (
+        <ul className={styles.results} role="listbox">
+          {results.map((item, index) => {
+            const isActive = index === activeIndex;
+            const year = extractYear(item.metadata?.releaseYear);
+            const director = item.metadata?.director ?? undefined;
+            const subtitle =
+              item.kind === "personne"
+                ? undefined
+                : [year, director].filter(Boolean).join(" · ");
+            return (
+              <li key={`${item.kind}-${item.id}`}>
+                <Link
+                  href={item.url}
+                  className={`${styles.result} ${isActive ? styles.resultActive : ""}`}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handleSelect(item);
+                  }}
+                >
+                  <span className={styles.kind}>{KIND_LABEL[item.kind]}</span>
+                  <span className={styles.title}>{item.title}</span>
+                  {subtitle && <span className={styles.meta}>{subtitle}</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}

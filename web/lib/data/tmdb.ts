@@ -16,6 +16,16 @@ export interface ImageUrl {
   height: number;
 }
 
+interface CreditsResponse {
+  crew?: Array<{
+    id?: number | null;
+    credit_id?: string | null;
+    job?: string | null;
+    department?: string | null;
+    name?: string | null;
+  }>;
+}
+
 import { createLimiter, fetchWithRetry, type RetryOptions } from "../utils/http";
 
 export class ConfigurationManager {
@@ -24,6 +34,7 @@ export class ConfigurationManager {
   private static posterPathCache = new Map<string, string | null>();
   private static profilePathCache = new Map<string, string | null>();
   private static overviewCache = new Map<string, string | null>();
+  private static creditsCache = new Map<string, CreditsResponse | null>();
   private static readonly MAX_CONCURRENT_REQUESTS = 4;
   private static limiter = createLimiter(this.MAX_CONCURRENT_REQUESTS);
   private static configPromise: Promise<ConfigurationDetails> | null = null;
@@ -198,5 +209,38 @@ export class ConfigurationManager {
     const normalized = overview && overview.trim() !== "" ? overview : null;
     this.overviewCache.set(key, normalized);
     return normalized;
+  }
+
+  private static async getCreditsById(
+    type: "movie" | "tv",
+    id: number | null,
+    language: string = "fr-FR",
+  ): Promise<CreditsResponse | null> {
+    if (!id) return null;
+    const key = `${type}:${id}:${language}:credits`;
+    if (this.creditsCache.has(key)) return this.creditsCache.get(key) ?? null;
+    const query = new URLSearchParams({ language });
+    const credits = await this.tmdbJson<CreditsResponse>(
+      `/${type}/${id}/credits?${query.toString()}`,
+    );
+    this.creditsCache.set(key, credits ?? null);
+    return credits ?? null;
+  }
+
+  public static async getDirectorById(
+    type: "movie" | "tv",
+    id: number | null,
+  ): Promise<string | null> {
+    const credits = await this.getCreditsById(type, id, "fr-FR");
+    const crew = credits?.crew ?? [];
+    const director = crew.find((member) => member?.job === "Director");
+    if (director?.name) return director.name;
+    if (type === "tv") {
+      const creator = crew.find((member) =>
+        member?.job === "Creator" || member?.job === "Executive Producer",
+      );
+      if (creator?.name) return creator.name;
+    }
+    return null;
   }
 }

@@ -6,7 +6,7 @@ import ytIconStyle from "@/components/styles/yt-icon.module.css";
 import utilsStyles from "@/components/styles/utils.module.css";
 import { Candal } from "next/font/google";
 import { usePathname } from "next/navigation";
-import SearchDialog from "@/components/SearchDialog";
+import SearchBar from "@/components/SearchBar";
 
 const candal = Candal({ weight: "400", subsets: ["latin"] });
 
@@ -28,21 +28,24 @@ export default function Navbar() {
     <nav className={`${styles.nav} ${candal.className}`}>
       <ul className={styles.list}>
         {links.map(({ href, content }, key) => (
-          <Link
-            key={key}
-            href={href}
-            className={`${styles.link} ${
-              pathname?.replace(/\/$/, "").startsWith(href.replace(/\/$/, ""))
-                ? styles.currentLink
-                : ""
-            } ${utilsStyles.textShadow}`}
-          >
-            {content}
-          </Link>
+          <li key={key} className={styles.item}>
+            <Link
+              href={href}
+              className={`${styles.link} ${
+                pathname?.replace(/\/$/, "").startsWith(href.replace(/\/$/, ""))
+                  ? styles.currentLink
+                  : ""
+              } ${utilsStyles.textShadow}`}
+            >
+              {content}
+            </Link>
+          </li>
         ))}
-        <SearchDialog
-          buttonClassName={`${styles.searchTrigger} ${utilsStyles.textShadow}`}
-        />
+        <li className={`${styles.item} ${styles.searchItem}`}>
+          <div className={styles.searchBarWrapper}>
+            <SearchBar className={utilsStyles.textShadow} />
+          </div>
+        </li>
       </ul>
     </nav>
   );

@@ -2,6 +2,7 @@ import path from "node:path";
 import { promises as fs } from "node:fs";
 import Fuse from "fuse.js";
 import { BucketManager } from "@/lib/data/bucket";
+import { ConfigurationManager } from "@/lib/data/tmdb";
 import { MediaIdData, PersonneIdData } from "@/lib/backend/types";
 
 type SearchKind = "film" | "serie" | "personne";
@@ -13,7 +14,21 @@ interface BaseDocument {
   url: string;
   metadata?: {
     releaseYear?: string | null;
+    director?: string | null;
   };
+}
+
+async function getDirector(kind: "film" | "serie", media: MediaIdData) {
+  const tmdbType = kind === "film" ? "movie" : "tv";
+  try {
+    return await ConfigurationManager.getDirectorById(tmdbType, media.id);
+  } catch (error) {
+    console.warn(
+      `Failed to fetch director for ${kind} ${media.id}:`,
+      (error as Error)?.message ?? error,
+    );
+    return null;
+  }
 }
 
 async function getMediaDocuments(
@@ -32,6 +47,7 @@ async function getMediaDocuments(
       idsChunk.map(async (id) => {
         const media: MediaIdData = await BucketManager.getMediaById(kind, id);
         if (!media || !media.title) return null;
+        const director = await getDirector(kind, media);
         return {
           id,
           kind,
@@ -39,6 +55,7 @@ async function getMediaDocuments(
           url: `/${kind}/${id}`,
           metadata: {
             releaseYear: media.release_year,
+            director,
           },
         } satisfies BaseDocument;
       }),
