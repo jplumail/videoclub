@@ -1,6 +1,6 @@
-# Website rebuild automation
+# Set up website rebuild automation
 
-Automates the Firebase Hosting deployment of the `web` app whenever the `prepare_data` Cloud Function finishes successfully.
+Automates the Firebase Hosting deployment of the [`web`](../web/) app whenever the [`prepare_data`](../extractor/functions/prepare_data.py) Cloud Function finishes successfully, and whenever we push on the main branch of the Github repo.
 
 ## 1. Pub/Sub topic
 
