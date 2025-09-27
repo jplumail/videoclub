@@ -54,9 +54,6 @@ export async function PersonComponent({
                       hasDetails={false}
                       hrefOverride={href}
                     />
-                    <p style={{ marginTop: ".5rem", fontSize: "1.4rem" }}>
-                      {c.media.title}
-                    </p>
                   </>
                 );
               })()}
