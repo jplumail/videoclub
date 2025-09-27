@@ -3,6 +3,7 @@
 ## Code organization
 
 This is a Next.js frontend:
+
 - [`app/`](./app/) for routes
 - [`components/`](./components/) for shared UI
 - [`lib/`](./lib/) for backend-generated types
@@ -18,13 +19,14 @@ You will need access to the `videoclub-test` GCP bucket to run the website.
 - `pnpm format:check`: ensure Prettier formatting prior to commit.
 - `pnpm build`: compile the frontend exactly as the CI build.
 
-## Coding style & conventions
+## Contributing
 
-Defaults are camelCase for variables, PascalCase for React components, and colocating related `.ts`/`.tsx` files with their styles. Let Prettier handle whitespace via `pnpm format` rather than manual tweaks.
+Checkout the [contributing guidelines](./CONTRIBUTING.md).
 
 # Cloud
 
 Deploy to Firebase manually:
+
 ```bash
 firebase deploy --project=${_FIREBASE_PROJECT_ID} --only=hosting
 ```
