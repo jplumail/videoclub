@@ -1,6 +1,5 @@
 import { PersonneIdData } from "@/lib/backend/types";
 import { MovieCard } from "@/components/MovieCard";
-import MovieCardDetails from "@/components/MovieCardDetails";
 import Gallery from "@/components/Gallery";
 import { slugify } from "@/lib/utils";
 import ytIconStyle from "@/components/styles/yt-icon.module.css";
@@ -42,22 +41,21 @@ export async function PersonComponent({
         <Gallery>
           {personData.citations.map((c, idx) => (
             <li key={idx}>
-              <MovieCard media={c.media}>
-                <MovieCardDetails
-                  items={c.citations.map((t) => ({
-                    main: {
-                      title: personData.name || "",
-                      href: `/video/${t.videoId}#${slugify(c.media.title || "")}`,
-                    },
-                    youtubeUrls: [
-                      {
-                        videoId: t.videoId,
-                        timestamp: t.start_time,
-                      },
-                    ],
-                  }))}
-                />
-              </MovieCard>
+              {(() => {
+                const first = c.citations[0];
+                const href = first
+                  ? `/video/${first.videoId}#${slugify(c.media.title || "")}`
+                  : "#";
+                return (
+                  <>
+                    <MovieCard
+                      media={c.media}
+                      hasDetails={false}
+                      hrefOverride={href}
+                    />
+                  </>
+                );
+              })()}
             </li>
           ))}
         </Gallery>

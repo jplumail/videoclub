@@ -1,8 +1,6 @@
 import { MediaIdData } from "@/lib/backend/types";
-import meilleursStyles from "@/app/(meilleurs)/meilleurs.module.css";
 import { MovieCard } from "@/components/MovieCard";
 import { PersonCard } from "@/components/PersonCard";
-import MovieCardDetails from "@/components/MovieCardDetails";
 import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 import { ConfigurationManager } from "@/lib/data/tmdb";
@@ -45,23 +43,32 @@ export async function MovieDetails({
       <section>
         <h2>Cité par</h2>
         <Gallery>
-          {movie.citations.map((c, index) => (
-            <li key={index}>
-              <PersonCard person={c.personnalite}>
-                <ul className={meilleursStyles.citeList}>
-                  <MovieCardDetails
-                    items={c.videoIds.map((videoId) => ({
-                      main: {
-                        title: c.personnalite.name || "",
-                        href: `/video/${videoId}#${slugify(getTitle({ id: movie.id, type: kind === "film" ? "movie" : "tv", title: movie.title, release_year: movie.release_year }) || "")}`,
-                      },
-                      youtubeUrls: [{ videoId: videoId, timestamp: 0 }],
-                    }))}
-                  />
-                </ul>
-              </PersonCard>
-            </li>
-          ))}
+          {movie.citations.map((c, index) => {
+            const first = c.videoIds[0];
+            const href = first
+              ? `/video/${first}#${slugify(
+                  getTitle({
+                    id: movie.id,
+                    type: kind === "film" ? "movie" : "tv",
+                    title: movie.title,
+                    release_year: movie.release_year,
+                  }) || "",
+                )}`
+              : "#";
+            return (
+              <li key={index}>
+                <PersonCard
+                  person={c.personnalite}
+                  hasDetails={false}
+                  hrefOverride={href}
+                  badgeText="Voir l’extrait"
+                />
+                <p style={{ marginTop: ".5rem", fontSize: "1.4rem" }}>
+                  {c.personnalite.name}
+                </p>
+              </li>
+            );
+          })}
         </Gallery>
       </section>
     </>
