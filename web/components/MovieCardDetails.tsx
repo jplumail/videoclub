@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./styles/MovieCardDetails.module.css";
 import ytIconStyle from "./styles/yt-icon.module.css";
 import Link from "next/link";

@@ -1,6 +1,5 @@
 import { BucketManager } from "@/lib/data/bucket";
-import VideoFeedPage from "./VideoFeedPage";
-import { DEFAULT_PAGE_SIZE } from "@/lib/pagination";
+import VideoFeedClient from "./VideoFeedClient";
 
 export const revalidate = false;
 
@@ -8,11 +7,12 @@ export default async function Home() {
   const feed = await BucketManager.getVideoFeed();
 
   return (
-    <VideoFeedPage
-      feed={feed}
-      basePath="/video"
-      currentPage={1}
-      pageSize={DEFAULT_PAGE_SIZE}
+    <VideoFeedClient
+      videos={[...feed.feed].sort(
+        (a, b) =>
+          new Date(b.release_date).getTime() -
+          new Date(a.release_date).getTime(),
+      )}
     />
   );
 }
