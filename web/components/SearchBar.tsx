@@ -216,15 +216,6 @@ export default function SearchBar({ className }: SearchBarProps) {
 
   const showInput = true;
 
-  const statusMessage = useMemo(() => {
-    const trimmed = query.trim();
-    if (error) return error;
-    if (trimmed.length > 0 && trimmed.length < 2) return "Tapez au moins deux caractères";
-    if (loading && trimmed.length >= 2) return "Chargement…";
-    if (trimmed.length >= 2 && !results.length && !loading) return "Aucun résultat";
-    return null;
-  }, [error, loading, query, results.length]);
-
   const showResults =
     !loading && !error && query.trim().length >= 2 && results.length > 0;
 
@@ -266,11 +257,6 @@ export default function SearchBar({ className }: SearchBarProps) {
               aria-label="Recherche"
             />
           </div>
-          {statusMessage && (
-            <div className={styles.status} role="status">
-              {statusMessage}
-            </div>
-          )}
         </div>
       )}
 
