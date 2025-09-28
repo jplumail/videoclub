@@ -82,6 +82,7 @@
   color: inherit;
   font: inherit;
   min-width: 0;
+  text-align: center;
 }
 
 .input:focus {
