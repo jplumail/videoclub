@@ -1,18 +1,18 @@
 import { BucketManager } from "@/lib/data/bucket";
-import styles from "./page.module.css";
-import VideoThumbnail from "@/components/videoThumbnail";
+import VideoFeedPage from "./VideoFeedPage";
+import { DEFAULT_PAGE_SIZE } from "@/lib/pagination";
+
+export const revalidate = false;
 
 export default async function Home() {
   const feed = await BucketManager.getVideoFeed();
-  const videos = [...feed.feed].sort(
-    (a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
-  );
 
   return (
-    <main className={styles.videoContainer}>
-      {videos.map((video, index) => {
-        return <VideoThumbnail key={index} video={video}/>
-      })}
-    </main>
+    <VideoFeedPage
+      feed={feed}
+      basePath="/video"
+      currentPage={1}
+      pageSize={DEFAULT_PAGE_SIZE}
+    />
   );
 }
