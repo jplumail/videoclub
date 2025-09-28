@@ -88,7 +88,7 @@ export default function SearchBar({ className }: SearchBarProps) {
         fuseRef.current = new Fuse(
           documentsRef.current,
           {
-            keys: payload.fuse.keys,
+            keys: Array.from(payload.fuse.keys),
             includeScore: true,
             ignoreLocation: true,
             threshold: 0,

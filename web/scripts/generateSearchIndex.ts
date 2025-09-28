@@ -112,7 +112,7 @@ async function main() {
   console.log(
     `Indexing ${documents.length} documents with keys: ${fuseKeys.join(", ")}`,
   );
-  const fuseIndex = Fuse.createIndex(fuseKeys, documents);
+  const fuseIndex = Fuse.createIndex(Array.from(fuseKeys), documents);
 
   const publicDir = path.join(process.cwd(), "public");
   await ensureOutputDirectory(publicDir);
