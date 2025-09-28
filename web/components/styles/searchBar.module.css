@@ -26,25 +26,9 @@
 }
 
 .icon {
-  flex-shrink: 0;
-  width: 1.1rem;
-  height: 1.1rem;
-  border: 2px solid currentColor;
-  border-radius: 999px;
-  display: inline-block;
-  position: relative;
-}
-
-.icon::after {
-  content: "";
-  position: absolute;
-  width: 0.55rem;
-  height: 0.12rem;
-  background: currentColor;
-  border-radius: 999px;
-  bottom: -0.18rem;
-  right: -0.2rem;
-  transform: rotate(45deg);
+  width: 1.2em;
+  height: 1.2em;
+  margin-top: 0.2em;
 }
 
 .panel {
