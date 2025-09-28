@@ -6,6 +6,7 @@ import { Card } from "@/components/Card";
 import MovieCardDetails from "@/components/MovieCardDetails";
 import { getTitle, slugify } from "@/lib/utils";
 import utilsStyles from "@/components/styles/utils.module.css";
+import cardStyles from "@/components/styles/Card.module.css";
 import styles from "./meilleurs.module.css";
 import type { BestMediaSerializableItem } from "./meilleurs";
 
@@ -93,14 +94,18 @@ export default function BestMediaClient({
                   <Card
                     item={item.media}
                     media={
-                      item.poster ? (
-                        <Image
-                          src={item.poster.url}
-                          width={item.poster.width}
-                          height={item.poster.height}
-                          alt={`Poster du média ${title}`}
-                        />
-                      ) : undefined
+                      <div className={cardStyles.link}>
+                        {item.poster ? (
+                          <Image
+                            src={item.poster.url}
+                            width={item.poster.width}
+                            height={item.poster.height}
+                            alt={`Poster du média ${title}`}
+                          />
+                        ) : (
+                          <span className={styles.emptyPoster} aria-hidden="true" />
+                        )}
+                      </div>
                     }
                   >
                     <MovieCardDetails items={citations} />

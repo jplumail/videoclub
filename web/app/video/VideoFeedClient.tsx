@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import styles from "./page.module.css";
+import layoutStyles from "./page.module.css";
+import cardStyles from "@/components/styles/videoThumbnail.module.css";
 import type { VideoDataShort } from "@/lib/backend/types";
 
 const DEFAULT_BATCH = 24;
@@ -16,9 +17,9 @@ type VideoFeedClientProps = {
 function VideoCard({ video }: { video: VideoDataShort }) {
   const videoUrl = `/video/${video.video_id}`;
   return (
-    <div className={styles.video}>
+    <div className={cardStyles.video}>
       <Link href={videoUrl}>
-        <div className={styles.thumbnail}>
+        <div className={cardStyles.thumbnail}>
           <Image
             src={`https://i.ytimg.com/vi/${video.video_id}/hqdefault.jpg`}
             width={480}
@@ -82,7 +83,7 @@ export default function VideoFeedClient({
 
   return (
     <>
-      <main className={styles.videoContainer}>
+      <main className={layoutStyles.videoContainer}>
         {visibleVideos.map((video) => (
           <VideoCard key={video.video_id} video={video} />
         ))}
