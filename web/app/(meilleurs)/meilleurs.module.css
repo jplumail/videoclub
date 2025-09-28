@@ -32,6 +32,7 @@
   pointer-events: none;
   font-size: 1.6rem;
   font-weight: 600;
+  -webkit-text-stroke: 1px hsla(0, 0%, 0%, 0.2);
 }
 
 .rank {
