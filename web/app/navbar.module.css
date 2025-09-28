@@ -1,23 +1,36 @@
 .nav {
   padding: 1rem;
   font-size: large;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .list {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  max-width: 100%;
 }
 
-ul.list > * {
+.item {
   list-style-type: none;
-  height: 3em;
   display: flex;
   align-items: center;
+  margin: 0;
 }
 
 .link {
   border: white solid 1px;
   padding-inline: 1rem;
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .link:hover {
@@ -43,8 +56,49 @@ ul.list > * {
   color: var(--konbini-yellow);
 }
 
+.searchItem {
+  height: 100%;
+}
+
+.searchBarWrapper {
+  align-items: center;
+  height: 100%;
+}
+
+@media screen and (max-width: 420px) {
+  .list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0;
+    width: 100%;
+  }
+
+  .item {
+    display: flex;
+    width: 100%;
+  }
+
+  .link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+  }
+
+  .searchItem {
+    width: 100%;
+    height: auto;
+  }
+
+  .searchBarWrapper {
+    width: 100%;
+  }
+}
+
 @media screen and (min-width: 414px) {
-  ul.list > * {
+  .item {
     height: 2.5em;
   }
 }
