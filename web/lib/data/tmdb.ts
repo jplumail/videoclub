@@ -199,5 +199,4 @@ export class ConfigurationManager {
     this.overviewCache.set(key, normalized);
     return normalized;
   }
-
 }
