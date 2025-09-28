@@ -35,7 +35,7 @@ export default function Navbar() {
                 pathname?.replace(/\/$/, "").startsWith(href.replace(/\/$/, ""))
                   ? styles.currentLink
                   : ""
-              } ${utilsStyles.textShadow}`}
+              }`}
             >
               {content}
             </Link>
@@ -43,7 +43,7 @@ export default function Navbar() {
         ))}
         <li className={`${styles.item} ${styles.searchItem}`}>
           <div className={styles.searchBarWrapper}>
-            <SearchBar className={utilsStyles.textShadow} />
+            <SearchBar />
           </div>
         </li>
       </ul>
