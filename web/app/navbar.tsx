@@ -3,7 +3,6 @@
 import Link from "next/link";
 import styles from "./navbar.module.css";
 import ytIconStyle from "@/components/styles/yt-icon.module.css";
-import utilsStyles from "@/components/styles/utils.module.css";
 import { Candal } from "next/font/google";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
