@@ -31,6 +31,11 @@
   margin-top: 0.2em;
 }
 
+.icon path {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
 .panel {
   position: relative;
   width: 100%;
@@ -54,9 +59,17 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.inputRowFocused {
-  border-color: var(--konbini-yellow);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+.inputRow:focus-within {
+  /* color: var(--konbini-yellow); */
+  outline-color: var(--konbini-yellow);
+  outline-offset: -1px;
+  outline-width: 2px;
+  outline-style: solid;
+}
+
+.inputRow:focus-within .icon path {
+  stroke: var(--konbini-yellow);
+  stroke-width: 1px;
 }
 
 .input {
@@ -75,6 +88,10 @@
 
 .input::placeholder {
   color: rgba(255, 255, 255, 0.6);
+}
+
+.input:focus::placeholder {
+  color: transparent;
 }
 
 .status {
@@ -136,12 +153,12 @@
 }
 
 .title {
-  font-size: 1rem;
+  font-size: 0.8em;
   font-weight: 600;
 }
 
 .meta {
-  font-size: 0.85rem;
+  font-size: 0.6em;
   color: rgba(255, 255, 255, 0.65);
 }
 
