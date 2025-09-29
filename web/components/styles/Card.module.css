@@ -10,6 +10,8 @@
   pointer-events: none;
   box-sizing: border-box; /* Pour que le padding soit inclus dans la largeur */
   padding-right: 3rem;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .container {
