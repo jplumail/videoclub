@@ -4,7 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
-  type MutableRefObject,
+  type RefObject,
 } from "react";
 
 const DEFAULT_BATCH = 24;
@@ -16,7 +16,7 @@ type UseInfiniteBatchOptions = {
 
 type UseInfiniteBatchResult = {
   visibleCount: number;
-  sentinelRef: MutableRefObject<HTMLDivElement | null>;
+  sentinelRef: RefObject<HTMLDivElement | null>;
 };
 
 export function useInfiniteBatch({
