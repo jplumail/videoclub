@@ -1,12 +1,9 @@
 .ytIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   background-image: url("/youtube-icon.svg");
-  background-size: 100% 100%;
-  background-position: center;
+  background-size: contain;
   background-repeat: no-repeat;
-  width: 1.1em;
+  width: 1em;
   aspect-ratio: 28.57 / 20;
 }
 

@@ -7,26 +7,15 @@
 .citeItem {
   list-style-type: none;
   display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  align-items: center;
+  /* gap: 0.4rem; */
   margin-block: 0.4rem;
 }
 
 .citeItem p {
   text-overflow: clip;
-  overflow: visible;
-  white-space: normal;
-}
-
-.citeItem ul {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .citeItem p:hover {
@@ -34,14 +23,5 @@
 }
 
 .link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   margin-inline: 0.3em;
-  position: relative;
-  top: 0.2em;
-}
-
-.link:first-child {
-  margin-left: 0;
 }
