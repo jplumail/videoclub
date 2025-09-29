@@ -1,0 +1,94 @@
+"use client";
+
+import Image from "next/image";
+import { Card } from "@/components/Card";
+import MovieCardDetails from "@/components/MovieCardDetails";
+import { getTitle, slugify } from "@/lib/utils";
+import utilsStyles from "@/components/styles/utils.module.css";
+import cardStyles from "@/components/styles/Card.module.css";
+import styles from "./meilleurs.module.css";
+import type { BestMediaSerializableItem } from "./meilleurs";
+import { useInfiniteBatch } from "@/lib/hooks/useInfiniteBatch";
+
+const DEFAULT_BATCH = 24;
+
+function buildCitationItems(item: BestMediaSerializableItem["citations"], mediaTitle: string) {
+  const slug = slugify(mediaTitle || "");
+  return item.map((c) => ({
+    main: {
+      title: c.name || "",
+      href: `/video/${c.videoId}#${slug}`,
+    },
+    youtubeUrls: [
+      {
+        videoId: c.videoId,
+        timestamp: c.start_time,
+      },
+    ],
+  }));
+}
+
+type BestMediaClientProps = {
+  items: BestMediaSerializableItem[];
+  batchSize?: number;
+};
+
+export default function BestMediaClient({
+  items,
+  batchSize = DEFAULT_BATCH,
+}: BestMediaClientProps) {
+  const { visibleCount, sentinelRef } = useInfiniteBatch({
+    total: items.length,
+    batchSize,
+  });
+  const visibleItems = items.slice(0, visibleCount);
+
+  return (
+    <>
+      <ol className={styles.liste}>
+        {visibleItems.map((item, index) => {
+          const title = getTitle(item.media) || "";
+          const citations = buildCitationItems(item.citations, title);
+          const rank = index < 9 ? index + 1 : null;
+
+          return (
+            <li key={item.id}>
+              <div className={styles.itemContainer}>
+                <div className={styles.imageContainer}>
+                  <Card
+                    item={item.media}
+                    media={
+                      <div className={cardStyles.link}>
+                        {item.poster ? (
+                          <Image
+                            src={item.poster.url}
+                            width={item.poster.width}
+                            height={item.poster.height}
+                            alt={`Poster du média ${title}`}
+                          />
+                        ) : (
+                          <span className={styles.emptyPoster} aria-hidden="true" />
+                        )}
+                      </div>
+                    }
+                  >
+                    <MovieCardDetails items={citations} />
+                  </Card>
+                  {rank && (
+                    <span className={`${styles.rank} ${styles.bottom}`}>{rank}</span>
+                  )}
+                  <span
+                    className={`${styles.citationCount} ${styles.bottom} ${utilsStyles.textShadow}`}
+                  >
+                    Cité {item.citations.length} fois
+                  </span>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <div ref={sentinelRef} aria-hidden="true" style={{ height: 1 }} />
+    </>
+  );
+}
