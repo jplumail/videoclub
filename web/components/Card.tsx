@@ -94,7 +94,7 @@ export function Card({
       )}
       {hasDetails && (
         <div className={styles.children}>
-          {children}
+          <div className={styles.detailsContent}>{children}</div>
           <p className={styles.movieDetails}>
             <Link href={effectiveHref} className={styles.details}>
               <span className={styles.title}>{title}</span>
