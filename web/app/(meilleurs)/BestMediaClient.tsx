@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Card } from "@/components/Card";
 import MovieCardDetails from "@/components/MovieCardDetails";
@@ -9,6 +8,7 @@ import utilsStyles from "@/components/styles/utils.module.css";
 import cardStyles from "@/components/styles/Card.module.css";
 import styles from "./meilleurs.module.css";
 import type { BestMediaSerializableItem } from "./meilleurs";
+import { useInfiniteBatch } from "@/lib/hooks/useInfiniteBatch";
 
 const DEFAULT_BATCH = 24;
 
@@ -37,46 +37,10 @@ export default function BestMediaClient({
   items,
   batchSize = DEFAULT_BATCH,
 }: BestMediaClientProps) {
-  const [visibleCount, setVisibleCount] = useState(
-    Math.min(batchSize, items.length),
-  );
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
-    observerRef.current = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        setVisibleCount((prev) => {
-          if (prev >= items.length) {
-            observerRef.current?.disconnect();
-            return prev;
-          }
-          const next = Math.min(prev + batchSize, items.length);
-          return next;
-        });
-      }
-    });
-
-    observerRef.current.observe(sentinel);
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [batchSize, items.length]);
-
-  useEffect(() => {
-    if (visibleCount >= items.length) {
-      observerRef.current?.disconnect();
-    }
-  }, [visibleCount, items.length]);
-
+  const { visibleCount, sentinelRef } = useInfiniteBatch({
+    total: items.length,
+    batchSize,
+  });
   const visibleItems = items.slice(0, visibleCount);
 
   return (

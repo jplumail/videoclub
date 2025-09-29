@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import layoutStyles from "./page.module.css";
 import cardStyles from "@/components/styles/videoThumbnail.module.css";
 import type { VideoDataShort } from "@/lib/backend/types";
+import { useInfiniteBatch } from "@/lib/hooks/useInfiniteBatch";
 
 const DEFAULT_BATCH = 24;
 
@@ -39,46 +39,10 @@ export default function VideoFeedClient({
   videos,
   batchSize = DEFAULT_BATCH,
 }: VideoFeedClientProps) {
-  const [visibleCount, setVisibleCount] = useState(
-    Math.min(batchSize, videos.length),
-  );
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
-    observerRef.current = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        setVisibleCount((prev) => {
-          if (prev >= videos.length) {
-            observerRef.current?.disconnect();
-            return prev;
-          }
-          const next = Math.min(prev + batchSize, videos.length);
-          return next;
-        });
-      }
-    });
-
-    observerRef.current.observe(sentinel);
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [batchSize, videos.length]);
-
-  useEffect(() => {
-    if (visibleCount >= videos.length) {
-      observerRef.current?.disconnect();
-    }
-  }, [visibleCount, videos.length]);
-
+  const { visibleCount, sentinelRef } = useInfiniteBatch({
+    total: videos.length,
+    batchSize,
+  });
   const visibleVideos = videos.slice(0, visibleCount);
 
   return (
