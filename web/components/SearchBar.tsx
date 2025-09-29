@@ -46,7 +46,7 @@ const KIND_LABEL: Record<SearchKind, string> = {
   personne: "Personne",
 };
 
-const COMPACT_QUERY = "(max-width: 640px)";
+const RESULTS_LIMIT = 12;
 
 function extractYear(value: string | null | undefined) {
   if (!value) return undefined;
@@ -63,7 +63,6 @@ export default function SearchBar({ className }: SearchBarProps) {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isCompact, setIsCompact] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -108,26 +107,6 @@ export default function SearchBar({ className }: SearchBarProps) {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia(COMPACT_QUERY);
-    const updateMode = () => {
-      setIsCompact(mediaQuery.matches);
-    };
-    updateMode();
-    const handler = (event: MediaQueryListEvent) => setIsCompact(event.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    if (isCompact) {
-      setQuery("");
-      setResults([]);
-      setActiveIndex(-1);
-    }
-  }, [isCompact]);
-
-  useEffect(() => {
     const trimmed = query.trim();
     if (trimmed.length < 2) {
       setResults([]);
@@ -142,8 +121,7 @@ export default function SearchBar({ className }: SearchBarProps) {
       if (cancelled || !fuseRef.current) return;
       const nextQuery = latestQueryRef.current.trim();
       if (nextQuery.length < 2) return;
-      const limit = isCompact ? 6 : 12;
-      const matches = fuseRef.current.search(nextQuery, { limit });
+      const matches = fuseRef.current.search(nextQuery, { limit: RESULTS_LIMIT });
       setResults(matches.map((match) => match.item));
       setActiveIndex(matches.length ? 0 : -1);
     };
@@ -151,13 +129,13 @@ export default function SearchBar({ className }: SearchBarProps) {
     return () => {
       cancelled = true;
     };
-  }, [ensureIndex, isCompact, query]);
+  }, [ensureIndex, query]);
 
   useEffect(() => {
     setQuery("");
     setResults([]);
     setActiveIndex(-1);
-  }, [pathname, isCompact]);
+  }, [pathname]);
 
   useEffect(() => {
     latestQueryRef.current = query;
@@ -221,7 +199,6 @@ export default function SearchBar({ className }: SearchBarProps) {
   const resolvedClassName = [
     styles.container,
     className,
-    isCompact ? styles.compact : styles.desktop,
     showInput ? styles.open : "",
   ]
     .filter(Boolean)

@@ -4,25 +4,12 @@
   align-items: center;
   gap: 0.5rem;
   height: 100%;
-}
-
-.desktop {
   flex: 0 1 320px;
   justify-content: flex-end;
 }
 
 .open {
-  width: 100%;
-}
-
-.open.desktop {
   width: 12em;
-}
-
-.compact {
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
 }
 
 .icon {
@@ -40,11 +27,6 @@
   position: relative;
   width: 100%;
   height: 100%;
-}
-
-.compact .panel {
-  width: 100%;
-  max-width: min(100vw - 2rem, 420px);
 }
 
 .inputRow {
@@ -116,15 +98,6 @@
   background-color: black;
 }
 
-.compact .results {
-  position: static;
-  margin-top: 0.75rem;
-  max-height: 55vh;
-  overflow-y: auto;
-  width: 100%;
-  max-width: min(100vw - 2rem, 420px);
-}
-
 .result {
   display: flex;
   flex-direction: column;
@@ -164,10 +137,15 @@
 
 @media (max-width: 640px) {
   .container {
-    width: auto;
     flex-direction: column;
-    gap: 0.5rem;
-    height: 100%;
+    align-items: stretch;
+    width: 100%;
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
+
+  .open {
+    width: 100%;
   }
 
   .inputRow,
@@ -177,12 +155,14 @@
   }
 
   .panel {
-    max-width: 100%;
+    max-width: min(100vw - 2rem, 420px);
   }
 
   .results {
     position: static;
-    max-height: 60vh;
+    margin-top: 0.75rem;
+    max-height: 55vh;
     overflow-y: auto;
+    width: 100%;
   }
 }
