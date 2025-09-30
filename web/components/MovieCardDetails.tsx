@@ -54,7 +54,7 @@ export default function MovieCardDetails({ items }: MovieCardDetailsProps) {
             <p>
               <Link href={main.href}>{main.title}</Link>
             </p>
-            <ul>
+            <div>
               {youtubeUrls.map((video) => {
                 const linkLabel = getYoutubeLinkLabel(
                   main.title,
@@ -76,7 +76,7 @@ export default function MovieCardDetails({ items }: MovieCardDetailsProps) {
                   />
                 );
               })}
-            </ul>
+            </div>
           </li>
         );
       })}
