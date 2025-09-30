@@ -36,6 +36,7 @@
 .link:hover {
   background-color: var(--konbini-red);
   color: var(--konbini-yellow);
+  -webkit-text-stroke: 0.8px black;
 }
 
 .videoLink {
@@ -54,6 +55,7 @@
 .currentLink {
   background-color: var(--konbini-red);
   color: var(--konbini-yellow);
+  -webkit-text-stroke: 0.8px black;
 }
 
 .searchItem {
