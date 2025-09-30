@@ -14,7 +14,13 @@ type VideoFeedClientProps = {
   batchSize?: number;
 };
 
-function VideoCard({ video }: { video: VideoDataShort }) {
+function VideoCard({
+  video,
+  isLcpCandidate,
+}: {
+  video: VideoDataShort;
+  isLcpCandidate: boolean;
+}) {
   const videoUrl = `/video/${video.video_id}`;
   return (
     <div className={cardStyles.video}>
@@ -25,6 +31,9 @@ function VideoCard({ video }: { video: VideoDataShort }) {
             width={480}
             height={270}
             alt={`Miniature de ${video.name}`}
+            priority={isLcpCandidate}
+            fetchPriority={isLcpCandidate ? "high" : undefined}
+            loading={isLcpCandidate ? "eager" : undefined}
           />
         </div>
       </Link>
@@ -48,9 +57,16 @@ export default function VideoFeedClient({
   return (
     <>
       <main className={layoutStyles.videoContainer}>
-        {visibleVideos.map((video) => (
-          <VideoCard key={video.video_id} video={video} />
-        ))}
+        {visibleVideos.map((video, index) => {
+          const isLcpCandidate = index === 0;
+          return (
+            <VideoCard
+              key={video.video_id}
+              video={video}
+              isLcpCandidate={isLcpCandidate}
+            />
+          );
+        })}
       </main>
       <div ref={sentinelRef} aria-hidden="true" style={{ height: 1 }} />
     </>

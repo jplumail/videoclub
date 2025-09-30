@@ -50,6 +50,7 @@ export default function BestMediaClient({
           const title = getTitle(item.media) || "";
           const citations = buildCitationItems(item.citations, title);
           const rank = index < 9 ? index + 1 : null;
+          const isLcpCandidate = index === 0;
 
           return (
             <li key={item.id}>
@@ -65,6 +66,9 @@ export default function BestMediaClient({
                             width={item.poster.width}
                             height={item.poster.height}
                             alt={`Poster du média ${title}`}
+                            priority={isLcpCandidate}
+                            fetchPriority={isLcpCandidate ? "high" : undefined}
+                            loading={isLcpCandidate ? "eager" : undefined}
                           />
                         ) : (
                           <span className={styles.emptyPoster} aria-hidden="true" />

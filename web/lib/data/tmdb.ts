@@ -97,8 +97,8 @@ export class ConfigurationManager {
   }
 
   public static async getPosterUrl(posterPath: string) {
-    const width = 780;
-    const height = 1170;
+    const width = 500;
+    const height = 750;
     const secureBaseUrl = await this.getSecureBaseUrl();
     const posterSize = await this.getPosterSize(width);
     return {
