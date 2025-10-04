@@ -14,6 +14,7 @@ from .models import (
 
 from themoviedb import aioTMDb, PartialMovie, PartialTV, Person, PartialMedia
 from extractor.annotate.models import MediaItem as MediaItemLLM, AnnotationResponse
+import jiwer
 
 
 # filter warning PydanticSerializationUnexpectedValue
@@ -232,6 +233,23 @@ async def get_best_media_item_director(
         media_items, directors, limit=results_limit
     )
 
+    # Movie - title matching via cer score
+    title_confidences = [
+        1.0
+        - jiwer.cer(
+            title.lower(),
+            (
+                (
+                    media_item.title
+                    if isinstance(media_item, PartialMovie)
+                    else media_item.name
+                )
+                or ""
+            ).lower(),
+        )
+        for media_item in media_items
+    ]
+
     # Movie - year matching
     year_confidence = get_movie_year_confidence(
         [media_item for (media_item, _, _) in data], years[0] if years else None
@@ -239,7 +257,11 @@ async def get_best_media_item_director(
 
     # Merge
     data = [
-        (media_item, crew, 0.8 * conf + 0.2 * year_confidence[i])
+        (
+            media_item,
+            crew,
+            0.5 * conf + 0.2 * year_confidence[i] + 0.3 * title_confidences[i],
+        )
         for i, (media_item, crew, conf) in enumerate(data)
     ]
 
