@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import logging
 from typing import Any
 
+from aiohttp import ClientResponseError
 from themoviedb import aioTMDb, PartialMedia, PartialMovie, PartialTV, Person
 
 @dataclass(slots=True)
@@ -81,21 +82,24 @@ class TMDBClient:
                 if not queued_call.future.cancelled():
                     queued_call.future.cancel()
                 raise
-            except Exception as exc:  # noqa: BLE001
+            except ClientResponseError as exc:
                 if self._is_rate_limited(exc) and attempt < self._max_retries:
                     delay = self._compute_delay(attempt, exc)
-                    retry_after = self._retry_after_header(exc)
                     self._logger.info(
-                        "TMDB 429 on %s: attempt %d/%d, wait %.2fs, Retry-After=%s",
+                        "TMDB 429 on %s: attempt %d/%d, wait %.2fs",
                         call_name,
                         attempt + 1,
                         self._max_retries,
                         delay,
-                        retry_after,
                     )
                     await asyncio.sleep(delay)
                     attempt += 1
                     continue
+                if not queued_call.future.done():
+                    self._logger.error("TMDB call %s failed: %s", call_name, exc)
+                    queued_call.future.set_exception(exc)
+                break
+            except Exception as exc:
                 if not queued_call.future.done():
                     self._logger.error("TMDB call %s failed: %s", call_name, exc)
                     queued_call.future.set_exception(exc)
@@ -124,16 +128,10 @@ class TMDBClient:
     def person(self, person_id: int) -> _PersonProxy:
         return _PersonProxy(self, person_id)
 
-    @staticmethod
-    def _status_code(exc: Exception) -> int | None:
-        response = getattr(exc, "response", None)
-        status_code = getattr(response, "status_code", None)
-        return status_code if isinstance(status_code, int) else None
+    def _is_rate_limited(self, exc: ClientResponseError) -> bool:
+        return exc.status == 429
 
-    def _is_rate_limited(self, exc: Exception) -> bool:
-        return self._status_code(exc) == 429
-
-    def _compute_delay(self, attempt: int, exc: Exception) -> float:
+    def _compute_delay(self, attempt: int, exc: ClientResponseError) -> float:
         delay = min(
             self._base_backoff * (self._backoff_multiplier**attempt),
             self._max_backoff,
@@ -151,13 +149,9 @@ class TMDBClient:
         return delay
 
     @staticmethod
-    def _retry_after_header(exc: Exception) -> Any:
-        response = getattr(exc, "response", None)
-        headers = getattr(response, "headers", None)
-        if headers is not None:
-            getter = getattr(headers, "get", None)
-            if callable(getter):
-                return getter("Retry-After")
+    def _retry_after_header(exc: ClientResponseError) -> Any:
+        if exc.headers:
+            return exc.headers.get("Retry-After")
         return None
 
     @staticmethod
