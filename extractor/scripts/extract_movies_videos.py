@@ -7,7 +7,7 @@ Needs:
 - Annotations in `videos/{video_id}/annotations.json` in the given GCS bucket
 
 This script:
-- Lists YouTube playlist items via `extractor.youtube.get_videos_videoclub`.
+- Lists annotation blobs from Google Cloud Storage.
 - For each video ID, reads annotations from
   `videos/{video_id}/annotations.json` in the given bucket.
 - Calls `extractor.movies.extract_media_items` to compute movie/media items.
@@ -17,12 +17,14 @@ Run directly to process all videos using the default test bucket, or import
 and call `extract_all_videos(bucket_name)` from other modules.
 """
 
-from extractor.movies import extract_media_items
-from extractor.youtube import get_videos_videoclub
-import asyncio
 import argparse
+import asyncio
 import logging
+
+from google.cloud import storage
 from tqdm import tqdm
+
+from extractor.movies import extract_media_items
 
 
 logger = logging.getLogger(__name__)
@@ -33,8 +35,15 @@ async def extract_all_videos(bucket_name: str, ids: list[str] | None = None):
     if ids:
         ids_to_process = list(ids)
     else:
-        items = get_videos_videoclub()
-        ids_to_process = [it.snippet.resourceId.videoId for it in items]
+        storage_client = storage.Client()
+        ids_to_process = sorted(
+            {
+                blob.name.split("/")[1]
+                for blob in storage_client.list_blobs(bucket_name, prefix="videos/")
+                if blob.name.endswith("/annotations.json")
+                and len(blob.name.split("/")) >= 3
+            }
+        )
     logger.info("Extracting movies for %d videos", len(ids_to_process))
 
     pbar = tqdm(ids_to_process)
