@@ -1,5 +1,9 @@
+import asyncio
+from collections.abc import Awaitable, Callable, Sequence
 import re
 import warnings
+from itertools import zip_longest
+
 from extractor.utils import upload_json_blob, download_blob, year_pattern
 from .models import (
     MediaItem,
@@ -7,8 +11,6 @@ from .models import (
     TimeOffset,
     MediaItemsTimestamps,
 )
-import asyncio
-from itertools import zip_longest
 
 from themoviedb import aioTMDb, PartialMovie, PartialTV, Person, PartialMedia
 from extractor.annotate.models import MediaItem as MediaItemLLM, AnnotationResponse
@@ -19,6 +21,30 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region="FR")
+
+
+class PaginatedResponse[T]:
+    results: Sequence[T] | None
+    total_pages: int | None
+
+
+async def _collect_paginated_results[T](
+    first_page: PaginatedResponse[T],
+    fetch_page: Callable[[int], Awaitable[PaginatedResponse[T]]],
+) -> list[T]:
+    """Collect every page from a TMDB search endpoint concurrently."""
+
+    collected: list[T] = list(first_page.results or [])
+    total_pages = first_page.total_pages or 1
+
+    if total_pages <= 1:
+        return collected
+
+    tasks = [fetch_page(page) for page in range(2, total_pages + 1)]
+    for response in await asyncio.gather(*tasks):
+        collected.extend(response.results or [])
+
+    return collected
 
 
 def recursive_strip(s: str, char: str) -> str:
@@ -61,19 +87,53 @@ async def is_person_in_movie(person_id: int, movie_id: int):
     return is_director
 
 
-def mean(lst: list[float]):
+def mean(lst: Sequence[float | int]):
     return sum(lst) / len(lst) if lst else 0.0
 
 
-async def search_media_items(title: str):
-    movies_query = tmdb.search().movies(query=title)
-    tv_series_query = tmdb.search().tv(query=title)
-    movies, tv_series = await asyncio.gather(movies_query, tv_series_query)
+async def _search_movies(title: str) -> list[PartialMovie]:
+    first_page: PaginatedResponse[PartialMovie] = await tmdb.search().movies(
+        query=title, page=1
+    )  # type: ignore
+
+    async def fetch(page: int) -> PaginatedResponse[PartialMovie]:
+        return await tmdb.search().movies(query=title, page=page)  # type: ignore
+
+    return await _collect_paginated_results(first_page, fetch)
+
+
+async def _search_tv_series(title: str) -> list[PartialTV]:
+    first_page: PaginatedResponse[PartialTV] = await tmdb.search().tv(
+        query=title, page=1
+    )  # type: ignore
+
+    async def fetch(page: int) -> PaginatedResponse[PartialTV]:
+        return await tmdb.search().tv(query=title, page=page)  # type: ignore
+
+    return await _collect_paginated_results(first_page, fetch)
+
+
+async def _search_people(title: str) -> list[Person]:
+    first_page: PaginatedResponse[Person] = await tmdb.search().people(
+        query=title, page=1
+    )  # type: ignore
+
+    async def fetch(page: int) -> PaginatedResponse[Person]:
+        return await tmdb.search().people(query=title, page=page)  # type: ignore
+
+    return await _collect_paginated_results(first_page, fetch)
+
+
+async def search_media_items(title: str) -> list[PartialMovie | PartialTV]:
+    movies, tv_series = await asyncio.gather(
+        _search_movies(title),
+        _search_tv_series(title),
+    )
     movies_tv_series_interleaved = [
         item
         for pair in zip_longest(
-            movies.results if movies.results else [],
-            tv_series.results if tv_series.results else [],
+            movies,
+            tv_series,
             fillvalue=None,
         )
         for item in pair
@@ -86,8 +146,7 @@ async def search_media_items(title: str):
 
 
 async def search_person(person: str):
-    people = await tmdb.search().people(query=person)
-    return people.results or []
+    return await _search_people(person)
 
 
 async def search_persons(crew_names: list[str]):
@@ -147,6 +206,22 @@ async def get_best_media_item_director(
     media_items = await search_media_items(title)
     if len(media_items) == 0:
         return None, None, 0
+    mean_year = mean(years) if years else None
+    # rank by year distance to mean year
+    media_items = sorted(
+        media_items,
+        key=lambda x: abs(
+            (
+                x.release_date.year
+                if isinstance(x, PartialMovie) and x.release_date
+                else x.first_air_date.year
+                if isinstance(x, PartialTV) and x.first_air_date
+                else 0
+            )
+            - (mean_year if mean_year else 0)
+        ),
+    )
+
     authors = await search_persons(authors_str)
 
     # Movie or TV Serie - director matching
