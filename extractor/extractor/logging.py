@@ -1,5 +1,10 @@
 from pathlib import Path
 import logging as py_logging
+from logging.handlers import RotatingFileHandler
+
+
+MAX_LOG_BYTES = 5 * 1024
+BACKUP_COUNT = 10
 
 
 def setup_logging():
@@ -11,11 +16,21 @@ def setup_logging():
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    debug_handler = py_logging.FileHandler(logs_dir / "debug.log", encoding="utf-8")
+    debug_handler = RotatingFileHandler(
+        logs_dir / "debug.log",
+        maxBytes=MAX_LOG_BYTES,
+        backupCount=BACKUP_COUNT,
+        encoding="utf-8",
+    )
     debug_handler.setLevel(py_logging.DEBUG)
     debug_handler.setFormatter(formatter)
 
-    info_handler = py_logging.FileHandler(logs_dir / "info.log", encoding="utf-8")
+    info_handler = RotatingFileHandler(
+        logs_dir / "info.log",
+        maxBytes=MAX_LOG_BYTES,
+        backupCount=BACKUP_COUNT,
+        encoding="utf-8",
+    )
     info_handler.setLevel(py_logging.INFO)
     info_handler.setFormatter(formatter)
 
@@ -30,4 +45,3 @@ def setup_logging():
     root.addHandler(debug_handler)
     root.addHandler(info_handler)
     root.addHandler(console_handler)
-
