@@ -12,16 +12,13 @@ from .models import (
     MediaItemsTimestamps,
 )
 
-from themoviedb import aioTMDb, PartialMovie, PartialTV, Person, PartialMedia
+from .tmdb import tmdb, PartialMovie, PartialTV, Person, PartialMedia
 from extractor.annotate.models import MediaItem as MediaItemLLM, AnnotationResponse
 import jiwer
 
 
 # filter warning PydanticSerializationUnexpectedValue
 warnings.filterwarnings("ignore", category=UserWarning)
-
-
-tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region="FR")
 
 
 class PaginatedResponse[T]:
