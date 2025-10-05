@@ -203,7 +203,7 @@ tmdb = TMDBClient(
     key="664bdab2fb8644acc4be2cff2bb52414",
     language="fr-FR",
     region="FR",
-    max_workers=128,
+    max_workers=64,
 )
 
 __all__ = [
