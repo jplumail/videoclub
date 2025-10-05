@@ -184,93 +184,88 @@ async def get_movie_director_match_confidence_matrix(
     ]
 
 
-def get_movie_year_confidence(
-    media_items: list[PartialMovie | PartialTV], year: int | None
-):
+def compute_year_confidence(media_item: PartialMovie | PartialTV, year: float | None):
     if year is None:
-        return [0.0 for _ in media_items]
-    release_dates = [
+        return 0.0
+    release_date = (
         media_item.release_date
         if isinstance(media_item, PartialMovie)
         else media_item.first_air_date
-        for media_item in media_items
-    ]
-    return [1.0 - abs(date.year - year) / 10 if date else 0.0 for date in release_dates]
+    )
+    return 1.0 - abs(release_date.year - year) / 10 if release_date else 0.0
+
+
+RESULTS_LIMIT = 3
+
+
+async def fetch_director_candidates(
+    authors: list[str], limit: int
+) -> list[list[Person]]:
+    persons = await search_persons(authors)
+    return [person_list[:limit] for person_list in persons]
+
+
+def _get_media_display_title(media_item: PartialMovie | PartialTV) -> str | None:
+    if isinstance(media_item, PartialMovie):
+        return media_item.title
+    return media_item.name
+
+
+def compute_title_confidence(media_item: PartialMovie | PartialTV, title: str) -> float:
+    target_title = title.lower()
+    return 1.0 - jiwer.cer(
+        target_title, (_get_media_display_title(media_item) or "").lower()
+    )
+
+
+def score_matches(
+    matches: list[tuple[PartialMovie | PartialTV, list[Person], float]],
+    title: str,
+    year: float,
+) -> list[tuple[PartialMovie | PartialTV, list[Person], float]]:
+    scored_matches: list[tuple[PartialMovie | PartialTV, list[Person], float]] = []
+    for media_item, crew, director_conf in matches:
+        year_conf = compute_year_confidence(media_item, year)
+        title_conf = compute_title_confidence(media_item, title)
+        score = 0.5 * director_conf + 0.2 * year_conf + 0.3 * title_conf
+        scored_matches.append((media_item, crew, score))
+    return scored_matches
+
+
+def select_best_match(
+    matches: list[tuple[PartialMovie | PartialTV, list[Person], float]],
+) -> tuple[PartialMovie | PartialTV | None, list[Person] | None, float]:
+    if not matches:
+        return None, None, 0.0
+    return max(matches, key=lambda item: item[2])
 
 
 async def get_best_media_item_director(
-    title: str, authors_str: list[str], years: list[int]
+    title: str, authors: list[str], years: list[int]
 ):
     media_items = await search_media_items(title)
-    if len(media_items) == 0:
+    if not media_items:
         return None, None, 0
-    mean_year = mean(years) if years else None
-    # rank by year distance to mean year
-    media_items = sorted(
-        media_items,
-        key=lambda x: abs(
-            (
-                x.release_date.year
-                if isinstance(x, PartialMovie) and x.release_date
-                else x.first_air_date.year
-                if isinstance(x, PartialTV) and x.first_air_date
-                else 0
-            )
-            - (mean_year if mean_year else 0)
+
+    # reduce media_items size by sorting by most confident scores
+    target_year = mean(years) if years else 0.0
+    media_items.sort(
+        key=lambda item: (
+            0.5 * compute_title_confidence(item, title)
+            + 0.5 * compute_year_confidence(item, target_year)
         ),
+        reverse=True,
+    )
+    media_items = media_items[:RESULTS_LIMIT]
+
+    directors = await fetch_director_candidates(authors, RESULTS_LIMIT)
+    matches = await get_movie_director_match_confidence_matrix(
+        media_items, directors, limit=RESULTS_LIMIT
     )
 
-    authors = await search_persons(authors_str)
+    scored_matches = score_matches(matches, title, target_year)
 
-    # Movie or TV Serie - director matching
-    results_limit = 3  # Limit the number of results to avoid too many API calls
-    media_items = media_items[:results_limit]
-    directors = [persons[:results_limit] for persons in authors]
-    data = await get_movie_director_match_confidence_matrix(
-        media_items, directors, limit=results_limit
-    )
-
-    # Movie - title matching via cer score
-    title_confidences = [
-        1.0
-        - jiwer.cer(
-            title.lower(),
-            (
-                (
-                    media_item.title
-                    if isinstance(media_item, PartialMovie)
-                    else media_item.name
-                )
-                or ""
-            ).lower(),
-        )
-        for media_item in media_items
-    ]
-
-    # Movie - year matching
-    year_confidence = get_movie_year_confidence(
-        [media_item for (media_item, _, _) in data], years[0] if years else None
-    )
-
-    # Merge
-    data = [
-        (
-            media_item,
-            crew,
-            0.5 * conf + 0.2 * year_confidence[i] + 0.3 * title_confidences[i],
-        )
-        for i, (media_item, crew, conf) in enumerate(data)
-    ]
-
-    # Get the best confidence argmax
-    best_confidence = max([conf for (_, _, conf) in data])
-    media_item, crew, _ = next(
-        (media_item, crew, conf)
-        for (media_item, crew, conf) in data
-        if conf == best_confidence
-    )
-
-    return media_item, crew, best_confidence
+    return select_best_match(scored_matches)
 
 
 def get_timeoffset_from_timecode(timecode: str):
