@@ -1,5 +1,9 @@
+import asyncio
+from collections.abc import Awaitable, Callable, Sequence
 import re
 import warnings
+from itertools import zip_longest
+
 from extractor.utils import upload_json_blob, download_blob, year_pattern
 from .models import (
     MediaItem,
@@ -7,18 +11,38 @@ from .models import (
     TimeOffset,
     MediaItemsTimestamps,
 )
-import asyncio
-from itertools import zip_longest
 
-from themoviedb import aioTMDb, PartialMovie, PartialTV, Person, PartialMedia
+from .tmdb import tmdb, PartialMovie, PartialTV, Person, PartialMedia
 from extractor.annotate.models import MediaItem as MediaItemLLM, AnnotationResponse
+import jiwer
 
 
 # filter warning PydanticSerializationUnexpectedValue
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-tmdb = aioTMDb(key="664bdab2fb8644acc4be2cff2bb52414", language="fr-FR", region="FR")
+class PaginatedResponse[T]:
+    results: Sequence[T] | None
+    total_pages: int | None
+
+
+async def _collect_paginated_results[T](
+    first_page: PaginatedResponse[T],
+    fetch_page: Callable[[int], Awaitable[PaginatedResponse[T]]],
+) -> list[T]:
+    """Collect every page from a TMDB search endpoint concurrently."""
+
+    collected: list[T] = list(first_page.results or [])
+    total_pages = first_page.total_pages or 1
+
+    if total_pages <= 1:
+        return collected
+
+    tasks = [fetch_page(page) for page in range(2, total_pages + 1)]
+    for response in await asyncio.gather(*tasks):
+        collected.extend(response.results or [])
+
+    return collected
 
 
 def recursive_strip(s: str, char: str) -> str:
@@ -61,19 +85,53 @@ async def is_person_in_movie(person_id: int, movie_id: int):
     return is_director
 
 
-def mean(lst: list[float]):
+def mean(lst: Sequence[float | int]):
     return sum(lst) / len(lst) if lst else 0.0
 
 
-async def search_media_items(title: str):
-    movies_query = tmdb.search().movies(query=title)
-    tv_series_query = tmdb.search().tv(query=title)
-    movies, tv_series = await asyncio.gather(movies_query, tv_series_query)
+async def _search_movies(title: str) -> list[PartialMovie]:
+    first_page: PaginatedResponse[PartialMovie] = await tmdb.search().movies(
+        query=title, page=1
+    )  # type: ignore
+
+    async def fetch(page: int) -> PaginatedResponse[PartialMovie]:
+        return await tmdb.search().movies(query=title, page=page)  # type: ignore
+
+    return await _collect_paginated_results(first_page, fetch)
+
+
+async def _search_tv_series(title: str) -> list[PartialTV]:
+    first_page: PaginatedResponse[PartialTV] = await tmdb.search().tv(
+        query=title, page=1
+    )  # type: ignore
+
+    async def fetch(page: int) -> PaginatedResponse[PartialTV]:
+        return await tmdb.search().tv(query=title, page=page)  # type: ignore
+
+    return await _collect_paginated_results(first_page, fetch)
+
+
+async def _search_people(title: str) -> list[Person]:
+    first_page: PaginatedResponse[Person] = await tmdb.search().people(
+        query=title, page=1
+    )  # type: ignore
+
+    async def fetch(page: int) -> PaginatedResponse[Person]:
+        return await tmdb.search().people(query=title, page=page)  # type: ignore
+
+    return await _collect_paginated_results(first_page, fetch)
+
+
+async def search_media_items(title: str) -> list[PartialMovie | PartialTV]:
+    movies, tv_series = await asyncio.gather(
+        _search_movies(title),
+        _search_tv_series(title),
+    )
     movies_tv_series_interleaved = [
         item
         for pair in zip_longest(
-            movies.results if movies.results else [],
-            tv_series.results if tv_series.results else [],
+            movies,
+            tv_series,
             fillvalue=None,
         )
         for item in pair
@@ -86,8 +144,7 @@ async def search_media_items(title: str):
 
 
 async def search_person(person: str):
-    people = await tmdb.search().people(query=person)
-    return people.results or []
+    return await _search_people(person)
 
 
 async def search_persons(crew_names: list[str]):
@@ -127,56 +184,88 @@ async def get_movie_director_match_confidence_matrix(
     ]
 
 
-def get_movie_year_confidence(
-    media_items: list[PartialMovie | PartialTV], year: int | None
-):
+def compute_year_confidence(media_item: PartialMovie | PartialTV, year: float | None):
     if year is None:
-        return [0.0 for _ in media_items]
-    release_dates = [
+        return 0.0
+    release_date = (
         media_item.release_date
         if isinstance(media_item, PartialMovie)
         else media_item.first_air_date
-        for media_item in media_items
-    ]
-    return [1.0 - abs(date.year - year) / 10 if date else 0.0 for date in release_dates]
+    )
+    return 1.0 - abs(release_date.year - year) / 10 if release_date else 0.0
+
+
+RESULTS_LIMIT = 3
+
+
+async def fetch_director_candidates(
+    authors: list[str], limit: int
+) -> list[list[Person]]:
+    persons = await search_persons(authors)
+    return [person_list[:limit] for person_list in persons]
+
+
+def _get_media_display_title(media_item: PartialMovie | PartialTV) -> str | None:
+    if isinstance(media_item, PartialMovie):
+        return media_item.title
+    return media_item.name
+
+
+def compute_title_confidence(media_item: PartialMovie | PartialTV, title: str) -> float:
+    target_title = title.lower()
+    return 1.0 - jiwer.cer(
+        target_title, (_get_media_display_title(media_item) or "").lower()
+    )
+
+
+def score_matches(
+    matches: list[tuple[PartialMovie | PartialTV, list[Person], float]],
+    title: str,
+    year: float,
+) -> list[tuple[PartialMovie | PartialTV, list[Person], float]]:
+    scored_matches: list[tuple[PartialMovie | PartialTV, list[Person], float]] = []
+    for media_item, crew, director_conf in matches:
+        year_conf = compute_year_confidence(media_item, year)
+        title_conf = compute_title_confidence(media_item, title)
+        score = 0.5 * director_conf + 0.2 * year_conf + 0.3 * title_conf
+        scored_matches.append((media_item, crew, score))
+    return scored_matches
+
+
+def select_best_match(
+    matches: list[tuple[PartialMovie | PartialTV, list[Person], float]],
+) -> tuple[PartialMovie | PartialTV | None, list[Person] | None, float]:
+    if not matches:
+        return None, None, 0.0
+    return max(matches, key=lambda item: item[2])
 
 
 async def get_best_media_item_director(
-    title: str, authors_str: list[str], years: list[int]
+    title: str, authors: list[str], years: list[int]
 ):
     media_items = await search_media_items(title)
-    if len(media_items) == 0:
+    if not media_items:
         return None, None, 0
-    authors = await search_persons(authors_str)
 
-    # Movie or TV Serie - director matching
-    results_limit = 3  # Limit the number of results to avoid too many API calls
-    media_items = media_items[:results_limit]
-    directors = [persons[:results_limit] for persons in authors]
-    data = await get_movie_director_match_confidence_matrix(
-        media_items, directors, limit=results_limit
+    # reduce media_items size by sorting by most confident scores
+    target_year = mean(years) if years else 0.0
+    media_items.sort(
+        key=lambda item: (
+            0.5 * compute_title_confidence(item, title)
+            + 0.5 * compute_year_confidence(item, target_year)
+        ),
+        reverse=True,
+    )
+    media_items = media_items[:RESULTS_LIMIT]
+
+    directors = await fetch_director_candidates(authors, RESULTS_LIMIT)
+    matches = await get_movie_director_match_confidence_matrix(
+        media_items, directors, limit=RESULTS_LIMIT
     )
 
-    # Movie - year matching
-    year_confidence = get_movie_year_confidence(
-        [media_item for (media_item, _, _) in data], years[0] if years else None
-    )
+    scored_matches = score_matches(matches, title, target_year)
 
-    # Merge
-    data = [
-        (media_item, crew, 0.8 * conf + 0.2 * year_confidence[i])
-        for i, (media_item, crew, conf) in enumerate(data)
-    ]
-
-    # Get the best confidence argmax
-    best_confidence = max([conf for (_, _, conf) in data])
-    media_item, crew, _ = next(
-        (media_item, crew, conf)
-        for (media_item, crew, conf) in data
-        if conf == best_confidence
-    )
-
-    return media_item, crew, best_confidence
+    return select_best_match(scored_matches)
 
 
 def get_timeoffset_from_timecode(timecode: str):
