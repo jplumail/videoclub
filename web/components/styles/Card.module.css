@@ -31,6 +31,20 @@
   cursor: pointer;
 }
 
+.mediaButton {
+  border: none;
+  background: none;
+  padding: 0;
+  width: 100%;
+  display: block;
+  cursor: pointer;
+}
+
+.mediaButton:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
 .toggleButton {
   position: absolute;
   top: 1rem;
@@ -57,16 +71,6 @@
 @media (hover: hover) and (pointer: fine) {
   .detailsContent {
     padding: 1rem 1.5rem 1.6rem 1rem;
-  }
-
-  .toggleButton {
-    display: none;
-  }
-
-  .container:hover .children {
-    transform: translateY(-100%);
-    opacity: 1;
-    pointer-events: auto;
   }
 }
 

@@ -61,6 +61,8 @@ export function Timeline({
       <div className={styles.content}>
         {movies.map((movie, key) => {
           const title = movie.item.details.title || "";
+          const firstTimestamp = movie.item.timestamps[0].start_time;
+          const handlePosterClick = () => setTimecode(firstTimestamp);
           return (
             <div
               key={key}
@@ -68,7 +70,11 @@ export function Timeline({
               className={styles.movieCard}
               tabIndex={-1}
             >
-              <Card item={movie.item.details} media={movie.poster}>
+              <Card
+                item={movie.item.details}
+                media={movie.poster}
+                onMediaClick={handlePosterClick}
+              >
                 <div className={styles.timecodesContainer}>
                   {movie.item.timestamps.map((timestamp, i) => {
                     return (
