@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "pnpm dev",
+			"problemMatcher": [],
+			"label": "pnpm: dev - web",
+			"detail": "next dev",
+			"options": {
+				"cwd": "${workspaceFolder}/web"
+			},
+			"isBackground": true,
+		}
+	]
+}
