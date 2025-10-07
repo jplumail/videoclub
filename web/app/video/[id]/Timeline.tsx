@@ -63,9 +63,7 @@ export function Timeline({
           const title = movie.item.details.title || "";
           const firstTimestamp = movie.item.timestamps[0]?.start_time;
           const handlePosterClick =
-            typeof firstTimestamp === "number"
-              ? () => setTimecode(firstTimestamp)
-              : undefined;
+            firstTimestamp !== undefined ? () => setTimecode(firstTimestamp) : undefined;
           return (
             <div
               key={key}
