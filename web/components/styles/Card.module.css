@@ -72,16 +72,6 @@
   .detailsContent {
     padding: 1rem 1.5rem 1.6rem 1rem;
   }
-
-  .toggleButton {
-    display: none;
-  }
-
-  .container:hover .children {
-    transform: translateY(-100%);
-    opacity: 1;
-    pointer-events: auto;
-  }
 }
 
 .movieDetails {
