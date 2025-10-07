@@ -17,6 +17,8 @@ export interface CardBaseProps {
   hrefOverride?: string;
   /** Optional text displayed inside the small link badge. */
   badgeText?: string;
+  /** Optional handler triggered when clicking the media element. */
+  onMediaClick?: () => void;
 }
 
 export function Card({
@@ -26,6 +28,7 @@ export function Card({
   hasDetails = true,
   hrefOverride,
   badgeText,
+  onMediaClick,
 }: CardBaseProps) {
   const [isActive, setIsActive] = useState(false);
   let href = "";
@@ -47,13 +50,43 @@ export function Card({
 
   const effectiveHref = hrefOverride || href;
   const wrapMediaWithLink = !hasDetails && Boolean(hrefOverride);
+  const wrapMediaWithButton = Boolean(onMediaClick);
   const computedBadgeText =
     badgeText || (hrefOverride?.startsWith("/video/") ? "Voir l’extrait" : "Ouvrir");
+  const mediaAriaLabel = title
+    ? `Aller au premier extrait : ${title}`
+    : "Aller au premier extrait";
+
+  const mediaContent = wrapMediaWithLink ? (
+    // When details overlay is disabled on contexts like person page,
+    // and an explicit hrefOverride is provided, make the poster clickable.
+    <Link href={effectiveHref} aria-label={`${computedBadgeText}: ${title}`}>
+      <span className={styles.playBadge} aria-hidden="true">
+        {/* simple play icon */}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+        {computedBadgeText}
+      </span>
+      {media}
+    </Link>
+  ) : wrapMediaWithButton ? (
+    <button
+      type="button"
+      className={styles.mediaButton}
+      onClick={onMediaClick}
+      aria-label={mediaAriaLabel}
+    >
+      {media}
+    </button>
+  ) : (
+    media
+  );
 
   return (
     <div
       className={`${styles.container} ${isActive ? styles.active : ""} ${
-        wrapMediaWithLink ? styles.clickable : ""
+        wrapMediaWithLink || wrapMediaWithButton ? styles.clickable : ""
       }`}
     >
       {hasDetails && (
@@ -76,22 +109,7 @@ export function Card({
           </svg>
         </button>
       )}
-      {wrapMediaWithLink ? (
-        // When details overlay is disabled on contexts like person page,
-        // and an explicit hrefOverride is provided, make the poster clickable.
-        <Link href={effectiveHref} aria-label={`${computedBadgeText}: ${title}`}>
-          <span className={styles.playBadge} aria-hidden="true">
-            {/* simple play icon */}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            {computedBadgeText}
-          </span>
-          {media}
-        </Link>
-      ) : (
-        media
-      )}
+      {mediaContent}
       {hasDetails && (
         <div className={styles.children}>
           <div className={styles.detailsContent}>{children}</div>
