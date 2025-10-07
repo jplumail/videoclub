@@ -1,28 +1,65 @@
 .videoPlayer {
   display: flex;
   flex-direction: column;
+  gap: 0;
   width: 100%;
   margin: 0 auto;
 }
 
+.videoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  width: 100%;
+}
+
 .playerIframe {
-  max-width: 100%;
-  width: unset;
-  height: unset;
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
   flex: 1;
   aspect-ratio: 16 / 9;
+  display: block;
+}
+
+.playerIframe iframe {
+  width: 100% !important;
+  height: 100% !important;
+  border: 0;
+  display: block;
 }
 
 .timelineWrapper {
   min-height: 360px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .personnalites {
   align-self: center;
-  margin-block: 1rem;
+  margin-block: 0.5rem;
   font-size: 1.6rem;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .videoPlayer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 28rem);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .timelineWrapper {
+    width: 100%;
+    position: sticky;
+    top: 2rem;
+    height: calc(100vh - 4rem);
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .personnaliteLink {

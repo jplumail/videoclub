@@ -1,14 +1,23 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import type { Personnalite, VideoDataFull } from "@/lib/backend/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { MovieDataTimestamps, Timeline } from "./Timeline";
 import { useYoutubePlayer } from "@/lib/hooks/useYoutubePlayer";
 import styles from "./videoPlayer.module.css";
 import Link from "next/link";
 import { getTitle, slugify } from "@/lib/utils";
 
-function YoutubeIframePlayer({ videoId, timecode }: { videoId: string; timecode: number; }) {
+function YoutubeIframePlayer({
+  videoId,
+  timecode,
+  maxHeight,
+}: {
+  videoId: string;
+  timecode: number;
+  maxHeight?: number | null;
+}) {
   const youtubePlayer = useYoutubePlayer(
     videoId,
     () => {
@@ -29,7 +38,15 @@ function YoutubeIframePlayer({ videoId, timecode }: { videoId: string; timecode:
     }
   }, [timecode, youtubePlayer.isAPIReady, youtubePlayer.player]);
 
-  return <div id="player" className={styles.playerIframe}></div>;
+  const style: CSSProperties | undefined =
+    typeof maxHeight === "number"
+      ? {
+          maxHeight,
+          maxWidth: maxHeight * (16 / 9),
+        }
+      : undefined;
+
+  return <div id="player" className={styles.playerIframe} style={style}></div>;
 }
 
 const PersonLink = ({ person }: { person: Personnalite }) => (
@@ -66,6 +83,8 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
   // states pour gérer dynamiquement le hash et timecode
   const [movieSlug, setMovieSlug] = useState<string>("");
   const [timecode, setTimecode] = useState<number>(0);
+  const videoSectionRef = useRef<HTMLDivElement | null>(null);
+  const [playerMaxHeight, setPlayerMaxHeight] = useState<number | null>(null);
 
   // Récupérer le hash une fois le composant monté
   useEffect(() => {
@@ -81,13 +100,54 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
     }
   }, [movieSlug, movies]);
 
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+
+    const updateAvailableHeight = () => {
+      const section = videoSectionRef.current;
+      if (!section) return;
+      if (!mediaQuery.matches) {
+        setPlayerMaxHeight(null);
+        return;
+      }
+      const rect = section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const bottomSpacing = 32; // keep breathing room below the player
+      const topOffset = Math.max(rect.top, 0);
+      const available = Math.max(viewportHeight - topOffset - bottomSpacing, 320);
+      setPlayerMaxHeight(available);
+    };
+
+    updateAvailableHeight();
+    requestAnimationFrame(updateAvailableHeight);
+
+    window.addEventListener("resize", updateAvailableHeight);
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", updateAvailableHeight);
+    } else {
+      mediaQuery.addListener(updateAvailableHeight);
+    }
+    return () => {
+      window.removeEventListener("resize", updateAvailableHeight);
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", updateAvailableHeight);
+      } else {
+        mediaQuery.removeListener(updateAvailableHeight);
+      }
+    };
+  }, []);
+
   return (
     <div className={styles.videoPlayer}>
-      <YoutubeIframePlayer videoId={videoId} timecode={timecode} />
-      <p className={styles.personnalites}>{formatPersonnalites(personnalites)}</p>
-      <div className={styles.timelineWrapper}>
+      <section className={styles.videoSection} ref={videoSectionRef}>
+        <YoutubeIframePlayer videoId={videoId} timecode={timecode} maxHeight={playerMaxHeight} />
+        <p className={styles.personnalites}>{formatPersonnalites(personnalites)}</p>
+      </section>
+      <aside className={styles.timelineWrapper}>
         <Timeline movies={movies} setTimecode={setTimecode} />
-      </div>
+      </aside>
     </div>
   );
 }

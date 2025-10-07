@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { MediaItem } from "@/lib/backend/types";
 import styles from "./Timeline.module.css";
 import { slugify } from "@/lib/utils";
@@ -39,7 +40,7 @@ export interface MovieDataTimestamps {
     type: "movie" | "tv";
     release_year: string | null;
   };
-  poster: React.ReactElement;
+  poster: ReactElement;
 }
 
 export function Timeline({
