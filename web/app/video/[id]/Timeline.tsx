@@ -61,9 +61,8 @@ export function Timeline({
       <div className={styles.content}>
         {movies.map((movie, key) => {
           const title = movie.item.details.title || "";
-          const firstTimestamp = movie.item.timestamps[0]?.start_time;
-          const handlePosterClick =
-            firstTimestamp !== undefined ? () => setTimecode(firstTimestamp) : undefined;
+          const firstTimestamp = movie.item.timestamps[0].start_time;
+          const handlePosterClick = () => setTimecode(firstTimestamp);
           return (
             <div
               key={key}
