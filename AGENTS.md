@@ -1,3 +1,7 @@
+# Docs
+
+The docs index is the [README](./README.md), it leads to multiple `md` files that can help you in your task.
+
 # Web
 
 In the web folder lives a NextJS project. When debugging the frontend use your `browser_*` tools. The website lives on http://localhost:3001.
