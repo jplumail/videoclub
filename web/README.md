@@ -14,6 +14,7 @@ This is a Next.js frontend:
 
 You will need access to the `videoclub-test` GCP bucket to run the website.
 
+- `pnpm install`: install dependencies.
 - `pnpm dev`: start the Next.js dev server.
 - `pnpm lint`: run ESLint with the Next.js + Prettier flat config.
 - `pnpm format:check`: ensure Prettier formatting prior to commit.
