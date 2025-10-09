@@ -17,6 +17,11 @@
   margin: 0.25rem 0;
 }
 
+.movieCard:hover .link,
+.movieCard:focus-within .link {
+  transform: scale(1.08);
+}
+
 .movieCard:focus {
   outline: 0.25rem solid rgb(77, 144, 254);
   border-radius: 0.5rem;
