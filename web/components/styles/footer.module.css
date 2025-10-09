@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem 0 0;
   margin-top: auto;
   color: hsl(0, 0%, 100%, 0.4);
   font-size: 0.8rem;
