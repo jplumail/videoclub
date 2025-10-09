@@ -124,18 +124,10 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
     requestAnimationFrame(updateAvailableHeight);
 
     window.addEventListener("resize", updateAvailableHeight);
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", updateAvailableHeight);
-    } else {
-      mediaQuery.addListener(updateAvailableHeight);
-    }
+    mediaQuery.addEventListener("change", updateAvailableHeight);
     return () => {
       window.removeEventListener("resize", updateAvailableHeight);
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener("change", updateAvailableHeight);
-      } else {
-        mediaQuery.removeListener(updateAvailableHeight);
-      }
+      mediaQuery.removeEventListener("change", updateAvailableHeight);
     };
   }, []);
 
