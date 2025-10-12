@@ -30,9 +30,16 @@
 .timecode {
   font-size: 1.6rem;
   width: fit-content;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
 }
 
-a.timecode:hover {
+.timecode:hover,
+.timecode:focus {
   text-decoration: underline;
 }
 

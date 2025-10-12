@@ -16,15 +16,15 @@ function getSeconds(seconds: number) {
 
 export function Timecode({ time_offset, setTimecode }: { time_offset: number; setTimecode: (timecode: number) => void; }) {
   return (
-    <a
-      href={"#"}
+    <button
+      type="button"
       onClick={() => setTimecode(time_offset)}
       className={styles.timecode}
     >
-      <p>
+      <span>
         {getMinutes(time_offset || 0)}:{getSeconds(time_offset || 0)}
-      </p>
-    </a>
+      </span>
+    </button>
   );
 }
 
