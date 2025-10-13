@@ -28,10 +28,65 @@ jobs:
       - name: Submit Extractor Cloud Build
         run: |
           set -euo pipefail
-          gcloud builds submit extractor \
+          PROJECT=videoclub-447210
+          REGION=europe-west9
+          MAX_POLLS=60
+          SLEEP_SECONDS=10
+
+          BUILD_NAME=$(gcloud builds submit extractor \
             --config=extractor/cloudbuild.yaml \
-            --project=videoclub-447210 \
-            --region=europe-west9
+            --project="${PROJECT}" \
+            --region="${REGION}" \
+            --async \
+            --format='value(name)' | tail -n1)
+
+          if [ -z "${BUILD_NAME}" ]; then
+            echo "Failed to start extractor Cloud Build" >&2
+            exit 1
+          fi
+
+          BUILD_ID="${BUILD_NAME##*/}"
+          echo "Extractor build started: ${BUILD_ID}"
+
+          for i in $(seq 1 "${MAX_POLLS}"); do
+            STATUS=$(gcloud builds describe "${BUILD_ID}" \
+              --project="${PROJECT}" \
+              --region="${REGION}" \
+              --format='value(status)')
+
+            case "${STATUS}" in
+              SUCCESS)
+                echo "Extractor build succeeded"
+                break
+                ;;
+              FAILURE|CANCELLED|EXPIRED|TIMEOUT)
+                echo "Extractor build ended with status: ${STATUS}" >&2
+                gcloud builds describe "${BUILD_ID}" \
+                  --project="${PROJECT}" \
+                  --region="${REGION}" \
+                  --format='yaml(status,logUrl)'
+                exit 1
+                ;;
+              *)
+                echo "Extractor build status: ${STATUS} (poll ${i}/${MAX_POLLS})"
+                sleep "${SLEEP_SECONDS}"
+                ;;
+            esac
+          done
+
+          FINAL_STATUS=$(gcloud builds describe "${BUILD_ID}" \
+            --project="${PROJECT}" \
+            --region="${REGION}" \
+            --format='value(status)')
+
+          if [ "${FINAL_STATUS}" != "SUCCESS" ]; then
+            echo "Extractor build did not complete after $((MAX_POLLS * SLEEP_SECONDS)) seconds" >&2
+            gcloud builds describe "${BUILD_ID}" \
+              --project="${PROJECT}" \
+              --region="${REGION}" \
+              --format='yaml(status,logUrl)'
+            exit 1
+          fi
 
       - name: Trigger Cloud Build
         id: trigger
