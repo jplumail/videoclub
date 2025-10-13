@@ -1,12 +1,4 @@
 steps:
-  - id: prepare-data
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    entrypoint: bash
-    env:
-      - DEFAULT_DATA_BUCKET=${_DATA_BUCKET}
-      - FUNCTION_REGION=${_FUNCTION_REGION}
-      - GCP_PROJECT=${_GCP_PROJECT}
-    args: ["-c", "set -euo pipefail && python3 scripts/invoke_prepare_data.py"]
   - id: install
     name: node
     entrypoint: bash
@@ -34,8 +26,5 @@ steps:
     args: ["deploy", "--project=${_FIREBASE_PROJECT_ID}", "--only=hosting"]
 substitutions:
   _FIREBASE_PROJECT_ID: videoclub-staging
-  _DATA_BUCKET: videoclub-test
-  _GCP_PROJECT: videoclub-447210
-  _FUNCTION_REGION: europe-west9
 options:
   logging: CLOUD_LOGGING_ONLY

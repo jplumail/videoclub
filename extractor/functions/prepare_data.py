@@ -1,65 +1,73 @@
-"""HTTP Cloud Function to run prepare_data for a bucket."""
+"""Pub/Sub-triggered Cloud Function to run prepare_data for a bucket."""
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+from datetime import UTC, datetime
 
 import functions_framework
-from flask import Request, jsonify
+import google.auth
+from google.cloud import pubsub
+from cloudevents.http.event import CloudEvent  # type: ignore
 
 from scripts.prepare_data import prepare_data as run_prepare
 
+def _project_id() -> str:
+    _, project_id = google.auth.default()
+    return project_id or ""
 
-def _resolve_bucket(
-    request: Request, default_bucket: str, logger: logging.Logger
-) -> str:
-    """Return the bucket provided via query string or JSON payload."""
+def _extract_bucket(event: CloudEvent, default_bucket: str, logger: logging.Logger) -> str:
+    """Return the bucket name from Pub/Sub CloudEvent attributes."""
 
-    bucket = request.args.get("bucket", type=str)
-    if bucket:
-        bucket = bucket.strip()
-        if bucket:
-            return bucket
-
-    try:
-        payload = request.get_json(silent=True)
-    except Exception:
-        logger.warning("prepare_data: invalid JSON payload; using default bucket")
+    envelope = getattr(event, "data", None)
+    message = envelope.get("message") if isinstance(envelope, dict) else None
+    if not isinstance(message, dict):
+        logger.warning("prepare_data: missing Pub/Sub message; using default bucket")
         return default_bucket
 
-    if isinstance(payload, dict):
-        candidate = payload.get("bucket")
-        if isinstance(candidate, str) and candidate.strip():
-            return candidate.strip()
+    attributes = message.get("attributes") or {}
+    if isinstance(attributes, dict):
+        bucket = attributes.get("bucket")
+        if isinstance(bucket, str) and bucket.strip():
+            return bucket.strip()
 
+    logger.warning("prepare_data: bucket attribute missing; using default bucket")
     return default_bucket
 
 
-@functions_framework.http
-def prepare_data(request: Request):
+@functions_framework.cloud_event
+def prepare_data(event: CloudEvent):
     logger = logging.getLogger(__name__)
-    if request.method not in {"POST", "PUT"}:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": "method_not_allowed",
-                    "allowed_methods": ["POST", "PUT"],
-                }
-            ),
-            405,
-        )
 
     default_bucket = os.environ.get("BUCKET", "videoclub-test")
-    bucket = _resolve_bucket(request, default_bucket, logger)
+    bucket = _extract_bucket(event, default_bucket, logger)
 
     logger.info("prepare_data: start bucket=%s", bucket)
     try:
         run_prepare(bucket)
+        _publish_rebuild_message(bucket, logger)
     except Exception:
         logger.exception("prepare_data: error bucket=%s", bucket)
-        return jsonify({"status": "error", "bucket": bucket}), 500
-    logger.info("prepare_data: completed bucket=%s", bucket)
+        raise
 
-    return jsonify({"status": "ok", "bucket": bucket})
+
+def _publish_rebuild_message(bucket: str, logger: logging.Logger) -> None:
+    """Publish a rebuild notification to Pub/Sub, logging and continuing on errors."""
+
+    topic_name = os.environ.get("REBUILD_SITE_TOPIC", "videoclub-rebuild-site")
+    publisher = pubsub.PublisherClient()
+    project_id = _project_id()
+    topic_path = publisher.topic_path(project_id, topic_name)
+
+    payload = {"bucket": bucket, "ts": datetime.now(UTC).isoformat()}
+
+    try:
+        future = publisher.publish(topic_path, json.dumps(payload).encode("utf-8"))
+        future.result(timeout=10)
+        logger.info(
+            "prepare_data: published rebuild message", extra={"topic": topic_path}
+        )
+    except Exception:
+        logger.exception("prepare_data: failed to publish rebuild message to %s", topic_path)
