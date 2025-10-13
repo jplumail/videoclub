@@ -26,12 +26,17 @@ jobs:
           project_id: videoclub-447210
 
       - name: Submit Extractor Cloud Build
+        env:
+          PROJECT_ID: videoclub-447210
+          REGION: europe-west9
+          BUILD_SERVICE_ACCOUNT: cloudbuild-web@videoclub-447210.iam.gserviceaccount.com
         run: |
           set -euo pipefail
           gcloud builds submit extractor \
             --config=extractor/cloudbuild.yaml \
-            --project=videoclub-447210 \
-            --region=europe-west9
+            --project="${PROJECT_ID}" \
+            --region="${REGION}" \
+            --service-account="${BUILD_SERVICE_ACCOUNT}"
 
       - name: Trigger Cloud Build
         id: trigger
