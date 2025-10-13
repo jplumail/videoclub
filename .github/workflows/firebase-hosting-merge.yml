@@ -31,9 +31,7 @@ jobs:
           gcloud builds submit extractor \
             --config=extractor/cloudbuild.yaml \
             --project=videoclub-447210 \
-            --region=europe-west9 \
-            --service-account=projects/videoclub-447210/serviceAccounts/cloudbuild-web@videoclub-447210.iam.gserviceaccount.com \
-            --gcs-log-dir=gs://videoclub-447210_cloudbuild/logs
+            --region=europe-west9
 
       - name: Trigger Cloud Build
         id: trigger
