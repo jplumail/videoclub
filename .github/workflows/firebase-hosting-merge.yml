@@ -25,6 +25,14 @@ jobs:
         with:
           project_id: videoclub-447210
 
+      - name: Submit Extractor Cloud Build
+        run: |
+          set -euo pipefail
+          gcloud builds submit extractor \
+            --config=extractor/cloudbuild.yaml \
+            --project=videoclub-447210 \
+            --region=europe-west9
+
       - name: Trigger Cloud Build
         id: trigger
         env:
