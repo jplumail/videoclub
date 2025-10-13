@@ -71,6 +71,17 @@ async def get_personnalites(item: PlaylistItem, thumbnail_uri: str | None):
             personnalite.nom for personnalite in personnalites.personnalites
         ]
         potential_persons = await search_persons(personalites_names)
+
+        # filter out deathday is None
+        potential_persons = [
+            [p for p in persons if p.deathday is None] if persons else None for persons in potential_persons
+        ]
+
+        # sort by popularity
+        potential_persons = [
+            sorted(p, key=lambda x: x.popularity, reverse=True) if p else None for p in potential_persons
+        ]
+
         res = [p[0] if p else None for p in potential_persons]
     else:
         res = [None]
