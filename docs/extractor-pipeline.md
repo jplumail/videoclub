@@ -7,7 +7,9 @@ The extractor pipeline keeps the video dataset in Google Cloud Storage fresh so 
 1. **Cloud Scheduler → discover** – Scheduler performs an HTTP `GET` on `discover`, passing the target bucket. The function scans the Videoclub playlist, ensures the Pub/Sub topic exists, and creates a batch document in Firestore.
 2. **discover → Pub/Sub (`videoclub-new-video`)** – Each video missing artifacts results in a Pub/Sub message with the video ID and bucket.
 3. **processor** – The Pub/Sub-triggered function runs `get_infos`, `annotate`, and `extract` for each video, writing JSON and media artifacts under `gs://<bucket>/videos/<video-id>/`.
-4. **aggregator → videoclub-rebuild-site** – When a batch reaches completion, `aggregator` publishes to the `videoclub-rebuild-site` Pub/Sub topic. Cloud Build consumes that topic and, as its first step, calls the HTTP `prepare_data` function to regenerate the `/data` artifacts before building the static site.
+4. **aggregator → prepare_data** – Firestore updates from finished batches trigger `aggregator`, which calls the `prepare_data` function. `prepare_data` compiles the site-wide dataset in the same bucket and publishes a rebuild message to `videoclub-rebuild-site` so the website build can run.
+
+That rebuild trigger is consumed by the web Cloud Build pipeline described in `docs/rebuild-automation.md`.
 
 ## Set up
 
@@ -65,6 +67,7 @@ gcloud scheduler jobs update http ${SCHEDULER_JOB} \
 
 ```bash
 gcloud pubsub topics create videoclub-processor
+gcloud pubsub topics create videoclub-prepare-data
 ```
 
 ## Manual pipeline triggers
@@ -90,7 +93,13 @@ Then, we need to extract TMDB movies from the annnotations. To do it manually, u
 uv run ./scripts/extract_movies_videos.py PzkE22ys4-g
 ```
 
-Now we can trigger the build of the NextJS website. The Cloud Build pipeline will invoke the HTTP `prepare_data` function before compiling the static assets so `/data` is refreshed automatically.
+Before rebuilding the website, we need to transform data to be used by the website builder: from the `/videos` prefix into the `/data` prefix. We use `prepare_data.py` for that:
+
+```bash
+uv run ./scripts/prepare_data.py
+```
+
+Now we can trigger the build of the NextJS website which will use `/data` in the bucket.
 
 ```bash
 gcloud pubsub topics publish videoclub-rebuild-site \
