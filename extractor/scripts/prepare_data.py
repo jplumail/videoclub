@@ -21,9 +21,11 @@ the website structure:
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 import logging
+import os
 from functools import partial
 from pathlib import Path
 from collections.abc import Awaitable
@@ -100,7 +102,9 @@ async def load_media_items_timestamps(
         return None
 
 
-async def build_media_data(media_items: MediaItemsTimestamps) -> list[MediaItemWithTime]:
+async def build_media_data(
+    media_items: MediaItemsTimestamps,
+) -> list[MediaItemWithTime]:
     """Convert ``MediaItemsTimestamps`` into a list of ``MediaItem`` records."""
     return [
         MediaItemWithTime(
@@ -178,7 +182,10 @@ async def process_video(
     raw_prefix: Path,
     data_prefix: Path,
     video_id: str,
-) -> tuple[VideoDataShort, list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]]] | None:
+) -> (
+    tuple[VideoDataShort, list[tuple[VideoDataShort, MediaItemWithTime, Personnalite]]]
+    | None
+):
     ppl = await load_playlist_item_personnalites(bucket, raw_prefix, video_id)
     if not ppl:
         return None
@@ -552,4 +559,28 @@ def prepare_data(
 
 
 if __name__ == "__main__":
-    prepare_data()
+    parser = argparse.ArgumentParser(
+        description="Generate structured data for videoclub"
+    )
+    parser.add_argument(
+        "--bucket",
+        default=os.environ.get("BUCKET", "videoclub-test"),
+        help="GCS bucket to read from and write to (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--raw-prefix",
+        default="videos",
+        help="Prefix under the bucket containing raw extractor outputs",
+    )
+    parser.add_argument(
+        "--data-prefix",
+        default="data",
+        help="Prefix under the bucket to write structured data to",
+    )
+    args = parser.parse_args()
+
+    prepare_data(
+        bucket_name=args.bucket,
+        video_raw_data_prefix=Path(args.raw_prefix),
+        data_prefix=Path(args.data_prefix),
+    )

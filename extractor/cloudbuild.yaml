@@ -43,7 +43,7 @@ steps:
       --trigger-location=${_FIRESTORE_REGION}
       --source=.
       --entry-point=aggregator
-      --set-env-vars=PREPARE_DATA_TOPIC=${_PREPARE_DATA_TOPIC}
+      --set-env-vars=REBUILD_SITE_TOPIC=${_REBUILD_SITE_TOPIC}
       --trigger-event-filters=type="google.cloud.firestore.document.v1.updated"
       --trigger-event-filters=database="(default)"
       --trigger-event-filters-path-pattern="document=batches/{batchId}"
@@ -61,8 +61,9 @@ steps:
       --entry-point=prepare_data
       --timeout=540s
       --memory=512MiB
-      --set-env-vars=REBUILD_SITE_TOPIC=videoclub-rebuild-site
-      --trigger-topic=${_PREPARE_DATA_TOPIC}
+      --trigger-http
+      --allow-unauthenticated
+      --set-env-vars=BUCKET=${_BUCKET}
     waitFor:
       - "export-requirements"
 
@@ -74,7 +75,7 @@ substitutions:
   _PROCESSOR_TOPIC: videoclub-processor
   _BUCKET: videoclub-test
   _FIRESTORE_REGION: europe-west9
-  _PREPARE_DATA_TOPIC: videoclub-prepare-data
+  _REBUILD_SITE_TOPIC: videoclub-rebuild-site
 
 options:
   automapSubstitutions: true

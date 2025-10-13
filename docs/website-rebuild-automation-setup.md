@@ -1,6 +1,6 @@
 # Set up website rebuild automation
 
-Automates the Firebase Hosting deployment of the [`web`](../web/) app whenever the [`prepare_data`](../extractor/functions/prepare_data.py) Cloud Function finishes successfully, and whenever we push on the main branch of the Github repo.
+Automates the Firebase Hosting deployment of the [`web`](../web/) app whenever the `videoclub-rebuild-site` Pub/Sub topic receives a message. The associated Cloud Build pipeline calls the HTTP [`prepare_data`](../extractor/functions/prepare_data.py) function via `web/scripts/invoke_prepare_data.py` as its first step before compiling and deploying the static site. The topic is triggered both by the extractor pipeline and by pushes to the `main` branch on GitHub.
 
 ## 1. Pub/Sub topic
 
@@ -26,9 +26,9 @@ gcloud pubsub topics add-iam-policy-binding ${TOPIC} \
   --role="roles/pubsub.publisher"
 ```
 
-## 2. Deploy updated extractor
+## 2. Deploy extractor
 
-`extractor/functions/prepare_data.py` now publishes a JSON payload of the form `{ "bucket": "<bucket>", "ts": "<iso8601>" }` to the topic defined above.
+`extractor/functions/aggregator.py` publishes a JSON payload of the form `{ "bucket": "<bucket>", "ts": "<iso8601>" }` to the topic defined above.
 
 Redeploy with the existing Cloud Build pipeline so that the `REBUILD_SITE_TOPIC` environment variable is set automatically:
 
@@ -82,7 +82,7 @@ Create (or update) a Pub/Sub trigger that points at `web/cloudbuild.yaml` using 
 
 ```bash
 PROJECT_ID=videoclub-447210
-REGION=europe-west9                        # region of the Cloud Build connection
+REGION=europe-west9                        # region of the Cloud Build connection + functions
 TRIGGER_NAME=videoclub-web-rebuild
 TOPIC=projects/${PROJECT_ID}/topics/videoclub-rebuild-site
 CONNECTION_NAME=videoclub-github           # name of your Cloud Build connection
@@ -98,7 +98,7 @@ gcloud builds triggers create pubsub \
   --repository=projects/${PROJECT_ID}/locations/${REGION}/connections/${CONNECTION_NAME}/repositories/${REPO_NAME} \
   --branch=main \
   --build-config=web/cloudbuild.yaml \
-  --substitutions=_FIREBASE_PROJECT_ID=${PROJECT_ID} \
+  --substitutions=_FIREBASE_PROJECT_ID=${PROJECT_ID},_DATA_BUCKET=videoclub-test,_GCP_PROJECT=${PROJECT_ID},_FUNCTION_REGION=${REGION} \
   --service-account=projects/${PROJECT_ID}/serviceAccounts/${CLOUDBUILD_SA}
 ```
 
@@ -128,6 +128,10 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} \
 gcloud projects add-iam-policy-binding ${PROJECT_ID} \
   --member="serviceAccount:${CLOUDBUILD_SA}" \
   --role="roles/firebasehosting.admin"
+
+gcloud projects add-iam-policy-binding ${PROJECT_ID} \
+  --member="serviceAccount:${CLOUDBUILD_SA}" \
+  --role="roles/cloudfunctions.invoker"
 
 gcloud iam service-accounts add-iam-policy-binding ${CLOUDBUILD_SA} \
   --project=${PROJECT_ID} \
