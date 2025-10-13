@@ -1,14 +1,25 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import type { Personnalite, VideoDataFull } from "@/lib/backend/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { MovieDataTimestamps, Timeline } from "./Timeline";
 import { useYoutubePlayer } from "@/lib/hooks/useYoutubePlayer";
 import styles from "./videoPlayer.module.css";
 import Link from "next/link";
 import { getTitle, slugify } from "@/lib/utils";
 
-function YoutubeIframePlayer({ videoId, timecode }: { videoId: string; timecode: number; }) {
+function YoutubeIframePlayer({
+  videoId,
+  timecode,
+  seekVersion,
+  maxHeight,
+}: {
+  videoId: string;
+  timecode: number;
+  seekVersion: number;
+  maxHeight?: number | null;
+}) {
   const youtubePlayer = useYoutubePlayer(
     videoId,
     () => {
@@ -27,9 +38,17 @@ function YoutubeIframePlayer({ videoId, timecode }: { videoId: string; timecode:
         youtubePlayer.player.playVideo();
       }
     }
-  }, [timecode, youtubePlayer.isAPIReady, youtubePlayer.player]);
+  }, [timecode, seekVersion, youtubePlayer.isAPIReady, youtubePlayer.player]);
 
-  return <div id="player" className={styles.playerIframe}></div>;
+  const style: CSSProperties | undefined =
+    typeof maxHeight === "number"
+      ? {
+          maxHeight,
+          maxWidth: maxHeight * (16 / 9),
+        }
+      : undefined;
+
+  return <div id="player" className={styles.playerIframe} style={style}></div>;
 }
 
 const PersonLink = ({ person }: { person: Personnalite }) => (
@@ -65,7 +84,19 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
 
   // states pour gérer dynamiquement le hash et timecode
   const [movieSlug, setMovieSlug] = useState<string>("");
-  const [timecode, setTimecode] = useState<number>(0);
+  const [timecodeRequest, setTimecodeRequest] = useState<{ timecode: number; nonce: number }>({
+    timecode: 0,
+    nonce: 0,
+  });
+  const videoSectionRef = useRef<HTMLDivElement | null>(null);
+  const [playerMaxHeight, setPlayerMaxHeight] = useState<number | null>(null);
+
+  const requestTimecode = useCallback((time: number) => {
+    setTimecodeRequest((prev) => ({
+      timecode: time,
+      nonce: prev.nonce + 1,
+    }));
+  }, []);
 
   // Récupérer le hash une fois le composant monté
   useEffect(() => {
@@ -77,17 +108,55 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
   useEffect(() => {
     const foundMovie = movies.find((m) => slugify(getTitle(m.item.details) || "") === movieSlug);
     if (foundMovie && foundMovie.item.timestamps && foundMovie.item.timestamps[0]?.start_time) {
-      setTimecode(foundMovie.item.timestamps[0].start_time);
+      requestTimecode(foundMovie.item.timestamps[0].start_time);
     }
-  }, [movieSlug, movies]);
+  }, [movieSlug, movies, requestTimecode]);
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+
+    const updateAvailableHeight = () => {
+      const section = videoSectionRef.current;
+      if (!section) return;
+      if (!mediaQuery.matches) {
+        setPlayerMaxHeight(null);
+        return;
+      }
+      const rect = section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const bottomSpacing = 32; // keep breathing room below the player
+      const topOffset = Math.max(rect.top, 0);
+      const available = Math.max(viewportHeight - topOffset - bottomSpacing, 320);
+      setPlayerMaxHeight(available);
+    };
+
+    updateAvailableHeight();
+    requestAnimationFrame(updateAvailableHeight);
+
+    window.addEventListener("resize", updateAvailableHeight);
+    mediaQuery.addEventListener("change", updateAvailableHeight);
+    return () => {
+      window.removeEventListener("resize", updateAvailableHeight);
+      mediaQuery.removeEventListener("change", updateAvailableHeight);
+    };
+  }, []);
 
   return (
     <div className={styles.videoPlayer}>
-      <YoutubeIframePlayer videoId={videoId} timecode={timecode} />
-      <p className={styles.personnalites}>{formatPersonnalites(personnalites)}</p>
-      <div className={styles.timelineWrapper}>
-        <Timeline movies={movies} setTimecode={setTimecode} />
-      </div>
+      <section className={styles.videoSection} ref={videoSectionRef}>
+        <YoutubeIframePlayer
+          videoId={videoId}
+          timecode={timecodeRequest.timecode}
+          seekVersion={timecodeRequest.nonce}
+          maxHeight={playerMaxHeight}
+        />
+        <p className={styles.personnalites}>{formatPersonnalites(personnalites)}</p>
+      </section>
+      <aside className={styles.timelineWrapper}>
+        <Timeline movies={movies} setTimecode={requestTimecode} />
+      </aside>
     </div>
   );
 }
