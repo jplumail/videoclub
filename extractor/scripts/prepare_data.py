@@ -193,6 +193,14 @@ async def process_video(
     media_items_ts = await load_media_items_timestamps(bucket, raw_prefix, video_id)
     if not media_items_ts:
         return None
+    
+    # filter out media items with low confidence
+    media_items_ts.media_items_timestamps = [
+        m for m in media_items_ts.media_items_timestamps if m.confidence >= 0.5
+    ]
+    if not media_items_ts.media_items_timestamps:
+        logger.warning(f"No high-confidence media items for video {video_id}")
+        return None
 
     media_data = await build_media_data(media_items_ts)
 
