@@ -2,13 +2,15 @@
 
 When a batch document in `batches/{batch_id}` reaches completed == total,
 and status != 'done', this function marks it done and publishes a message to
-the prepare-data Pub/Sub topic so the CloudEvent function can run.
+the site rebuild Pub/Sub topic so Cloud Build can regenerate the dataset and deploy.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+from datetime import UTC, datetime
 
 import functions_framework
 from cloudevents.http.event import CloudEvent  # type: ignore
@@ -38,17 +40,24 @@ def _project_id() -> str:
     return project_id or ""
 
 
-def _publish_prepare_data(bucket: str, batch_id: str | None, logger: logging.Logger) -> None:
-    """Publish a message to trigger prepare_data via Pub/Sub."""
+def _publish_rebuild_request(
+    bucket: str, batch_id: str | None, logger: logging.Logger
+) -> None:
+    """Publish a message requesting a site rebuild for ``bucket``."""
 
-    topic_name = os.environ.get("PREPARE_DATA_TOPIC")
+    topic_name = os.environ.get("REBUILD_SITE_TOPIC")
     if not topic_name:
-        logger.error("aggregator: PREPARE_DATA_TOPIC not set; skipping publish")
+        logger.error("aggregator: REBUILD_SITE_TOPIC not set; skipping publish")
         return
 
     publisher = pubsub.PublisherClient()
     topic_path = publisher.topic_path(_project_id(), topic_name)
-    payload = b""
+    payload = json.dumps(
+        {
+            "bucket": bucket,
+            "ts": datetime.now(UTC).isoformat(),
+        }
+    ).encode("utf-8")
 
     attributes: dict[str, str] = {"bucket": bucket}
     if batch_id:
@@ -58,11 +67,13 @@ def _publish_prepare_data(bucket: str, batch_id: str | None, logger: logging.Log
         future = publisher.publish(topic_path, payload, **attributes)
         future.result(timeout=10)
         logger.info(
-            "aggregator: published prepare_data message",
+            "aggregator: published rebuild request",
             extra={"topic": topic_path, "bucket": bucket, "batch_id": batch_id},
         )
     except Exception:
-        logger.exception("aggregator: failed to publish prepare_data message for bucket=%s", bucket)
+        logger.exception(
+            "aggregator: failed to publish rebuild request for bucket=%s", bucket
+        )
 
 
 @functions_framework.cloud_event
@@ -105,13 +116,19 @@ def aggregator(event: CloudEvent):
         logger.info("aggregator: not complete or already done")
         return None
 
-    # Transition to done and publish prepare-data exactly once
+    # Transition to done and publish the rebuild request exactly once
     def txn_mark_done(transaction: firestore.Transaction):
         current = batch_ref.get(transaction=transaction)
         if not current.exists:
             return
         cur = current.to_dict() or {}
-        if (int(cur.get("completed", 0) or 0) + int(cur.get("failed", 0) or 0)) >= int(cur.get("total", 0) or 0) and cur.get("status") != "done":
+        completed_count = int(cur.get("completed", 0) or 0)
+        failed_count = int(cur.get("failed", 0) or 0)
+        total_count = int(cur.get("total", 0) or 0)
+        if (
+            (completed_count + failed_count) >= total_count
+            and cur.get("status") != "done"
+        ):
             transaction.update(batch_ref, {"status": "done"})
 
     txn = fs.transaction()
@@ -121,11 +138,11 @@ def aggregator(event: CloudEvent):
         logger.exception("aggregator: transaction failed for batch %s", batch_id)
         return None
 
-    # After the state change, publish to prepare-data topic
+    # After the state change, publish to rebuild topic
     if not bucket:
-        logger.error("aggregator: bucket missing; skipping prepare_data publish")
+        logger.error("aggregator: bucket missing; skipping rebuild publish")
         return None
 
-    _publish_prepare_data(bucket, batch_id, logger)
+    _publish_rebuild_request(bucket, batch_id, logger)
 
     return None
