@@ -36,7 +36,8 @@ jobs:
             --config=extractor/cloudbuild.yaml \
             --project="${PROJECT_ID}" \
             --region="${REGION}" \
-            --service-account="${BUILD_SERVICE_ACCOUNT}"
+            --service-account="${BUILD_SERVICE_ACCOUNT}" \
+            --logging=CLOUD_LOGGING_ONLY
 
       - name: Trigger Cloud Build
         id: trigger
