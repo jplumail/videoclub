@@ -3,8 +3,9 @@ from __future__ import annotations
 import base64
 import json
 import os
-import subprocess
 import sys
+import urllib.error
+import urllib.request
 
 
 def _strip(value: str | None) -> str:
@@ -39,32 +40,57 @@ def resolve_bucket() -> str:
     return bucket or "videoclub-test"
 
 
-def main() -> None:
+def _resolve_function_url() -> str:
+    explicit = _strip(os.environ.get("PREPARE_DATA_URL"))
+    if explicit:
+        return explicit
+
     project = _strip(os.environ.get("GCP_PROJECT"))
     region = _strip(os.environ.get("FUNCTION_REGION"))
     if not project or not region:
-        raise SystemExit("GCP_PROJECT and FUNCTION_REGION environment variables must be set")
+        raise SystemExit(
+            "GCP_PROJECT and FUNCTION_REGION environment variables must be set"
+            " or provide PREPARE_DATA_URL"
+        )
 
+    return f"https://{region}-{project}.cloudfunctions.net/prepare_data"
+
+
+def main() -> None:
+    url = _resolve_function_url()
     bucket = resolve_bucket()
     payload = json.dumps({"bucket": bucket})
 
-    print(f"Invoking prepare_data for bucket {bucket}")
-    subprocess.run(
-        [
-            "gcloud",
-            "functions",
-            "call",
-            "prepare_data",
-            "--project",
-            project,
-            "--region",
-            region,
-            "--gen2",
-            "--data",
-            payload,
-        ],
-        check=True,
+    print(f"Invoking prepare_data at {url} for bucket {bucket}")
+    request = urllib.request.Request(
+        url,
+        data=payload.encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
     )
+
+    try:
+        with urllib.request.urlopen(request, timeout=300) as response:
+            status = getattr(response, "status", response.getcode())
+            body = response.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as exc:
+        error_body = exc.read().decode("utf-8", "replace")
+        sys.stderr.write(
+            "prepare_data invocation failed with HTTP status "
+            f"{exc.code}: {error_body}\n"
+        )
+        raise SystemExit(1)
+    except urllib.error.URLError as exc:
+        sys.stderr.write(f"prepare_data invocation failed: {exc}\n")
+        raise SystemExit(1)
+
+    if status >= 300:
+        sys.stderr.write(
+            f"prepare_data invocation returned {status}: {body}\n"
+        )
+        raise SystemExit(1)
+
+    print(f"prepare_data invocation succeeded with status {status}: {body}")
 
 
 if __name__ == "__main__":

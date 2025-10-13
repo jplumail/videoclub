@@ -2,6 +2,7 @@ steps:
   - id: prepare-data
     name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: bash
+    dir: web
     env:
       - DEFAULT_DATA_BUCKET=${_DATA_BUCKET}
       - FUNCTION_REGION=${_FUNCTION_REGION}
