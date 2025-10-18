@@ -77,6 +77,8 @@
   font-weight: 600;
   cursor: pointer;
   padding: 0;
+  align-self: center;
+  justify-content: center;
 }
 
 .mobileToggle:focus-visible {
