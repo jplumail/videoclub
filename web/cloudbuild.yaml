@@ -16,6 +16,7 @@ steps:
       - -c
       - |
           set -euo pipefail
+          npm install -g corepack@latest
           corepack enable
           pnpm install --frozen-lockfile
   - id: build
@@ -26,6 +27,7 @@ steps:
       - -c
       - |
           set -euo pipefail
+          npm install -g corepack@latest
           corepack enable
           pnpm build
   - id: deploy-hosting
