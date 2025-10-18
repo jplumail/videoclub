@@ -27,10 +27,12 @@ client = genai.Client(
 MODEL = "gemini-2.5-flash"
 
 
-async def extract_names(title: str, thumbnail_uri: str | None):
-    """Extract personnalites from title and description."""
+async def extract_names(title: str, description: str, thumbnail_uri: str | None):
+    """Extract personnalites from title, description and thumbnail."""
     parts = [
-        types.Part.from_text(text=f'{{"titre": "{title}"}}'),
+        types.Part.from_text(
+            text=f'{{"titre": "{title}", "description": "{description}"}}',
+        ),
     ]
     if thumbnail_uri:
         parts.append(
@@ -65,7 +67,9 @@ async def get_personnalites(item: PlaylistItem, thumbnail_uri: str | None):
     """
     Extract personnalites from title and description
     """
-    personnalites = await extract_names(item.snippet.title, thumbnail_uri)
+    personnalites = await extract_names(
+        item.snippet.title, item.snippet.description, thumbnail_uri
+    )
     if personnalites:
         personalites_names = [
             personnalite.nom for personnalite in personnalites.personnalites
@@ -74,12 +78,14 @@ async def get_personnalites(item: PlaylistItem, thumbnail_uri: str | None):
 
         # filter out deathday is None
         potential_persons = [
-            [p for p in persons if p.deathday is None] if persons else None for persons in potential_persons
+            [p for p in persons if p.deathday is None] if persons else None
+            for persons in potential_persons
         ]
 
         # sort by popularity
         potential_persons = [
-            sorted(p, key=lambda x: x.popularity, reverse=True) if p else None for p in potential_persons
+            sorted(p, key=lambda x: x.popularity, reverse=True) if p else None
+            for p in potential_persons
         ]
 
         res = [p[0] if p else None for p in potential_persons]
