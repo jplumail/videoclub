@@ -83,7 +83,7 @@ export async function MovieDetails({
 
   if (tmdbDetails?.tmdbUrl) {
     infoItems.push({
-      label: "Fiche TMDB",
+      label: "TMDB",
       value: (
         <a
           className={styles.tmdbLink}
