@@ -1,0 +1,198 @@
+.movieTitle span {
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.heroSection {
+  width: 100%;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.posterWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.infoColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 240px;
+}
+
+.infoContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.infoList {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  align-items: baseline;
+}
+
+.infoLabel {
+  font-weight: 600;
+  margin: 0;
+}
+
+.infoValue {
+  margin: 0;
+}
+
+.mobileToggleInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mobileToggle {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  align-self: center;
+  justify-content: center;
+}
+
+.mobileToggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.mobileToggleIcon {
+  display: inline-flex;
+  transition: transform 0.2s ease;
+}
+
+.mobileToggleIconOpen {
+  transform: rotate(90deg);
+}
+
+.mobileToggleTextOpen {
+  display: none;
+}
+
+.mobileToggleTextClosed {
+  display: inline;
+}
+
+.tmdbLink:hover,
+.homepageLink:hover {
+  text-decoration: underline;
+}
+
+.tagline {
+  font-style: italic;
+  margin: 0;
+}
+
+.synopsis {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.citedSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.citedItem:hover .personLink,
+.citedItem:focus-within .personLink {
+  color: var(--konbini-red);
+}
+
+.citedHeading {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.citedCount {
+  color: var(--konbini-red);
+  font-weight: 700;
+}
+
+.personLink {
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.personLink:hover {
+  color: var(--konbini-yellow);
+}
+
+
+@media screen and (min-width: 768px) {
+  .heroContent {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .posterWrapper {
+    justify-content: end;
+  }
+  .infoColumn {
+    align-items: flex-start;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .infoColumn {
+    min-width: unset;
+  }
+
+  .mobileToggle {
+    display: inline-flex;
+  }
+
+  .mobileToggleInput:not(:checked) ~ .infoContent {
+    display: none;
+  }
+
+  .mobileToggleInput:checked ~ .mobileToggle .mobileToggleIcon {
+    transform: rotate(90deg);
+  }
+
+  .mobileToggleInput:checked ~ .mobileToggle .mobileToggleTextOpen {
+    display: inline;
+  }
+
+  .mobileToggleInput:checked ~ .mobileToggle .mobileToggleTextClosed {
+    display: none;
+  }
+
+  .mobileToggleInput:checked ~ .infoContent {
+    display: flex;
+  }
+}

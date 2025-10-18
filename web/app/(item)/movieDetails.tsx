@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { MediaIdData } from "@/lib/backend/types";
 import { MovieCard } from "@/components/MovieCard";
 import { PersonCard } from "@/components/PersonCard";
@@ -6,6 +7,8 @@ import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 import { ConfigurationManager } from "@/lib/data/tmdb";
 import personnaliteStyles from "@/components/styles/Personnalites.module.css";
+import styles from "./movieDetails.module.css";
+import { MovieInfoPanel } from "./MovieInfoPanel";
 
 export async function MovieDetails({
   movie,
@@ -15,44 +18,134 @@ export async function MovieDetails({
   kind: "film" | "serie";
 }) {
   const release = movie.release_year ? new Date(movie.release_year) : null;
-  const overview = await ConfigurationManager.getOverviewById(
+  const tmdbDetails = await ConfigurationManager.getMediaDetailsById(
     kind === "film" ? "movie" : "tv",
     movie.id,
   );
+  const directorName =
+    tmdbDetails && tmdbDetails.directors.length > 0
+      ? tmdbDetails.directors.join(", ")
+      : "Aucune information disponible.";
+  const infoItems: { label: string; value: ReactNode }[] = [
+    { label: "Réalisateur", value: directorName },
+  ];
+
+  if (tmdbDetails?.genres.length) {
+    infoItems.push({ label: "Genres", value: tmdbDetails.genres.join(", ") });
+  }
+
+  if (tmdbDetails?.runtimeMinutes && tmdbDetails.runtimeMinutes > 0) {
+    infoItems.push({
+      label: "Durée",
+      value: `${tmdbDetails.runtimeMinutes} min`,
+    });
+  } else if (
+    tmdbDetails?.episodeRuntimeMinutes &&
+    tmdbDetails.episodeRuntimeMinutes > 0
+  ) {
+    infoItems.push({
+      label: "Durée d’un épisode",
+      value: `${tmdbDetails.episodeRuntimeMinutes} min`,
+    });
+  }
+
+  if (tmdbDetails?.originCountries.length) {
+    infoItems.push({
+      label: "Pays d’origine",
+      value: tmdbDetails.originCountries.join(", "),
+    });
+  }
+
+  if (tmdbDetails?.originalTitle) {
+    const normalizedDisplayedTitle = (movie.title ?? "").trim().toLowerCase();
+    const normalizedOriginalTitle = tmdbDetails.originalTitle
+      .trim()
+      .toLowerCase();
+    if (
+      normalizedOriginalTitle &&
+      normalizedOriginalTitle !== normalizedDisplayedTitle
+    ) {
+      infoItems.push({
+        label: "Titre original",
+        value: tmdbDetails.originalTitle,
+      });
+    }
+  }
+
+  if (tmdbDetails?.tmdbUrl) {
+    infoItems.push({
+      label: "TMDB",
+      value: (
+        <a
+          className={styles.tmdbLink}
+          href={tmdbDetails.tmdbUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {tmdbDetails.tmdbUrl}
+        </a>
+      ),
+    });
+  }
+
+  if (tmdbDetails?.homepage) {
+    infoItems.push({
+      label: "Site officiel",
+      value: (
+        <a
+          className={styles.homepageLink}
+          href={tmdbDetails.homepage}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {tmdbDetails.homepage}
+        </a>
+      ),
+    });
+  }
+
+  const synopsis = tmdbDetails?.overview;
+  const toggleId = `movie-info-${kind}-${movie.id ?? "unknown"}`;
+  const citedCount = movie.citations.length;
+  const citedLabel = citedCount > 1 ? "personnes" : "personne";
+
   return (
     <>
-      <h1>
+      <h1 className={styles.movieTitle}>
         {movie.title}
         {release && <span> ({release.getFullYear().toString()})</span>}
       </h1>
-      <section>
-        <div>
-          <div>
-            <div style={{ marginBottom: "1rem" }}>
-              <MovieCard
-                media={{
-                  id: movie.id,
-                  type: kind === "film" ? "movie" : "tv",
-                  title: movie.title,
-                  original_title: movie.original_title ?? movie.title ?? null,
-                  release_year: movie.release_year,
-                }}
-                hasDetails={false}
-              />
-            </div>
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <div className={styles.posterWrapper}>
+            <MovieCard
+              media={{
+                id: movie.id,
+                type: kind === "film" ? "movie" : "tv",
+                title: movie.title,
+                original_title: movie.original_title ?? movie.title ?? null,
+                release_year: movie.release_year,
+              }}
+              hasDetails={false}
+            />
           </div>
 
-          <div>
-            <section>
-              <h2>Résumé</h2>
-              <p>{overview ?? "Aucun résumé disponible."}</p>
-            </section>
-          </div>
+          <MovieInfoPanel
+            infoItems={infoItems}
+            tagline={tmdbDetails?.tagline}
+            synopsis={synopsis}
+            toggleId={toggleId}
+          />
         </div>
       </section>
 
-      <section>
-        <h2>Cité par</h2>
+      <section className={styles.citedSection}>
+        <h2 className={styles.citedHeading}>
+          Cité par{" "}
+          <span className={styles.citedCount}>
+            {citedCount} {citedLabel}
+          </span>
+        </h2>
         <Gallery>
           {movie.citations.map((c, index) => {
             const first = c.videoIds[0];
@@ -68,7 +161,7 @@ export async function MovieDetails({
                 )}`
               : "#";
             return (
-              <li key={index}>
+              <li key={index} className={styles.citedItem}>
                 <PersonCard
                   person={c.personnalite}
                   hasDetails={false}
@@ -77,7 +170,7 @@ export async function MovieDetails({
                 />
                 <p className={personnaliteStyles.container}>
                   <Link
-                    className={personnaliteStyles.link}
+                    className={styles.personLink}
                     href={`/personne/${c.personnalite.person_id}`}
                   >
                     {c.personnalite.name}
