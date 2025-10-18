@@ -29,7 +29,16 @@ export async function MovieDetails({
         <div>
           <div>
             <div style={{ marginBottom: "1rem" }}>
-              <MovieCard media={{ id: movie.id, type: kind === "film" ? "movie" : "tv", title: movie.title, release_year: movie.release_year }} hasDetails={false} />
+              <MovieCard
+                media={{
+                  id: movie.id,
+                  type: kind === "film" ? "movie" : "tv",
+                  title: movie.title,
+                  original_title: movie.original_title ?? movie.title ?? null,
+                  release_year: movie.release_year,
+                }}
+                hasDetails={false}
+              />
             </div>
           </div>
 
@@ -53,6 +62,7 @@ export async function MovieDetails({
                     id: movie.id,
                     type: kind === "film" ? "movie" : "tv",
                     title: movie.title,
+                    original_title: movie.original_title ?? movie.title ?? null,
                     release_year: movie.release_year,
                   }) || "",
                 )}`
