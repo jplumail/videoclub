@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import styles from "./navbar.module.css";
 import ytIconStyle from "@/components/styles/yt-icon.module.css";
@@ -9,11 +10,37 @@ import SearchBar from "@/components/SearchBar";
 
 const candal = Candal({ weight: "400", subsets: ["latin"] });
 
+type LinkDescriptor = {
+  href: string;
+  content: ReactNode;
+  matchPrefixes?: string[];
+};
+
+const normalizePath = (value: string) => value.replace(/\/$/, "");
+
+const isActive = (pathname: string | null, { href, matchPrefixes }: LinkDescriptor) => {
+  if (!pathname) {
+    return false;
+  }
+  const sanitizedPath = normalizePath(pathname);
+  const prefixes = (matchPrefixes?.length ? matchPrefixes : [href]).map(normalizePath);
+
+  return prefixes.some((prefix) => sanitizedPath === prefix || sanitizedPath.startsWith(`${prefix}/`));
+};
+
 export default function Navbar() {
   const pathname = usePathname();
-  const links = [
-    { href: "/film/meilleurs", content: <span>Top films</span> },
-    { href: "/serie/meilleures", content: <span>Top séries</span> },
+  const links: LinkDescriptor[] = [
+    {
+      href: "/film/meilleurs",
+      content: <span>Top films</span>,
+      matchPrefixes: ["/film"],
+    },
+    {
+      href: "/serie/meilleures",
+      content: <span>Top séries</span>,
+      matchPrefixes: ["/serie"],
+    },
     {
       href: "/video",
       content: (
@@ -26,17 +53,15 @@ export default function Navbar() {
   return (
     <nav className={`${styles.nav} ${candal.className}`}>
       <ul className={styles.list}>
-        {links.map(({ href, content }, key) => (
+        {links.map((link, key) => (
           <li key={key} className={styles.item}>
             <Link
-              href={href}
+              href={link.href}
               className={`${styles.link} ${
-                pathname?.replace(/\/$/, "").startsWith(href.replace(/\/$/, ""))
-                  ? styles.currentLink
-                  : ""
+                isActive(pathname, link) ? styles.currentLink : ""
               }`}
             >
-              {content}
+              {link.content}
             </Link>
           </li>
         ))}
