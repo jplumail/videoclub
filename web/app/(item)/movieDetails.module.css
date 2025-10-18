@@ -8,11 +8,11 @@
 }
 
 .heroContent {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .posterWrapper {
@@ -151,7 +151,8 @@
 
 @media screen and (min-width: 768px) {
   .heroContent {
-    grid-template-columns: 1fr 1fr;
+    flex-direction: row;
+    align-items: flex-start;
   }
   .posterWrapper {
     justify-content: end;
