@@ -53,10 +53,9 @@
   margin: 0;
 }
 
-.tmdbLink,
-.homepageLink {
-  font-weight: 600;
-  width: fit-content;
+.tmdbLink:hover,
+.homepageLink:hover {
+  text-decoration: underline;
 }
 
 .tagline {

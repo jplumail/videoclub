@@ -30,7 +30,6 @@ export async function MovieDetails({
   })();
   const infoItems: { label: string; value: ReactNode }[] = [
     { label: "Réalisateur", value: directorName },
-    { label: "Année", value: releaseYear ? releaseYear.toString() : "Inconnue" },
   ];
 
   if (tmdbDetails?.genres.length) {
@@ -38,8 +37,14 @@ export async function MovieDetails({
   }
 
   if (tmdbDetails?.runtimeMinutes && tmdbDetails.runtimeMinutes > 0) {
-    infoItems.push({ label: "Durée", value: `${tmdbDetails.runtimeMinutes} min` });
-  } else if (tmdbDetails?.episodeRuntimeMinutes && tmdbDetails.episodeRuntimeMinutes > 0) {
+    infoItems.push({
+      label: "Durée",
+      value: `${tmdbDetails.runtimeMinutes} min`,
+    });
+  } else if (
+    tmdbDetails?.episodeRuntimeMinutes &&
+    tmdbDetails.episodeRuntimeMinutes > 0
+  ) {
     infoItems.push({
       label: "Durée d’un épisode",
       value: `${tmdbDetails.episodeRuntimeMinutes} min`,
@@ -64,11 +69,53 @@ export async function MovieDetails({
 
   if (tmdbDetails?.originalTitle) {
     const normalizedDisplayedTitle = (movie.title ?? "").trim().toLowerCase();
-    const normalizedOriginalTitle = tmdbDetails.originalTitle.trim().toLowerCase();
-    if (normalizedOriginalTitle && normalizedOriginalTitle !== normalizedDisplayedTitle) {
-      infoItems.push({ label: "Titre original", value: tmdbDetails.originalTitle });
+    const normalizedOriginalTitle = tmdbDetails.originalTitle
+      .trim()
+      .toLowerCase();
+    if (
+      normalizedOriginalTitle &&
+      normalizedOriginalTitle !== normalizedDisplayedTitle
+    ) {
+      infoItems.push({
+        label: "Titre original",
+        value: tmdbDetails.originalTitle,
+      });
     }
   }
+
+  // add TMDB URL and homepage link if available
+  if (tmdbDetails?.tmdbUrl) {
+    infoItems.push({
+      label: "Fiche TMDB",
+      value: (
+        <a
+          className={styles.tmdbLink}
+          href={tmdbDetails.tmdbUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {tmdbDetails.tmdbUrl}
+        </a>
+      ),
+    });
+  }
+
+  if (tmdbDetails?.homepage) {
+    infoItems.push({
+      label: "Site officiel",
+      value: (
+        <a
+          className={styles.homepageLink}
+          href={tmdbDetails.homepage}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {tmdbDetails.homepage}
+        </a>
+      ),
+    });
+  }
+
   return (
     <>
       <h1 className={styles.movieTitle}>
@@ -98,26 +145,6 @@ export async function MovieDetails({
                 </div>
               ))}
             </dl>
-            {tmdbDetails?.tmdbUrl && (
-              <a
-                className={styles.tmdbLink}
-                href={tmdbDetails.tmdbUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Fiche TMDB
-              </a>
-            )}
-            {tmdbDetails?.homepage && (
-              <a
-                className={styles.homepageLink}
-                href={tmdbDetails.homepage}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Site officiel
-              </a>
-            )}
             {tmdbDetails?.tagline && (
               <p className={styles.tagline}>
                 &ldquo;{tmdbDetails.tagline}&rdquo;
