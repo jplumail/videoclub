@@ -49,15 +49,6 @@ export async function MovieDetails({
     });
   }
 
-  if (tmdbDetails && tmdbDetails.voteAverage !== null) {
-    const note = tmdbDetails.voteAverage.toFixed(1);
-    const voteDetails =
-      tmdbDetails.voteCount !== null
-        ? ` (${tmdbDetails.voteCount} vote${tmdbDetails.voteCount && tmdbDetails.voteCount > 1 ? "s" : ""})`
-        : "";
-    infoItems.push({ label: "Note TMDB", value: `${note} / 10${voteDetails}` });
-  }
-
   if (tmdbDetails?.originCountries.length) {
     infoItems.push({
       label: "Pays d’origine",
