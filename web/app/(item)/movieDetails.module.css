@@ -116,6 +116,18 @@
   line-height: 1.6;
 }
 
+.personLink {
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.personLink:hover {
+  color: var(--konbini-red);
+}
+
+
 @media screen and (min-width: 768px) {
   .heroContent {
     grid-template-columns: 1fr 1fr;

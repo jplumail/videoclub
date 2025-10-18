@@ -172,7 +172,7 @@ export async function MovieDetails({
                 />
                 <p className={personnaliteStyles.container}>
                   <Link
-                    className={personnaliteStyles.link}
+                    className={styles.personLink}
                     href={`/personne/${c.personnalite.person_id}`}
                   >
                     {c.personnalite.name}
