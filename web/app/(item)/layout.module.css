@@ -23,26 +23,6 @@
     margin-bottom: 2rem;
   }
 
-  & section:nth-of-type(1) {
-    & > div {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      justify-items: center;
-      gap: 2rem;
-      width: 100%;
-      margin: 0 auto;
-
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-      }
-
-      & p {
-        line-height: 1.6;
-        margin-bottom: 2rem;
-      }
-    }
-  }
   & h2 {
     margin: 1.25rem 0;
   }
