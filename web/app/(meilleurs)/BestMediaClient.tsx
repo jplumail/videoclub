@@ -51,6 +51,16 @@ export default function BestMediaClient({
           const citations = buildCitationItems(item.citations, title);
           const rank = index < 9 ? index + 1 : null;
           const isLcpCandidate = index === 0;
+          const itemId = item.media.id ?? undefined;
+          const detailHref =
+            itemId !== undefined
+              ? item.media.type === "movie"
+                ? `/film/${itemId}`
+                : `/serie/${itemId}`
+              : undefined;
+          const mediaAriaLabel = title
+            ? `Ouvrir la fiche : ${title}`
+            : "Ouvrir la fiche du média";
 
           return (
             <li key={item.id}>
@@ -75,6 +85,9 @@ export default function BestMediaClient({
                         )}
                       </div>
                     }
+                    mediaHref={detailHref}
+                    mediaAriaLabel={mediaAriaLabel}
+                    showMediaBadge={false}
                   >
                     <MovieCardDetails items={citations} />
                   </Card>

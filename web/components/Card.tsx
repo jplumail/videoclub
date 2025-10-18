@@ -19,6 +19,12 @@ export interface CardBaseProps {
   badgeText?: string;
   /** Optional handler triggered when clicking the media element. */
   onMediaClick?: () => void;
+  /** Optional explicit href used to wrap the media element in a Link. */
+  mediaHref?: string;
+  /** Accessible label announced when activating the media element. */
+  mediaAriaLabel?: string;
+  /** Whether to display the small badge when the media is wrapped in a Link. */
+  showMediaBadge?: boolean;
 }
 
 export function Card({
@@ -29,6 +35,9 @@ export function Card({
   hrefOverride,
   badgeText,
   onMediaClick,
+  mediaHref,
+  mediaAriaLabel,
+  showMediaBadge = true,
 }: CardBaseProps) {
   const [isActive, setIsActive] = useState(false);
   let href = "";
@@ -49,25 +58,32 @@ export function Card({
   }
 
   const effectiveHref = hrefOverride || href;
-  const wrapMediaWithLink = !hasDetails && Boolean(hrefOverride);
+  const wrapMediaWithLink = (!hasDetails && Boolean(hrefOverride)) || Boolean(mediaHref);
   const wrapMediaWithButton = Boolean(onMediaClick);
   const computedBadgeText =
     badgeText || (hrefOverride?.startsWith("/video/") ? "Voir l’extrait" : "Ouvrir");
-  const mediaAriaLabel = title
+  const defaultMediaAriaLabel = title
     ? `Aller au premier extrait : ${title}`
     : "Aller au premier extrait";
+  const effectiveMediaAriaLabel = mediaAriaLabel || defaultMediaAriaLabel;
 
   const mediaContent = wrapMediaWithLink ? (
-    // When details overlay is disabled on contexts like person page,
-    // and an explicit hrefOverride is provided, make the poster clickable.
-    <Link href={effectiveHref} aria-label={`${computedBadgeText}: ${title}`}>
-      <span className={styles.playBadge} aria-hidden="true">
-        {/* simple play icon */}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-        {computedBadgeText}
-      </span>
+    // Wrap the media in a Link either when the overlay is disabled with an
+    // explicit hrefOverride, or when a dedicated mediaHref is provided (e.g. best media pages).
+    <Link
+      href={mediaHref || effectiveHref}
+      aria-label={effectiveMediaAriaLabel}
+      className={styles.mediaLink}
+    >
+      {showMediaBadge && (
+        <span className={styles.playBadge} aria-hidden="true">
+          {/* simple play icon */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          {computedBadgeText}
+        </span>
+      )}
       {media}
     </Link>
   ) : wrapMediaWithButton ? (
@@ -75,7 +91,7 @@ export function Card({
       type="button"
       className={styles.mediaButton}
       onClick={onMediaClick}
-      aria-label={mediaAriaLabel}
+      aria-label={effectiveMediaAriaLabel}
     >
       {media}
     </button>
