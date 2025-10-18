@@ -71,7 +71,7 @@ export async function MovieDetails({
   }
   return (
     <>
-      <h1>
+      <h1 className={styles.movieTitle}>
         {movie.title}
         {release && <span> ({release.getFullYear().toString()})</span>}
       </h1>
