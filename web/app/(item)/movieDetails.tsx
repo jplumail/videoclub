@@ -6,6 +6,7 @@ import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 import { ConfigurationManager } from "@/lib/data/tmdb";
 import styles from "./movieDetails.module.css";
+import { MovieInfoPanel } from "./MovieInfoPanel";
 
 export async function MovieDetails({
   movie,
@@ -113,6 +114,7 @@ export async function MovieDetails({
 
   // add synopsis if available
   const synopsis = tmdbDetails?.overview;
+  const toggleId = `movie-info-${kind}-${movie.id ?? "unknown"}`;
 
   return (
     <>
@@ -134,26 +136,12 @@ export async function MovieDetails({
             />
           </div>
 
-          <div className={styles.infoColumn}>
-            <dl className={styles.infoList}>
-              {infoItems.map(({ label, value }) => (
-                <div className={styles.infoRow} key={label}>
-                  <dt className={styles.infoLabel}>{label}</dt>
-                  <dd className={styles.infoValue}>{value}</dd>
-                </div>
-              ))}
-            </dl>
-            {tmdbDetails?.tagline && (
-              <p className={styles.tagline}>
-                &ldquo;{tmdbDetails.tagline}&rdquo;
-              </p>
-            )}
-            {synopsis && (
-              <p className={styles.synopsis}>
-                {synopsis}
-              </p>
-            )}
-          </div>
+          <MovieInfoPanel
+            infoItems={infoItems}
+            tagline={tmdbDetails?.tagline}
+            synopsis={synopsis}
+            toggleId={toggleId}
+          />
         </div>
       </section>
 

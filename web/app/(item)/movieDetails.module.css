@@ -24,9 +24,16 @@
 .infoColumn {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   min-width: 240px;
+}
+
+.infoContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .infoList {
@@ -53,6 +60,47 @@
   margin: 0;
 }
 
+.mobileToggleInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mobileToggle {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mobileToggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.mobileToggleIcon {
+  display: inline-flex;
+  transition: transform 0.2s ease;
+}
+
+.mobileToggleIconOpen {
+  transform: rotate(90deg);
+}
+
+.mobileToggleTextOpen {
+  display: none;
+}
+
+.mobileToggleTextClosed {
+  display: inline;
+}
+
 .tmdbLink:hover,
 .homepageLink:hover {
   text-decoration: underline;
@@ -61,6 +109,11 @@
 .tagline {
   font-style: italic;
   margin: 0;
+}
+
+.synopsis {
+  margin: 0;
+  line-height: 1.6;
 }
 
 @media screen and (min-width: 768px) {
@@ -72,5 +125,35 @@
   }
   .infoColumn {
     align-items: flex-start;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .infoColumn {
+    min-width: unset;
+  }
+
+  .mobileToggle {
+    display: inline-flex;
+  }
+
+  .mobileToggleInput:not(:checked) ~ .infoContent {
+    display: none;
+  }
+
+  .mobileToggleInput:checked ~ .mobileToggle .mobileToggleIcon {
+    transform: rotate(90deg);
+  }
+
+  .mobileToggleInput:checked ~ .mobileToggle .mobileToggleTextOpen {
+    display: inline;
+  }
+
+  .mobileToggleInput:checked ~ .mobileToggle .mobileToggleTextClosed {
+    display: none;
+  }
+
+  .mobileToggleInput:checked ~ .infoContent {
+    display: flex;
   }
 }
