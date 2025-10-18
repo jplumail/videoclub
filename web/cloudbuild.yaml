@@ -16,8 +16,7 @@ steps:
       - -c
       - |
           set -euo pipefail
-          npm install -g corepack@latest
-          corepack enable
+          npm install -g pnpm@10.12.4 --force
           pnpm install --frozen-lockfile
   - id: build
     name: node
@@ -27,8 +26,7 @@ steps:
       - -c
       - |
           set -euo pipefail
-          npm install -g corepack@latest
-          corepack enable
+          npm install -g pnpm@10.12.4 --force
           pnpm build
   - id: deploy-hosting
     name: us-docker.pkg.dev/firebase-cli/us/firebase
