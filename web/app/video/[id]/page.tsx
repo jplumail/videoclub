@@ -51,6 +51,7 @@ export default async function Page({
           id: item.id,
           type: item.type,
           title: item.title,
+          original_title: item.original_title,
           release_year: item.release_year,
         },
         type: item.type,

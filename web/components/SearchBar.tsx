@@ -20,6 +20,7 @@ type SearchDocument = {
   kind: SearchKind;
   title: string;
   url: string;
+  aliases?: string[];
   metadata?: {
     releaseYear?: string | null;
   };
@@ -242,6 +243,13 @@ export default function SearchBar({ className }: SearchBarProps) {
               item.kind === "personne"
                 ? undefined
                 : year?.toString();
+            const alias =
+              item.kind === "personne"
+                ? undefined
+                : item.aliases?.find((value) => value.trim().length > 0);
+            const metaParts = [alias, subtitle].filter(
+              (value): value is string => Boolean(value),
+            );
             return (
               <li key={`${item.kind}-${item.id}`}>
                 <Link
@@ -254,7 +262,11 @@ export default function SearchBar({ className }: SearchBarProps) {
                 >
                   <span className={styles.kind}>{KIND_LABEL[item.kind]}</span>
                   <span className={styles.title}>{item.title}</span>
-                  {subtitle && <span className={styles.meta}>{subtitle}</span>}
+                  {metaParts.map((value) => (
+                    <span key={value} className={styles.meta}>
+                      {value}
+                    </span>
+                  ))}
                 </Link>
               </li>
             );

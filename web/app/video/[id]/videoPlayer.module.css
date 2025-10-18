@@ -34,13 +34,6 @@
   width: 100%;
 }
 
-.personnalites {
-  align-self: center;
-  margin-block: 0.5rem;
-  font-size: 1.6rem;
-  text-align: center;
-}
-
 @media (min-width: 1024px) {
   .videoPlayer {
     display: grid;
@@ -59,15 +52,4 @@
     display: flex;
     flex-direction: column;
   }
-}
-
-.personnaliteLink {
-  color: var(--konbini-red);
-  text-decoration: none;
-  font-weight: 700;
-  transition: color 0.2s ease;
-}
-
-.personnaliteLink:hover {
-  color: var(--konbini-yellow);
 }

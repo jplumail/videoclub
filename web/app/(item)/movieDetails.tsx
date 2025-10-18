@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { MediaIdData } from "@/lib/backend/types";
 import { MovieCard } from "@/components/MovieCard";
@@ -5,6 +6,7 @@ import { PersonCard } from "@/components/PersonCard";
 import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 import { ConfigurationManager } from "@/lib/data/tmdb";
+import personnaliteStyles from "@/components/styles/Personnalites.module.css";
 import styles from "./movieDetails.module.css";
 import { MovieInfoPanel } from "./MovieInfoPanel";
 
@@ -79,7 +81,6 @@ export async function MovieDetails({
     }
   }
 
-  // add TMDB URL and homepage link if available
   if (tmdbDetails?.tmdbUrl) {
     infoItems.push({
       label: "Fiche TMDB",
@@ -112,7 +113,6 @@ export async function MovieDetails({
     });
   }
 
-  // add synopsis if available
   const synopsis = tmdbDetails?.overview;
   const toggleId = `movie-info-${kind}-${movie.id ?? "unknown"}`;
 
@@ -130,6 +130,7 @@ export async function MovieDetails({
                 id: movie.id,
                 type: kind === "film" ? "movie" : "tv",
                 title: movie.title,
+                original_title: movie.original_title ?? movie.title ?? null,
                 release_year: movie.release_year,
               }}
               hasDetails={false}
@@ -156,6 +157,7 @@ export async function MovieDetails({
                     id: movie.id,
                     type: kind === "film" ? "movie" : "tv",
                     title: movie.title,
+                    original_title: movie.original_title ?? movie.title ?? null,
                     release_year: movie.release_year,
                   }) || "",
                 )}`
@@ -168,8 +170,13 @@ export async function MovieDetails({
                   hrefOverride={href}
                   badgeText="Voir l’extrait"
                 />
-                <p style={{ marginTop: ".5rem", fontSize: "1.4rem" }}>
-                  {c.personnalite.name}
+                <p className={personnaliteStyles.container}>
+                  <Link
+                    className={personnaliteStyles.link}
+                    href={`/personne/${c.personnalite.person_id}`}
+                  >
+                    {c.personnalite.name}
+                  </Link>
                 </p>
               </li>
             );
