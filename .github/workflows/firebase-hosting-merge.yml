@@ -38,6 +38,7 @@ jobs:
         env:
           DEPLOY_BRANCH: ${{ github.ref_name }}
         run: |
+          set -euo pipefail
           BUILD_ID=$(gcloud builds triggers run videoclub-web-rebuild \
             --project=videoclub-447210 \
             --region=europe-west9 \
@@ -47,3 +48,40 @@ jobs:
             echo "Failed to start Cloud Build run" >&2
             exit 1
           fi
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait For Cloud Build
+        if: steps.trigger.outputs.build_id != ''
+        env:
+          BUILD_ID: ${{ steps.trigger.outputs.build_id }}
+          PROJECT_ID: videoclub-447210
+          REGION: europe-west9
+        run: |
+          set -euo pipefail
+          poll_interval=15
+          max_attempts=160
+          attempt=0
+          while [ "$attempt" -lt "$max_attempts" ]; do
+            STATUS=$(gcloud builds describe "${BUILD_ID}" \
+              --project="${PROJECT_ID}" \
+              --region="${REGION}" \
+              --format='value(status)')
+            if [ "${STATUS}" = "SUCCESS" ]; then
+              echo "Cloud Build ${BUILD_ID} finished successfully."
+              exit 0
+            fi
+            if [ "${STATUS}" = "QUEUED" ] || [ "${STATUS}" = "WORKING" ]; then
+              attempt=$((attempt + 1))
+              echo "Cloud Build status is ${STATUS}. Waiting (${attempt}/${max_attempts})..."
+              sleep "${poll_interval}"
+              continue
+            fi
+            echo "Cloud Build ${BUILD_ID} finished with status: ${STATUS}" >&2
+            echo "Fetching Cloud Build logs for context..."
+            gcloud builds log "${BUILD_ID}" \
+              --project="${PROJECT_ID}" \
+              --region="${REGION}" || true
+            exit 1
+          done
+          echo "Cloud Build ${BUILD_ID} did not finish within $((poll_interval * max_attempts)) seconds." >&2
+          exit 1
