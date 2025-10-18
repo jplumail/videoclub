@@ -126,6 +126,11 @@
   text-align: center;
 }
 
+.citedItem:hover .personLink,
+.citedItem:focus-within .personLink {
+  color: var(--konbini-red);
+}
+
 .citedHeading {
   margin: 0;
   font-size: 2rem;

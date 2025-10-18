@@ -170,7 +170,7 @@ export async function MovieDetails({
                 )}`
               : "#";
             return (
-              <li key={index}>
+              <li key={index} className={styles.citedItem}>
                 <PersonCard
                   person={c.personnalite}
                   hasDetails={false}
