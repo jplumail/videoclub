@@ -21,6 +21,7 @@ function YoutubeIframePlayer({
   seekVersion: number;
   maxHeight?: number | null;
 }) {
+  const lastAutoMutedHashRef = useRef<string | null>(null);
   const youtubePlayer = useYoutubePlayer(
     videoId,
     () => {
@@ -34,9 +35,14 @@ function YoutubeIframePlayer({
   useEffect(() => {
     if (youtubePlayer.isAPIReady && youtubePlayer.player && timecode) {
       youtubePlayer.player.seekTo(timecode, true);
-      if (window.location.hash) {
+      const currentHash = typeof window !== "undefined" ? window.location.hash : "";
+      if (!currentHash) {
+        lastAutoMutedHashRef.current = null;
+      }
+      if (currentHash && lastAutoMutedHashRef.current !== currentHash) {
         youtubePlayer.player.mute();
         youtubePlayer.player.playVideo();
+        lastAutoMutedHashRef.current = currentHash;
       }
     }
   }, [timecode, seekVersion, youtubePlayer.isAPIReady, youtubePlayer.player]);
@@ -101,8 +107,18 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
 
   // Récupérer le hash une fois le composant monté
   useEffect(() => {
-    const hash = window.location.hash.slice(1);
-    setMovieSlug(hash);
+    if (typeof window === "undefined") return;
+
+    const syncHashFromLocation = () => {
+      const hash = window.location.hash.slice(1);
+      setMovieSlug(hash);
+    };
+
+    syncHashFromLocation();
+    window.addEventListener("hashchange", syncHashFromLocation);
+    return () => {
+      window.removeEventListener("hashchange", syncHashFromLocation);
+    };
   }, []);
 
   // Mettre à jour le timecode dès que le movieSlug ou movies changent
