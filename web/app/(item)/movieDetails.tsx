@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { MediaIdData } from "@/lib/backend/types";
 import { MovieCard } from "@/components/MovieCard";
 import { PersonCard } from "@/components/PersonCard";
 import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 import { ConfigurationManager } from "@/lib/data/tmdb";
+import personnaliteStyles from "@/components/styles/Personnalites.module.css";
 
 export async function MovieDetails({
   movie,
@@ -63,8 +65,13 @@ export async function MovieDetails({
                   hrefOverride={href}
                   badgeText="Voir l’extrait"
                 />
-                <p style={{ marginTop: ".5rem", fontSize: "1.4rem" }}>
-                  {c.personnalite.name}
+                <p className={personnaliteStyles.container}>
+                  <Link
+                    className={personnaliteStyles.link}
+                    href={`/personne/${c.personnalite.person_id}`}
+                  >
+                    {c.personnalite.name}
+                  </Link>
                 </p>
               </li>
             );
