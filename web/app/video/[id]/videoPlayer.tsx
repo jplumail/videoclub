@@ -3,11 +3,12 @@
 import type { CSSProperties } from "react";
 import type { Personnalite, VideoDataFull } from "@/lib/backend/types";
 import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
+import Link from "next/link";
+import { getTitle, slugify } from "@/lib/utils";
 import { MovieDataTimestamps, Timeline } from "./Timeline";
 import { useYoutubePlayer } from "@/lib/hooks/useYoutubePlayer";
 import styles from "./videoPlayer.module.css";
-import Link from "next/link";
-import { getTitle, slugify } from "@/lib/utils";
+import personnaliteStyles from "@/components/styles/Personnalites.module.css";
 
 function YoutubeIframePlayer({
   videoId,
@@ -52,7 +53,7 @@ function YoutubeIframePlayer({
 }
 
 const PersonLink = ({ person }: { person: Personnalite }) => (
-  <Link className={styles.personnaliteLink} href={`/personne/${person.person_id}`}>
+  <Link className={personnaliteStyles.link} href={`/personne/${person.person_id}`}>
     {person.name}
   </Link>
 );
@@ -152,7 +153,7 @@ export default function VideoPlayer({ video, movies }: VideoPlayerProps) {
           seekVersion={timecodeRequest.nonce}
           maxHeight={playerMaxHeight}
         />
-        <p className={styles.personnalites}>{formatPersonnalites(personnalites)}</p>
+        <p className={personnaliteStyles.container}>{formatPersonnalites(personnalites)}</p>
       </section>
       <aside className={styles.timelineWrapper}>
         <Timeline movies={movies} setTimecode={requestTimecode} />
