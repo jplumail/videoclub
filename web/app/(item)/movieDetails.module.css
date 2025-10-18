@@ -8,8 +8,8 @@
 }
 
 .heroContent {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 2rem;
   justify-content: center;
   align-items: flex-start;
@@ -24,9 +24,9 @@
 .infoColumn {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   min-width: 240px;
-  max-width: 420px;
 }
 
 .infoList {
@@ -63,19 +63,14 @@
   margin: 0;
 }
 
-@media (max-width: 768px) {
+@media screen and (min-width: 768px) {
+  .heroContent {
+    grid-template-columns: 1fr 1fr;
+  }
+  .posterWrapper {
+    justify-content: end;
+  }
   .infoColumn {
-    width: 100%;
-  }
-
-  .infoRow {
-    grid-template-columns: 1fr;
-    row-gap: 0.25rem;
-  }
-
-  .infoLabel {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 1.2rem;
+    align-items: flex-start;
   }
 }

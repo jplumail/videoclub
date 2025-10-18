@@ -29,6 +29,7 @@ export interface TmdbMediaDetails {
   originalTitle: string | null;
   tagline: string | null;
   homepage: string | null;
+  overview: string | null;
 }
 
 interface TmdbCreditsResponse {
@@ -59,6 +60,7 @@ interface TmdbCreditsResponse {
   original_name?: string | null;
   tagline?: string | null;
   homepage?: string | null;
+  overview?: string | null;
 }
 
 import { createLimiter, fetchWithRetry, type RetryOptions } from "../utils/http";
@@ -303,6 +305,7 @@ export class ConfigurationManager {
         : data.original_name?.trim() ?? null;
     const tagline = data.tagline?.trim() ? data.tagline.trim() : null;
     const homepage = data.homepage?.trim() || null;
+    const overview = data.overview?.trim() || null;
 
     const result: TmdbMediaDetails = {
       directors,
@@ -317,6 +320,7 @@ export class ConfigurationManager {
       originalTitle,
       tagline,
       homepage,
+      overview
     };
     this.mediaDetailsCache.set(key, result);
     return result;

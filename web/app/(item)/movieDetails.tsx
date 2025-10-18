@@ -23,11 +23,6 @@ export async function MovieDetails({
     tmdbDetails && tmdbDetails.directors.length > 0
       ? tmdbDetails.directors.join(", ")
       : "Aucune information disponible.";
-  const releaseYear = (() => {
-    if (release) return release.getFullYear();
-    if (tmdbDetails?.releaseYear) return tmdbDetails.releaseYear;
-    return null;
-  })();
   const infoItems: { label: string; value: ReactNode }[] = [
     { label: "Réalisateur", value: directorName },
   ];
@@ -116,6 +111,9 @@ export async function MovieDetails({
     });
   }
 
+  // add synopsis if available
+  const synopsis = tmdbDetails?.overview;
+
   return (
     <>
       <h1 className={styles.movieTitle}>
@@ -148,6 +146,11 @@ export async function MovieDetails({
             {tmdbDetails?.tagline && (
               <p className={styles.tagline}>
                 &ldquo;{tmdbDetails.tagline}&rdquo;
+              </p>
+            )}
+            {synopsis && (
+              <p className={styles.synopsis}>
+                {synopsis}
               </p>
             )}
           </div>
