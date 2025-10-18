@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
 import { MediaIdData } from "@/lib/backend/types";
 import { MovieCard } from "@/components/MovieCard";
 import { PersonCard } from "@/components/PersonCard";
 import Gallery from "@/components/Gallery";
 import { getTitle, slugify } from "@/lib/utils";
 import { ConfigurationManager } from "@/lib/data/tmdb";
+import styles from "./movieDetails.module.css";
 
 export async function MovieDetails({
   movie,
@@ -13,44 +15,114 @@ export async function MovieDetails({
   kind: "film" | "serie";
 }) {
   const release = movie.release_year ? new Date(movie.release_year) : null;
-  const directionDetails = await ConfigurationManager.getDirectionDetailsById(
+  const tmdbDetails = await ConfigurationManager.getMediaDetailsById(
     kind === "film" ? "movie" : "tv",
     movie.id,
   );
   const directorName =
-    directionDetails && directionDetails.directors.length > 0
-      ? directionDetails.directors.join(", ")
+    tmdbDetails && tmdbDetails.directors.length > 0
+      ? tmdbDetails.directors.join(", ")
       : "Aucune information disponible.";
+  const releaseYear = (() => {
+    if (release) return release.getFullYear();
+    if (tmdbDetails?.releaseYear) return tmdbDetails.releaseYear;
+    return null;
+  })();
+  const infoItems: { label: string; value: ReactNode }[] = [
+    { label: "Réalisateur", value: directorName },
+    { label: "Année", value: releaseYear ? releaseYear.toString() : "Inconnue" },
+  ];
+
+  if (tmdbDetails?.genres.length) {
+    infoItems.push({ label: "Genres", value: tmdbDetails.genres.join(", ") });
+  }
+
+  if (tmdbDetails?.runtimeMinutes && tmdbDetails.runtimeMinutes > 0) {
+    infoItems.push({ label: "Durée", value: `${tmdbDetails.runtimeMinutes} min` });
+  } else if (tmdbDetails?.episodeRuntimeMinutes && tmdbDetails.episodeRuntimeMinutes > 0) {
+    infoItems.push({
+      label: "Durée d’un épisode",
+      value: `${tmdbDetails.episodeRuntimeMinutes} min`,
+    });
+  }
+
+  if (tmdbDetails && tmdbDetails.voteAverage !== null) {
+    const note = tmdbDetails.voteAverage.toFixed(1);
+    const voteDetails =
+      tmdbDetails.voteCount !== null
+        ? ` (${tmdbDetails.voteCount} vote${tmdbDetails.voteCount && tmdbDetails.voteCount > 1 ? "s" : ""})`
+        : "";
+    infoItems.push({ label: "Note TMDB", value: `${note} / 10${voteDetails}` });
+  }
+
+  if (tmdbDetails?.originCountries.length) {
+    infoItems.push({
+      label: "Pays d’origine",
+      value: tmdbDetails.originCountries.join(", "),
+    });
+  }
+
+  if (tmdbDetails?.originalTitle) {
+    const normalizedDisplayedTitle = (movie.title ?? "").trim().toLowerCase();
+    const normalizedOriginalTitle = tmdbDetails.originalTitle.trim().toLowerCase();
+    if (normalizedOriginalTitle && normalizedOriginalTitle !== normalizedDisplayedTitle) {
+      infoItems.push({ label: "Titre original", value: tmdbDetails.originalTitle });
+    }
+  }
   return (
     <>
       <h1>
         {movie.title}
         {release && <span> ({release.getFullYear().toString()})</span>}
       </h1>
-      <section>
-        <div>
-          <div>
-            <div style={{ marginBottom: "1rem" }}>
-              <MovieCard media={{ id: movie.id, type: kind === "film" ? "movie" : "tv", title: movie.title, release_year: movie.release_year }} hasDetails={false} />
-            </div>
+      <section className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <div className={styles.posterWrapper}>
+            <MovieCard
+              media={{
+                id: movie.id,
+                type: kind === "film" ? "movie" : "tv",
+                title: movie.title,
+                release_year: movie.release_year,
+              }}
+              hasDetails={false}
+            />
           </div>
 
-          <div>
-            <section>
-              <h2>Réalisation</h2>
-              <p>{directorName}</p>
-              {directionDetails?.tmdbUrl && (
-                <p>
-                  <a
-                    href={directionDetails.tmdbUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Voir la fiche sur TMDB
-                  </a>
-                </p>
-              )}
-            </section>
+          <div className={styles.infoColumn}>
+            <dl className={styles.infoList}>
+              {infoItems.map(({ label, value }) => (
+                <div className={styles.infoRow} key={label}>
+                  <dt className={styles.infoLabel}>{label}</dt>
+                  <dd className={styles.infoValue}>{value}</dd>
+                </div>
+              ))}
+            </dl>
+            {tmdbDetails?.tmdbUrl && (
+              <a
+                className={styles.tmdbLink}
+                href={tmdbDetails.tmdbUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Fiche TMDB
+              </a>
+            )}
+            {tmdbDetails?.homepage && (
+              <a
+                className={styles.homepageLink}
+                href={tmdbDetails.homepage}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Site officiel
+              </a>
+            )}
+            {tmdbDetails?.tagline && (
+              <p className={styles.tagline}>
+                &ldquo;{tmdbDetails.tagline}&rdquo;
+              </p>
+            )}
           </div>
         </div>
       </section>

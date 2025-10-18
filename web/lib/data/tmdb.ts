@@ -16,10 +16,20 @@ export interface ImageUrl {
   height: number;
 }
 
-type DirectionDetails = {
+export interface TmdbMediaDetails {
   directors: string[];
   tmdbUrl: string | null;
-};
+  releaseYear: number | null;
+  runtimeMinutes: number | null;
+  episodeRuntimeMinutes: number | null;
+  genres: string[];
+  voteAverage: number | null;
+  voteCount: number | null;
+  originCountries: string[];
+  originalTitle: string | null;
+  tagline: string | null;
+  homepage: string | null;
+}
 
 interface TmdbCreditsResponse {
   credits?: {
@@ -31,6 +41,24 @@ interface TmdbCreditsResponse {
   created_by?: Array<{
     name?: string | null;
   }>;
+  release_date?: string | null;
+  first_air_date?: string | null;
+  runtime?: number | null;
+  episode_run_time?: number[];
+  genres?: Array<{
+    name?: string | null;
+  }>;
+  vote_average?: number | null;
+  vote_count?: number | null;
+  origin_country?: string[];
+  production_countries?: Array<{
+    iso_3166_1?: string | null;
+    name?: string | null;
+  }>;
+  original_title?: string | null;
+  original_name?: string | null;
+  tagline?: string | null;
+  homepage?: string | null;
 }
 
 import { createLimiter, fetchWithRetry, type RetryOptions } from "../utils/http";
@@ -40,7 +68,7 @@ export class ConfigurationManager {
   private static readonly baseUrl = "https://api.themoviedb.org/3";
   private static posterPathCache = new Map<string, string | null>();
   private static profilePathCache = new Map<string, string | null>();
-  private static directionCache = new Map<string, DirectionDetails | null>();
+  private static mediaDetailsCache = new Map<string, TmdbMediaDetails | null>();
   private static readonly MAX_CONCURRENT_REQUESTS = 4;
   private static limiter = createLimiter(this.MAX_CONCURRENT_REQUESTS);
   private static configPromise: Promise<ConfigurationDetails> | null = null;
@@ -197,18 +225,18 @@ export class ConfigurationManager {
     return this.getProfileUrl(profilePath);
   }
 
-  public static async getDirectionDetailsById(
+  public static async getMediaDetailsById(
     type: "movie" | "tv",
     id: number | null,
     language: string = "fr-FR",
-  ): Promise<DirectionDetails | null> {
+  ): Promise<TmdbMediaDetails | null> {
     if (!id) return null;
     const key = `${type}:${id}:${language}`;
-    if (this.directionCache.has(key)) return this.directionCache.get(key) ?? null;
+    if (this.mediaDetailsCache.has(key)) return this.mediaDetailsCache.get(key) ?? null;
     const query = new URLSearchParams({ language, append_to_response: "credits" });
     const data = await this.tmdbJson<TmdbCreditsResponse>(`/${type}/${id}?${query.toString()}`);
     if (!data) {
-      this.directionCache.set(key, null);
+      this.mediaDetailsCache.set(key, null);
       return null;
     }
 
@@ -226,11 +254,71 @@ export class ConfigurationManager {
 
     const directors = Array.from(new Set(directorCandidates.map((name) => name.trim())));
     const tmdbUrl = `https://www.themoviedb.org/${type}/${id}`;
-    const result: DirectionDetails = {
+
+    const releaseDate = (type === "movie" ? data.release_date : data.first_air_date) ?? null;
+    const releaseYear = (() => {
+      if (!releaseDate) return null;
+      const parsed = new Date(releaseDate);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.getFullYear();
+    })();
+    const runtimeMinutes =
+      type === "movie" && typeof data.runtime === "number" && data.runtime > 0
+        ? data.runtime
+        : null;
+    const episodeRuntimeMinutes =
+      type === "tv"
+        ? data.episode_run_time?.find((value) => typeof value === "number" && value > 0) ?? null
+        : null;
+    const genres = Array.isArray(data.genres)
+      ? data.genres
+          .map((genre) => genre?.name?.trim())
+          .filter((name): name is string => Boolean(name && name.length > 0))
+      : [];
+    const voteAverage =
+      typeof data.vote_average === "number" && !Number.isNaN(data.vote_average)
+        ? data.vote_average
+        : null;
+    const voteCount =
+      typeof data.vote_count === "number" && Number.isFinite(data.vote_count)
+        ? data.vote_count
+        : null;
+    const originCountries = (() => {
+      const productionCountries = Array.isArray(data.production_countries)
+        ? data.production_countries
+            .map((country) => country?.name?.trim() || country?.iso_3166_1?.trim())
+            .filter((name): name is string => Boolean(name && name.length > 0))
+        : [];
+      if (productionCountries.length > 0) return Array.from(new Set(productionCountries));
+      if (Array.isArray(data.origin_country)) {
+        const fromOrigin = data.origin_country
+          .map((code) => code?.trim())
+          .filter((code): code is string => Boolean(code && code.length > 0));
+        return Array.from(new Set(fromOrigin));
+      }
+      return [];
+    })();
+    const originalTitle =
+      type === "movie"
+        ? data.original_title?.trim() ?? null
+        : data.original_name?.trim() ?? null;
+    const tagline = data.tagline?.trim() ? data.tagline.trim() : null;
+    const homepage = data.homepage?.trim() || null;
+
+    const result: TmdbMediaDetails = {
       directors,
       tmdbUrl,
+      releaseYear,
+      runtimeMinutes,
+      episodeRuntimeMinutes,
+      genres,
+      voteAverage,
+      voteCount,
+      originCountries,
+      originalTitle,
+      tagline,
+      homepage,
     };
-    this.directionCache.set(key, result);
+    this.mediaDetailsCache.set(key, result);
     return result;
   }
 }
