@@ -115,6 +115,8 @@ export async function MovieDetails({
 
   const synopsis = tmdbDetails?.overview;
   const toggleId = `movie-info-${kind}-${movie.id ?? "unknown"}`;
+  const citedCount = movie.citations.length;
+  const citedLabel = citedCount > 1 ? "personnes" : "personne";
 
   return (
     <>
@@ -146,8 +148,13 @@ export async function MovieDetails({
         </div>
       </section>
 
-      <section>
-        <h2>Cité par</h2>
+      <section className={styles.citedSection}>
+        <h2 className={styles.citedHeading}>
+          Cité par{" "}
+          <span className={styles.citedCount}>
+            {citedCount} {citedLabel}
+          </span>
+        </h2>
         <Gallery>
           {movie.citations.map((c, index) => {
             const first = c.videoIds[0];

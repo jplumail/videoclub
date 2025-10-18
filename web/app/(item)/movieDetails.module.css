@@ -116,6 +116,25 @@
   line-height: 1.6;
 }
 
+.citedSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.citedHeading {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.citedCount {
+  color: var(--konbini-red);
+  font-weight: 700;
+}
+
 .personLink {
   color: white;
   text-decoration: none;
@@ -124,7 +143,7 @@
 }
 
 .personLink:hover {
-  color: var(--konbini-red);
+  color: var(--konbini-yellow);
 }
 
 
