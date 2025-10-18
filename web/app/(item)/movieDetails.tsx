@@ -13,10 +13,14 @@ export async function MovieDetails({
   kind: "film" | "serie";
 }) {
   const release = movie.release_year ? new Date(movie.release_year) : null;
-  const overview = await ConfigurationManager.getOverviewById(
+  const directionDetails = await ConfigurationManager.getDirectionDetailsById(
     kind === "film" ? "movie" : "tv",
     movie.id,
   );
+  const directorName =
+    directionDetails && directionDetails.directors.length > 0
+      ? directionDetails.directors.join(", ")
+      : "Aucune information disponible.";
   return (
     <>
       <h1>
@@ -33,8 +37,19 @@ export async function MovieDetails({
 
           <div>
             <section>
-              <h2>Résumé</h2>
-              <p>{overview ?? "Aucun résumé disponible."}</p>
+              <h2>Réalisation</h2>
+              <p>{directorName}</p>
+              {directionDetails?.tmdbUrl && (
+                <p>
+                  <a
+                    href={directionDetails.tmdbUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Voir la fiche sur TMDB
+                  </a>
+                </p>
+              )}
             </section>
           </div>
         </div>

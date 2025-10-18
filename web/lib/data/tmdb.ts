@@ -16,6 +16,23 @@ export interface ImageUrl {
   height: number;
 }
 
+type DirectionDetails = {
+  directors: string[];
+  tmdbUrl: string | null;
+};
+
+interface TmdbCreditsResponse {
+  credits?: {
+    crew?: Array<{
+      job?: string | null;
+      name?: string | null;
+    }>;
+  };
+  created_by?: Array<{
+    name?: string | null;
+  }>;
+}
+
 import { createLimiter, fetchWithRetry, type RetryOptions } from "../utils/http";
 
 export class ConfigurationManager {
@@ -23,7 +40,7 @@ export class ConfigurationManager {
   private static readonly baseUrl = "https://api.themoviedb.org/3";
   private static posterPathCache = new Map<string, string | null>();
   private static profilePathCache = new Map<string, string | null>();
-  private static overviewCache = new Map<string, string | null>();
+  private static directionCache = new Map<string, DirectionDetails | null>();
   private static readonly MAX_CONCURRENT_REQUESTS = 4;
   private static limiter = createLimiter(this.MAX_CONCURRENT_REQUESTS);
   private static configPromise: Promise<ConfigurationDetails> | null = null;
@@ -180,24 +197,40 @@ export class ConfigurationManager {
     return this.getProfileUrl(profilePath);
   }
 
-  public static async getOverviewById(
+  public static async getDirectionDetailsById(
     type: "movie" | "tv",
     id: number | null,
     language: string = "fr-FR",
-  ): Promise<string | null> {
+  ): Promise<DirectionDetails | null> {
     if (!id) return null;
     const key = `${type}:${id}:${language}`;
-    if (this.overviewCache.has(key)) return this.overviewCache.get(key) ?? null;
-    const query = new URLSearchParams({ language });
-    const data = await this.tmdbJson<{ overview?: string | null }>(`/${type}/${id}?${query.toString()}`);
-    let overview: string | null = data?.overview ?? null;
-    if (!overview || overview.trim() === "") {
-      const dataEn = await this.tmdbJson<{ overview?: string | null }>(`/${type}/${id}?language=en-US`);
-      overview = dataEn?.overview ?? null;
+    if (this.directionCache.has(key)) return this.directionCache.get(key) ?? null;
+    const query = new URLSearchParams({ language, append_to_response: "credits" });
+    const data = await this.tmdbJson<TmdbCreditsResponse>(`/${type}/${id}?${query.toString()}`);
+    if (!data) {
+      this.directionCache.set(key, null);
+      return null;
     }
-    const normalized = overview && overview.trim() !== "" ? overview : null;
-    this.overviewCache.set(key, normalized);
-    return normalized;
-  }
 
+    const crew = data.credits?.crew ?? [];
+    let directorCandidates = crew
+      .filter((member) => (member.job ?? "").toLowerCase() === "director")
+      .map((member) => member.name)
+      .filter((name): name is string => !!name && name.trim().length > 0);
+
+    if (type === "tv" && directorCandidates.length === 0 && Array.isArray(data.created_by)) {
+      directorCandidates = data.created_by
+        .map((creator) => creator?.name)
+        .filter((name): name is string => !!name && name.trim().length > 0);
+    }
+
+    const directors = Array.from(new Set(directorCandidates.map((name) => name.trim())));
+    const tmdbUrl = `https://www.themoviedb.org/${type}/${id}`;
+    const result: DirectionDetails = {
+      directors,
+      tmdbUrl,
+    };
+    this.directionCache.set(key, result);
+    return result;
+  }
 }
