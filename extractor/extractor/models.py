@@ -15,6 +15,7 @@ class MediaItemWithTime:
     id: int | None
     type: Literal["movie", "tv"]
     title: str | None
+    original_title: str | None
     release_year: date | None
     start_time: int
     end_time: int
@@ -54,6 +55,7 @@ class MediaIdData(BaseModel):
     """/data/film/{id}.json and /data/serie/{id}.json"""
     id: int | None
     title: str | None
+    original_title: str | None = None
     release_year: date | None
     citations: list[CitationPersonnalite]
 
@@ -63,6 +65,7 @@ class MediaItem:
     id: int | None
     type: Literal["movie", "tv"]
     title: str | None
+    original_title: str | None
     release_year: date | None
 
 

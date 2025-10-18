@@ -14,18 +14,22 @@ export interface BestMediaData {
 export interface CitationMediaWithName {
   media: MediaItem;
   citations: CitationWithName[];
+  [k: string]: unknown;
 }
 export interface MediaItem {
   id: number | null;
   type: "movie" | "tv";
   title: string | null;
+  original_title: string | null;
   release_year: string | null;
+  [k: string]: unknown;
 }
 export interface CitationWithName {
   videoId: string;
   start_time: number;
   end_time: number;
   name: string | null;
+  [k: string]: unknown;
 }
 /**
  * Présence d'un index des IDs dans /data/{type}/index.json
@@ -39,16 +43,19 @@ export interface Index {
 export interface MediaIdData {
   id: number | null;
   title: string | null;
+  original_title?: string | null;
   release_year: string | null;
   citations: CitationPersonnalite[];
 }
 export interface CitationPersonnalite {
   personnalite: Personnalite;
   videoIds: string[];
+  [k: string]: unknown;
 }
 export interface Personnalite {
   name: string | null;
   person_id: number | null;
+  [k: string]: unknown;
 }
 /**
  * /data/personne/{id}.json
@@ -62,15 +69,18 @@ export interface VideoDataShort {
   video_id: string;
   name: string;
   release_date: string;
+  [k: string]: unknown;
 }
 export interface CitationMedia {
   media: MediaItem;
   citations: Citation[];
+  [k: string]: unknown;
 }
 export interface Citation {
   videoId: string;
   start_time: number;
   end_time: number;
+  [k: string]: unknown;
 }
 /**
  * /data/videos/{video_id}/video.json
@@ -84,9 +94,11 @@ export interface MediaItemWithTime {
   id: number | null;
   type: "movie" | "tv";
   title: string | null;
+  original_title: string | null;
   release_year: string | null;
   start_time: number;
   end_time: number;
+  [k: string]: unknown;
 }
 /**
  * /data/video.json (feed)

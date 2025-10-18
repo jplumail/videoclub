@@ -11,6 +11,7 @@ interface BaseDocument {
   kind: SearchKind;
   title: string;
   url: string;
+  aliases?: string[];
   metadata?: {
     releaseYear?: string | null;
   };
@@ -32,11 +33,24 @@ async function getMediaDocuments(
       idsChunk.map(async (id) => {
         const media: MediaIdData = await BucketManager.getMediaById(kind, id);
         if (!media || !media.title) return null;
+        const aliases = new Set<string>();
+        const originalTitle = media.original_title?.trim();
+        if (originalTitle && originalTitle.length > 0) {
+          aliases.add(originalTitle);
+        }
+        const normalizedTitle = media.title.trim().toLowerCase();
+        const normalizedAliases = Array.from(aliases)
+          .map((alias) => alias.trim())
+          .filter((alias) => alias.length > 0)
+          .filter(
+            (alias) => alias.toLowerCase() !== normalizedTitle,
+          );
         return {
           id,
           kind,
           title: media.title,
           url: `/${kind}/${id}`,
+          aliases: normalizedAliases.length ? normalizedAliases : undefined,
           metadata: {
             releaseYear: media.release_year,
           },
@@ -108,7 +122,7 @@ async function main() {
 
   const documents = [...films, ...series, ...people];
 
-  const fuseKeys = ["title"] as const;
+  const fuseKeys = ["title", "aliases"] as const;
   console.log(
     `Indexing ${documents.length} documents with keys: ${fuseKeys.join(", ")}`,
   );

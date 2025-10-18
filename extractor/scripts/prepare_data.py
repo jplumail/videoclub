@@ -115,6 +115,11 @@ async def build_media_data(
                 if m.media_item.type == "movie"
                 else m.media_item.details.name
             ),
+            original_title=(
+                m.media_item.details.original_title
+                if m.media_item.type == "movie"
+                else m.media_item.details.original_name
+            ),
             release_year=m.media_item.release_year,
             start_time=m.start_time.seconds,
             end_time=m.end_time.seconds,
@@ -296,6 +301,7 @@ async def export_media_by_id(
         film_data = MediaIdData(
             id=movie_id,
             title=movie_data[0][1].title,
+            original_title=movie_data[0][1].original_title,
             release_year=movie_data[0][1].release_year,
             citations=citations,
         )
@@ -330,6 +336,7 @@ async def export_media_by_id(
         film_data = MediaIdData(
             id=serie_id,
             title=serie_data[0][1].title,
+            original_title=serie_data[0][1].original_title,
             release_year=serie_data[0][1].release_year,
             citations=citations,
         )
@@ -351,15 +358,23 @@ async def export_person_by_id(
         person_rows = [
             (video_id, m, p) for video_id, m, p in database if p.person_id == person_id
         ]
-        media_items = set(
-            [(m.id, m.type, m.title, m.release_year) for _, m, _ in person_rows]
-        )
+        media_items = {
+            (
+                m.id,
+                m.type,
+                m.title,
+                m.original_title,
+                m.release_year,
+            )
+            for _, m, _ in person_rows
+        }
         citations = [
             CitationMedia(
                 media=MediaItem(
                     id=media_id,
                     type=media_type,  # type: ignore
                     title=media_title,
+                    original_title=media_original_title,
                     release_year=media_release_year,
                 ),
                 citations=[
@@ -372,7 +387,13 @@ async def export_person_by_id(
                     if m.id == media_id
                 ],
             )
-            for media_id, media_type, media_title, media_release_year in media_items
+            for (
+                media_id,
+                media_type,
+                media_title,
+                media_original_title,
+                media_release_year,
+            ) in media_items
         ]
         unique_video_ids = {
             video_data.video_id
@@ -419,6 +440,7 @@ async def export_best_media(
                         id=m.id,
                         type=m.type,
                         title=m.title,
+                        original_title=m.original_title,
                         release_year=m.release_year,
                     ),
                     citations=[],
@@ -451,6 +473,7 @@ async def export_best_media(
                         id=m.id,
                         type=m.type,
                         title=m.title,
+                        original_title=m.original_title,
                         release_year=m.release_year,
                     ),
                     citations=[],
